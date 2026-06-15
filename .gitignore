@@ -21,3 +21,6 @@ dist-ssr
 *.sw?
 .vercel
 .playwright-mcp/
+
+# Docs interne de planificare (nu fac parte din produs)
+Inspiratie/

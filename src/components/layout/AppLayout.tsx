@@ -80,10 +80,10 @@ function TopNav() {
 export function AppLayout() {
   return (
     <ActiveMemberProvider>
-      <div className="mx-auto flex min-h-full max-w-3xl flex-col bg-white shadow-sm">
+      <div className="mx-auto flex min-h-full max-w-5xl flex-col bg-white shadow-sm">
         <Header />
         <TopNav />
-        <main className="flex-1 p-4">
+        <main className="flex-1 p-4 sm:p-6">
           <Outlet />
         </main>
       </div>

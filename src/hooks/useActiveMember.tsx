@@ -32,15 +32,28 @@ type ActiveMemberValue = {
 
 const ActiveMemberContext = createContext<ActiveMemberValue | undefined>(undefined)
 
+const LS_KEY = 'qapp-membri:activeClientId'
+
 export function ActiveMemberProvider({ children }: { children: ReactNode }) {
   const { data: members = [], isLoading } = useQuery({
     queryKey: ['membri-familie'],
     queryFn: fetchMembers,
   })
-  const [activeClientId, setActiveClientId] = useState<string | null>(null)
+  const [activeClientId, setActiveClientIdState] = useState<string | null>(
+    () => localStorage.getItem(LS_KEY),
+  )
 
+  const setActiveClientId = (id: string) => {
+    setActiveClientIdState(id)
+    localStorage.setItem(LS_KEY, id)
+  }
+
+  // Validează selecția față de membrii încărcați: dacă cea salvată nu mai e a
+  // familiei (sau lipsește), cade pe primul membru.
   useEffect(() => {
-    if (!activeClientId && members.length > 0) setActiveClientId(members[0].clientId)
+    if (members.length === 0) return
+    const valid = activeClientId && members.some((m) => m.clientId === activeClientId)
+    if (!valid) setActiveClientId(members[0].clientId)
   }, [members, activeClientId])
 
   const value = useMemo<ActiveMemberValue>(

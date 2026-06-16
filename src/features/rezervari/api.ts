@@ -46,11 +46,23 @@ export async function listOpenSesiuniClient(locatieId?: string | null): Promise<
   }))
 }
 
-export async function holdLocOpen(_params: {
+export type ReserveResult = { redirectUrl: string; orderId: string }
+
+// Rezervă un loc + plătește cu cardul, în 2 pași (server-side):
+//   1. edge function `netopia-create-payment` cu kind='rezervare' → cheamă hold_loc_open()
+//      (blocaj atomic al locului, fără bani) și creează comanda Netopia
+//   2. la confirmarea webhook-ului → enrollment 'Per sedinta' + incasare + status 'platit'
+// Holdul neplătit expiră automat (cron) și eliberează locul.
+export async function reserveOpenAndPay(params: {
   clientId: string
   sesiuneId: string
-}): Promise<{ rezervareId: string }> {
-  // TODO: RPC hold_loc_open() — pasul 1 (blocaj atomic, fără plată)
-  void supabase
-  throw new Error('TODO: implementează RPC hold_loc_open() + plată Netopia (pas 2)')
+}): Promise<ReserveResult> {
+  const { data, error } = await supabase.functions.invoke('netopia-create-payment', {
+    body: { clientId: params.clientId, kind: 'rezervare', sesiuneId: params.sesiuneId },
+  })
+  if (error) {
+    const msg = (data as { error?: string } | null)?.error ?? error.message
+    throw new Error(msg)
+  }
+  return data as ReserveResult
 }

@@ -12,31 +12,6 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
       anunturi: {
@@ -2559,6 +2534,108 @@ export type Database = {
           updated?: string
         }
         Relationships: []
+      }
+      netopia_orders: {
+        Row: {
+          amount: number
+          auth_user_id: string
+          client_id: string
+          created: string
+          fifo_plan: Json
+          id: string
+          netopia_transaction_id: string | null
+          order_ref: string
+          order_type: string
+          rezervare_id: string | null
+          status: string
+          updated: string
+        }
+        Insert: {
+          amount: number
+          auth_user_id: string
+          client_id: string
+          created?: string
+          fifo_plan: Json
+          id?: string
+          netopia_transaction_id?: string | null
+          order_ref: string
+          order_type?: string
+          rezervare_id?: string | null
+          status?: string
+          updated?: string
+        }
+        Update: {
+          amount?: number
+          auth_user_id?: string
+          client_id?: string
+          created?: string
+          fifo_plan?: Json
+          id?: string
+          netopia_transaction_id?: string | null
+          order_ref?: string
+          order_type?: string
+          rezervare_id?: string | null
+          status?: string
+          updated?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "netopia_orders_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clienti"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "netopia_orders_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "inrolari_clienti"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "netopia_orders_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "lista_clienti"
+            referencedColumns: ["id_client"]
+          },
+          {
+            foreignKeyName: "netopia_orders_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "plati_inrolari"
+            referencedColumns: ["id_cursant"]
+          },
+          {
+            foreignKeyName: "netopia_orders_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "profil_client"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "netopia_orders_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "raport_financiar"
+            referencedColumns: ["id_cursant"]
+          },
+          {
+            foreignKeyName: "netopia_orders_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "raport_incasari"
+            referencedColumns: ["id_cursant"]
+          },
+          {
+            foreignKeyName: "netopia_orders_rezervare_id_fkey"
+            columns: ["rezervare_id"]
+            isOneToOne: false
+            referencedRelation: "open_rezervari"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       notifications: {
         Row: {
@@ -5333,11 +5410,19 @@ export type Database = {
           reactivati: number
         }[]
       }
+      build_fifo_plan_membru: {
+        Args: { p_client: string; p_pana_la?: string }
+        Returns: Json
+      }
       calculeaza_salariu_teacher: {
         Args: { p_anul: number; p_luna: number; p_teacher: string }
         Returns: Json
       }
       cancel_expired_reinscrieri: { Args: never; Returns: number }
+      cancel_netopia_order: {
+        Args: { p_order_ref: string }
+        Returns: undefined
+      }
       clasifica_prag: {
         Args: { p_cheie: string; p_val: number }
         Returns: string
@@ -5364,6 +5449,14 @@ export type Database = {
       close_campanie_reinscriere: {
         Args: { p_campanie_id: string }
         Returns: undefined
+      }
+      confirm_netopia_payment: {
+        Args: {
+          p_amount: number
+          p_order_ref: string
+          p_transaction_id: string
+        }
+        Returns: Json
       }
       confirma_salariu_teacher: {
         Args: {
@@ -5406,6 +5499,7 @@ export type Database = {
       current_client: { Args: never; Returns: string }
       current_familie: { Args: never; Returns: string }
       current_teacher_id: { Args: never; Returns: string }
+      expire_open_holds: { Args: never; Returns: number }
       get_campanie_progress: {
         Args: { p_campanie_id: string }
         Returns: {
@@ -5523,6 +5617,8 @@ export type Database = {
           enrollment_id: string
           platit: number
           rest: number
+          sezon_id: string
+          sezon_nume: string
           tip_plata: Database["public"]["Enums"]["tip_plata"]
           total_de_plata: number
         }[]
@@ -5764,6 +5860,10 @@ export type Database = {
           teacher_nume: string
         }[]
       }
+      hold_loc_open: {
+        Args: { p_client: string; p_sesiune: string }
+        Returns: Json
+      }
       is_admin: { Args: never; Returns: boolean }
       is_front_desk: { Args: never; Returns: boolean }
       is_in_my_locatie: { Args: { loc: string }; Returns: boolean }
@@ -5911,6 +6011,7 @@ export type Database = {
           p_instructor?: string
           p_locatie: string
           p_metoda: Database["public"]["Enums"]["metoda_plata"]
+          p_permite_overbook?: boolean
           p_sesiune?: string
           p_suma: number
         }
@@ -6207,9 +6308,6 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {
       app_feedback_status: [

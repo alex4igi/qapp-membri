@@ -1,6 +1,8 @@
-import { NavLink, Outlet } from 'react-router-dom'
+import { Link, NavLink, Outlet } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { ActiveMemberProvider, useActiveMember } from '@/hooks/useActiveMember'
+import { PaymentBadges } from '@/components/PaymentBadges'
+import { FIRMA } from '@/features/legal/firma'
 import { cn } from '@/lib/cn'
 
 const NAV = [
@@ -86,6 +88,17 @@ export function AppLayout() {
         <main className="flex-1 p-4 sm:p-6">
           <Outlet />
         </main>
+        <footer className="border-t border-quasar-gray-light bg-white px-4 py-4 text-xs text-quasar-gray">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <span>
+              {FIRMA.denumire} · CUI {FIRMA.cui} ·{' '}
+              <Link className="underline" to="/servicii">Servicii</Link>{' · '}
+              <Link className="underline" to="/termeni">Termeni</Link>{' · '}
+              <Link className="underline" to="/retur">Retur</Link>
+            </span>
+            <PaymentBadges />
+          </div>
+        </footer>
       </div>
     </ActiveMemberProvider>
   )

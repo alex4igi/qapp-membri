@@ -49,6 +49,8 @@ export type PlataRow = {
   platit: number
   rest: number
   codVoucher: string | null
+  sezonId: string | null
+  sezonNume: string | null
 }
 
 export async function getPlatiClient(clientId: string): Promise<PlataRow[]> {
@@ -63,19 +65,26 @@ export async function getPlatiClient(clientId: string): Promise<PlataRow[]> {
     platit: Number(r.platit ?? 0),
     rest: Number(r.rest ?? 0),
     codVoucher: r.cod_voucher,
+    sezonId: r.sezon_id ?? null,
+    sezonNume: r.sezon_nume ?? null,
   }))
 }
 
 export type CreatePaymentResult = { redirectUrl: string; orderId: string }
 
+// Inițiază plata online. Suma e recalculată server-side (FIFO) — trimitem clientId și,
+// opțional, înrolarea-limită `panaLa` (plătește lunile până la și inclusiv ea, în ordine
+// cronologică). Fără panaLa => toată restanța. Garda „nu sări peste o lună" e în RPC.
 export async function createNetopiaPayment(params: {
   clientId: string
-  suma: number
-  voucherCod?: string | null
+  panaLa?: string
 }): Promise<CreatePaymentResult> {
-  // TODO: apel Edge Function 'netopia-create-payment'
-  // const { data, error } = await supabase.functions.invoke('netopia-create-payment', { body: params })
-  void supabase
-  void params
-  throw new Error('TODO: implementează Edge Function netopia-create-payment')
+  const { data, error } = await supabase.functions.invoke('netopia-create-payment', {
+    body: { clientId: params.clientId, panaLa: params.panaLa },
+  })
+  if (error) {
+    const msg = (data as { error?: string } | null)?.error ?? error.message
+    throw new Error(msg)
+  }
+  return data as CreatePaymentResult
 }

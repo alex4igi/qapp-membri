@@ -24,3 +24,9 @@ dist-ssr
 
 # Docs interne de planificare (nu fac parte din produs)
 Inspiratie/
+
+# Chei Netopia (sandbox/live) — NU se comit niciodată (conțin cheia privată)
+Netopia/
+*.key
+*.cer
+*.pem

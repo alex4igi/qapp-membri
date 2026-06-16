@@ -7,12 +7,30 @@ import { PlatiPage } from '@/features/plati/PlatiPage'
 import { PrezentePage } from '@/features/prezente/PrezentePage'
 import { RezervariPage } from '@/features/rezervari/RezervariPage'
 import { ProfilPage } from '@/features/profil/ProfilPage'
+import { LegalLayout } from '@/features/legal/LegalLayout'
+import { ServiciiPage } from '@/features/legal/ServiciiPage'
+import { TermeniPage } from '@/features/legal/TermeniPage'
+import { ConfidentialitatePage } from '@/features/legal/ConfidentialitatePage'
+import { ReturPage } from '@/features/legal/ReturPage'
+import { LivrarePage } from '@/features/legal/LivrarePage'
+import { CookiesPage } from '@/features/legal/CookiesPage'
+import { ContactPage } from '@/features/legal/ContactPage'
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        {/* Pagini legale PUBLICE (necesare la validarea punctului de lucru Netopia) */}
+        <Route element={<LegalLayout />}>
+          <Route path="/servicii" element={<ServiciiPage />} />
+          <Route path="/termeni" element={<TermeniPage />} />
+          <Route path="/confidentialitate" element={<ConfidentialitatePage />} />
+          <Route path="/retur" element={<ReturPage />} />
+          <Route path="/livrare" element={<LivrarePage />} />
+          <Route path="/cookies" element={<CookiesPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+        </Route>
         <Route element={<ProtectedRoute />}>
           <Route element={<AppLayout />}>
             <Route index element={<AcasaPage />} />

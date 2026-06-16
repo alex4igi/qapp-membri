@@ -1,7 +1,8 @@
 import { useState, type FormEvent } from 'react'
-import { Navigate } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { Button } from '@/components/ui'
+import { PaymentBadges } from '@/components/PaymentBadges'
 
 export function LoginPage() {
   const { session, signIn } = useAuth()
@@ -54,6 +55,16 @@ export function LoginPage() {
         <Button type="submit" disabled={busy} className="w-full">
           {busy ? 'Se conectează…' : 'Intră în cont'}
         </Button>
+        <nav className="flex flex-wrap justify-center gap-x-3 gap-y-1 pt-1 text-xs text-quasar-gray">
+          <Link className="hover:text-quasar-black hover:underline" to="/servicii">Servicii</Link>
+          <Link className="hover:text-quasar-black hover:underline" to="/termeni">Termeni</Link>
+          <Link className="hover:text-quasar-black hover:underline" to="/confidentialitate">Confidențialitate</Link>
+          <Link className="hover:text-quasar-black hover:underline" to="/retur">Retur</Link>
+          <Link className="hover:text-quasar-black hover:underline" to="/contact">Contact</Link>
+        </nav>
+        <div className="flex justify-center pt-1">
+          <PaymentBadges />
+        </div>
       </form>
     </div>
   )

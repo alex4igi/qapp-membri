@@ -5,6 +5,8 @@ import { Spinner } from '@/components/ui'
 export function ProtectedRoute() {
   const { session, loading } = useAuth()
   if (loading) return <Spinner />
-  if (!session) return <Navigate to="/login" replace />
+  // Vizitatorul nelogat aterizează pe pagina publică (servicii/prețuri) — Netopia
+  // respinge site-urile doar-cu-login. De acolo are buton „Intră în cont".
+  if (!session) return <Navigate to="/servicii" replace />
   return <Outlet />
 }

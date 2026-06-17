@@ -8,7 +8,7 @@ export const FIRMA = {
   iban: 'RO85 INGB 0000 9999 1498 9082',
   banca: 'ING Bank',
   administrator: 'Alexandru Ignat',
-  email: 'alex@quasardance.ro',
+  email: 'office@quasardance.ro',
   website: 'https://www.quasardance.ro',
   telefoane: [
     { loc: 'Ștefan cel Mare (Galeriile Comerciale)', tel: '0730 534 172' },

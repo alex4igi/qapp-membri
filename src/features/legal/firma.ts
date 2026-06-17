@@ -17,15 +17,7 @@ export const FIRMA = {
   ],
 } as const
 
-// Tarife afișate public (sincron cu recepția qapp v2 / CLAUDE.md).
-export const TARIFE = [
-  { serviciu: 'Ședință individuală 60 min', pret: '50 RON' },
-  { serviciu: 'Ședință individuală 90 min', pret: '60 RON' },
-  { serviciu: 'Abonament 1×/săpt. (60 min) — lunar', pret: '170 RON' },
-  { serviciu: 'Abonament 1×/săpt. (90 min) — lunar', pret: '200 RON' },
-  { serviciu: 'Abonament 2×/săpt. (60 min) — lunar', pret: '260 RON' },
-  { serviciu: 'Full copii — 70 ședințe (sept.–iun., 2×/săpt.)', pret: 'plată integrală (−10%) sau în tranșe' },
-  { serviciu: 'Part-time copii — 35 ședințe (sept.–iun., 1×/săpt.)', pret: 'plată integrală (−10%) sau în tranșe' },
-] as const
+// Tarifele publice NU mai sunt hard-codate aici — se editează în qapp (Setări →
+// Tarife publice) și se citesc live din tabelul `tarife_publice` (vezi TarifeList).
 
-export const ULTIMA_ACTUALIZARE = '16 iunie 2026'
+export const ULTIMA_ACTUALIZARE = '17 iunie 2026'

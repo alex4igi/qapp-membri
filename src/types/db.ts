@@ -24,6 +24,7 @@ export type Prezenta = Tables<'prezente'>
 export type Incasare = Tables<'incasari'>
 export type OpenSesiune = Tables<'open_sesiuni'>
 export type OpenRezervare = Tables<'open_rezervari'>
+export type TarifPublic = Tables<'tarife_publice'>
 
 // Enums folosite în UI
 export type StatusPrezenta = Enums<'status_prezenta'>

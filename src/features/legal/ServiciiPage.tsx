@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { PaymentBadges } from '@/components/PaymentBadges'
-import { FIRMA, TARIFE, ULTIMA_ACTUALIZARE } from './firma'
+import { FIRMA, ULTIMA_ACTUALIZARE } from './firma'
+import { TarifeList } from './TarifeList'
 import { H1, H2, P, UL, Updated } from './ui'
 
 // Pagină PUBLICĂ (fără cont) — servicii, prețuri în RON, mod de plată online,
@@ -25,17 +26,10 @@ export function ServiciiPage() {
         <li>Acrobatică — aceleași grupe de vârstă</li>
         <li>K-pop Covers — aceleași grupe de vârstă</li>
         <li>Quasar for Kids — ateliere creative prin joc (copii mici)</li>
-        <li>Tabără de dans — programe intensive sezoniere</li>
       </UL>
 
       <H2>Tarife</H2>
-      <UL>
-        {TARIFE.map((t) => (
-          <li key={t.serviciu}>
-            {t.serviciu}: <strong>{t.pret}</strong>
-          </li>
-        ))}
-      </UL>
+      <TarifeList />
       <P>
         Toate prețurile sunt exprimate în <strong>RON</strong>. Se aplică o reducere de 10% la al
         doilea abonament (două cursuri diferite sau frați); reducerile nu se cumulează. Abonamentul

@@ -1,4 +1,5 @@
-import { FIRMA, TARIFE, ULTIMA_ACTUALIZARE } from './firma'
+import { FIRMA, ULTIMA_ACTUALIZARE } from './firma'
+import { TarifeList } from './TarifeList'
 import { H1, H2, P, UL, Updated } from './ui'
 
 export function TermeniPage() {
@@ -22,13 +23,7 @@ export function TermeniPage() {
       </P>
 
       <H2>2. Tarife</H2>
-      <UL>
-        {TARIFE.map((t) => (
-          <li key={t.serviciu}>
-            {t.serviciu}: <strong>{t.pret}</strong>
-          </li>
-        ))}
-      </UL>
+      <TarifeList />
       <P>
         Se aplică o reducere de 10% la al doilea abonament (două cursuri diferite sau frați);
         reducerile nu se cumulează. Abonamentul lunar se achită până pe data de 15 a lunii.

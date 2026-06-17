@@ -12,6 +12,31 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       anunturi: {
@@ -2535,6 +2560,30 @@ export type Database = {
         }
         Relationships: []
       }
+      netopia_ipn_debug: {
+        Row: {
+          body: string | null
+          created: string
+          headers: Json | null
+          id: string
+          verified: boolean | null
+        }
+        Insert: {
+          body?: string | null
+          created?: string
+          headers?: Json | null
+          id?: string
+          verified?: boolean | null
+        }
+        Update: {
+          body?: string | null
+          created?: string
+          headers?: Json | null
+          id?: string
+          verified?: boolean | null
+        }
+        Relationships: []
+      }
       netopia_orders: {
         Row: {
           amount: number
@@ -4046,6 +4095,42 @@ export type Database = {
             referencedColumns: ["id_locatie"]
           },
         ]
+      }
+      tarife_publice: {
+        Row: {
+          activ: boolean
+          created: string
+          descriere: string | null
+          id: string
+          ordine: number
+          pret: string
+          program: string
+          taxa_rezervare: string | null
+          updated: string
+        }
+        Insert: {
+          activ?: boolean
+          created?: string
+          descriere?: string | null
+          id?: string
+          ordine?: number
+          pret: string
+          program: string
+          taxa_rezervare?: string | null
+          updated?: string
+        }
+        Update: {
+          activ?: boolean
+          created?: string
+          descriere?: string | null
+          id?: string
+          ordine?: number
+          pret?: string
+          program?: string
+          taxa_rezervare?: string | null
+          updated?: string
+        }
+        Relationships: []
       }
       teacheri: {
         Row: {
@@ -6308,6 +6393,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       app_feedback_status: [

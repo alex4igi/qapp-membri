@@ -1,20 +1,19 @@
+// Pachetul e CommonJS; importul named evită problema de interop a default-import-ului în Vite.
+import { NTPIdentity as NTPLogo } from 'ntp-logo-react'
 import { cn } from '@/lib/cn'
 
-// Logo-urile metodelor de plată acceptate — cerință obligatorie Netopia/bancă
-// (Visa + Mastercard + NETOPIA Payments afișate ca IMAGINI, nu doar text).
-// Asset-urile locale trăiesc în public/payments/ (fără hotlink extern).
-const BADGES = [
-  { src: '/payments/visa.svg', alt: 'Visa' },
-  { src: '/payments/mastercard.svg', alt: 'Mastercard' },
-  { src: '/payments/netopia.svg', alt: 'NETOPIA Payments' },
-] as const
-
+// Cerință obligatorie Netopia: sigla oficială NETOPIA Payments în footer, prin pachetul
+// oficial `ntp-logo-react` (din media kit → platformă React). Sigla conține deja Visa +
+// Mastercard, deci nu mai afișăm badge-uri separate.
+//   color  = culoarea secțiunii unde stă logo-ul (footer alb) -> pachetul alege varianta neagră
+//   secret = punctul de vânzare Quasar
+// Boxul fixat (h-5 w-28) păstrează raportul siglei orizontale (~5.6:1), fără distorsiune.
 export function PaymentBadges({ className }: { className?: string }) {
   return (
-    <span className={cn('inline-flex flex-wrap items-center gap-2', className)}>
-      {BADGES.map((b) => (
-        <img key={b.alt} src={b.src} alt={b.alt} className="h-6 w-auto" loading="lazy" />
-      ))}
+    <span className={cn('inline-flex items-center', className)}>
+      <span className="block h-5 w-28">
+        <NTPLogo color="#ffffff" version="orizontal" secret="166013" />
+      </span>
     </span>
   )
 }

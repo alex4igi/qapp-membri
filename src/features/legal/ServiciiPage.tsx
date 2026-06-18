@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { PaymentBadges } from '@/components/PaymentBadges'
 import { FIRMA, ULTIMA_ACTUALIZARE } from './firma'
 import { TarifeList } from './TarifeList'
+import { ProduseList } from './ProduseList'
 import { H1, H2, P, UL, Updated } from './ui'
 
 // Pagină PUBLICĂ (fără cont) — servicii, prețuri în RON, mod de plată online,
@@ -35,6 +36,8 @@ export function ServiciiPage() {
         doilea abonament (două cursuri diferite sau frați); reducerile nu se cumulează. Abonamentul
         lunar se achită până pe data de 15 a lunii.
       </P>
+
+      <ProduseList />
 
       <H2>Cum funcționează plata online</H2>
       <P>

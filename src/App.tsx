@@ -2,10 +2,14 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { LoginPage } from '@/features/auth/LoginPage'
+import { ResetPage } from '@/features/auth/ResetPage'
 import { AcasaPage } from '@/features/dashboard/AcasaPage'
 import { PlatiPage } from '@/features/plati/PlatiPage'
 import { PrezentePage } from '@/features/prezente/PrezentePage'
 import { RezervariPage } from '@/features/rezervari/RezervariPage'
+import { GrupaPage } from '@/features/grupa/GrupaPage'
+import { ActivitatePage } from '@/features/activitate/ActivitatePage'
+import { DocumentePage } from '@/features/documente/DocumentePage'
 import { ProfilPage } from '@/features/profil/ProfilPage'
 import { LegalLayout } from '@/features/legal/LegalLayout'
 import { ServiciiPage } from '@/features/legal/ServiciiPage'
@@ -21,6 +25,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/reset" element={<ResetPage />} />
         {/* Pagini legale PUBLICE (necesare la validarea punctului de lucru Netopia) */}
         <Route element={<LegalLayout />}>
           <Route path="/servicii" element={<ServiciiPage />} />
@@ -34,9 +39,12 @@ export default function App() {
         <Route element={<ProtectedRoute />}>
           <Route element={<AppLayout />}>
             <Route index element={<AcasaPage />} />
+            <Route path="grupa" element={<GrupaPage />} />
+            <Route path="activitate" element={<ActivitatePage />} />
             <Route path="plati" element={<PlatiPage />} />
             <Route path="prezente" element={<PrezentePage />} />
             <Route path="rezervari" element={<RezervariPage />} />
+            <Route path="documente" element={<DocumentePage />} />
             <Route path="profil" element={<ProfilPage />} />
           </Route>
         </Route>

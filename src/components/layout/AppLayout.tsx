@@ -7,9 +7,12 @@ import { cn } from '@/lib/cn'
 
 const NAV = [
   { to: '/', label: 'Acasă', end: true },
+  { to: '/grupa', label: 'Grupa mea' },
+  { to: '/activitate', label: 'Activitate' },
   { to: '/plati', label: 'Plăți' },
   { to: '/prezente', label: 'Prezențe' },
   { to: '/rezervari', label: 'Rezervări' },
+  { to: '/documente', label: 'Documente' },
   { to: '/profil', label: 'Profil' },
 ]
 

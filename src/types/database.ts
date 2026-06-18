@@ -1073,6 +1073,92 @@ export type Database = {
           },
         ]
       }
+      documente_client: {
+        Row: {
+          client: string
+          created: string
+          created_by: string | null
+          data_expirarii: string | null
+          id: string
+          link: string
+          observatii: string | null
+          tip: Database["public"]["Enums"]["tip_document"]
+          titlu: string | null
+        }
+        Insert: {
+          client: string
+          created?: string
+          created_by?: string | null
+          data_expirarii?: string | null
+          id?: string
+          link: string
+          observatii?: string | null
+          tip?: Database["public"]["Enums"]["tip_document"]
+          titlu?: string | null
+        }
+        Update: {
+          client?: string
+          created?: string
+          created_by?: string | null
+          data_expirarii?: string | null
+          id?: string
+          link?: string
+          observatii?: string | null
+          tip?: Database["public"]["Enums"]["tip_document"]
+          titlu?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "documente_client_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "clienti"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documente_client_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "inrolari_clienti"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documente_client_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "lista_clienti"
+            referencedColumns: ["id_client"]
+          },
+          {
+            foreignKeyName: "documente_client_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "plati_inrolari"
+            referencedColumns: ["id_cursant"]
+          },
+          {
+            foreignKeyName: "documente_client_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "profil_client"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "documente_client_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "raport_financiar"
+            referencedColumns: ["id_cursant"]
+          },
+          {
+            foreignKeyName: "documente_client_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "raport_incasari"
+            referencedColumns: ["id_cursant"]
+          },
+        ]
+      }
       email_logs: {
         Row: {
           client_id: string | null
@@ -1617,6 +1703,103 @@ export type Database = {
           {
             foreignKeyName: "evaluari_teacher_fkey"
             columns: ["teacher"]
+            isOneToOne: false
+            referencedRelation: "teacheri"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      evaluari_teacher: {
+        Row: {
+          anul: number
+          created: string
+          evaluator_id: string
+          feedback_cursanti: number | null
+          id: string
+          luna: number
+          observatii: string | null
+          scor_comunicare: number | null
+          scor_disciplina: number | null
+          scor_energie: number | null
+          scor_pregatire: number | null
+          scor_punctualitate: number | null
+          scor_rezultate: number | null
+          teacher_id: string
+          updated: string
+        }
+        Insert: {
+          anul: number
+          created?: string
+          evaluator_id?: string
+          feedback_cursanti?: number | null
+          id?: string
+          luna: number
+          observatii?: string | null
+          scor_comunicare?: number | null
+          scor_disciplina?: number | null
+          scor_energie?: number | null
+          scor_pregatire?: number | null
+          scor_punctualitate?: number | null
+          scor_rezultate?: number | null
+          teacher_id: string
+          updated?: string
+        }
+        Update: {
+          anul?: number
+          created?: string
+          evaluator_id?: string
+          feedback_cursanti?: number | null
+          id?: string
+          luna?: number
+          observatii?: string | null
+          scor_comunicare?: number | null
+          scor_disciplina?: number | null
+          scor_energie?: number | null
+          scor_pregatire?: number | null
+          scor_punctualitate?: number | null
+          scor_rezultate?: number | null
+          teacher_id?: string
+          updated?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "evaluari_teacher_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "incasari_teacher_luna"
+            referencedColumns: ["id_teacher"]
+          },
+          {
+            foreignKeyName: "evaluari_teacher_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "lista_cursuri"
+            referencedColumns: ["id_teacher"]
+          },
+          {
+            foreignKeyName: "evaluari_teacher_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "profil_teacher"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "evaluari_teacher_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "raport_incasari"
+            referencedColumns: ["id_teacher"]
+          },
+          {
+            foreignKeyName: "evaluari_teacher_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "restante_teacher_luna"
+            referencedColumns: ["id_teacher"]
+          },
+          {
+            foreignKeyName: "evaluari_teacher_teacher_id_fkey"
+            columns: ["teacher_id"]
             isOneToOne: false
             referencedRelation: "teacheri"
             referencedColumns: ["id"]
@@ -2557,30 +2740,6 @@ export type Database = {
           nume?: string
           telefon?: string | null
           updated?: string
-        }
-        Relationships: []
-      }
-      netopia_ipn_debug: {
-        Row: {
-          body: string | null
-          created: string
-          headers: Json | null
-          id: string
-          verified: boolean | null
-        }
-        Insert: {
-          body?: string | null
-          created?: string
-          headers?: Json | null
-          id?: string
-          verified?: boolean | null
-        }
-        Update: {
-          body?: string | null
-          created?: string
-          headers?: Json | null
-          id?: string
-          verified?: boolean | null
         }
         Relationships: []
       }
@@ -3845,6 +4004,27 @@ export type Database = {
             referencedColumns: ["id_locatie"]
           },
         ]
+      }
+      scorecard_obiective: {
+        Row: {
+          luna: string
+          metric: string
+          target: number
+          updated: string
+        }
+        Insert: {
+          luna: string
+          metric: string
+          target: number
+          updated?: string
+        }
+        Update: {
+          luna?: string
+          metric?: string
+          target?: number
+          updated?: string
+        }
+        Relationships: []
       }
       scorecard_praguri: {
         Row: {
@@ -5691,6 +5871,29 @@ export type Database = {
           status: string
         }[]
       }
+      get_documente_client: {
+        Args: { p_client: string }
+        Returns: {
+          data_expirarii: string
+          id: string
+          link: string
+          observatii: string
+          tip: Database["public"]["Enums"]["tip_document"]
+          titlu: string
+        }[]
+      }
+      get_evenimente_client: {
+        Args: never
+        Returns: {
+          data: string
+          descriere: string
+          eveniment_id: string
+          locatie: string
+          nume: string
+          pret_bilet: number
+          tip: Database["public"]["Enums"]["tip_eveniment"]
+        }[]
+      }
       get_grad_ocupare: {
         Args: { p_locatie?: string }
         Returns: {
@@ -5703,6 +5906,25 @@ export type Database = {
           media: number
           procent: number
           teacher_nume: string
+        }[]
+      }
+      get_grupe_client: {
+        Args: { p_client: string }
+        Returns: {
+          curs_id: string
+          curs_nume: string
+          data_final: string
+          data_incepere: string
+          enrollment_id: string
+          instructori: string[]
+          locatie_nume: string
+          nivel: Database["public"]["Enums"]["nivel_curs"]
+          ora: string
+          sala: string
+          stil: string
+          tip_plata: Database["public"]["Enums"]["tip_plata"]
+          varsta: Database["public"]["Enums"]["varsta_curs"]
+          zile: Database["public"]["Enums"]["zi_saptamana"][]
         }[]
       }
       get_incasari_per_sezon: {
@@ -5724,6 +5946,16 @@ export type Database = {
           data_nasterii: string
           nume: string
           prenume: string
+        }[]
+      }
+      get_participari_client: {
+        Args: { p_client: string }
+        Returns: {
+          data: string
+          eveniment_id: string
+          locatie: string
+          nume: string
+          tip: Database["public"]["Enums"]["tip_eveniment"]
         }[]
       }
       get_plati_client: {
@@ -5852,6 +6084,18 @@ export type Database = {
           ultim_apel_rezultat: string
           ultima_prezenta: string
           zile_depasire: number
+        }[]
+      }
+      get_rezultate_concursuri: {
+        Args: never
+        Returns: {
+          data: string
+          id: string
+          locul_i: number
+          locul_ii: number
+          locul_iii: number
+          nume: string
+          rezultate: string
         }[]
       }
       get_scorecard_operatori: {
@@ -6036,6 +6280,15 @@ export type Database = {
       my_teacher_id: { Args: never; Returns: string }
       notifications_mark_all_read: { Args: never; Returns: number }
       notifications_unread_count: { Args: never; Returns: number }
+      notify_enrollment_move: {
+        Args: {
+          p_enrollment: string
+          p_from_curs: string
+          p_motiv: string
+          p_to_curs: string
+        }
+        Returns: number
+      }
       notify_price_change: {
         Args: {
           p_context?: string
@@ -6204,7 +6457,13 @@ export type Database = {
       canal_contact: "telefon" | "sms" | "email" | "dm"
       canale_online: "Meta ADS" | "Google ADS" | "TikTok Ads" | "Organic"
       categorie_cheltuiala: "Administrativa" | "Salariala" | "Alta"
-      categorie_incasare: "Abonament" | "Bilet" | "Merch" | "Taxa" | "Workshop"
+      categorie_incasare:
+        | "Abonament"
+        | "Bilet"
+        | "Merch"
+        | "Taxa"
+        | "Workshop"
+        | "Auditie"
       categorie_inventar:
         | "Haine"
         | "Accesorii"
@@ -6281,7 +6540,14 @@ export type Database = {
         | "Events"
         | "Website"
         | "Organic"
-      tip_eveniment: "Eveniment" | "Workshop"
+      tip_document:
+        | "Contract"
+        | "Anexa"
+        | "Reziliere"
+        | "Medical"
+        | "Declaratie"
+        | "Altul"
+      tip_eveniment: "Eveniment" | "Workshop" | "Auditie"
       tip_feedback: "Sesizare" | "Review"
       tip_plata: "Per sedinta" | "Per luna" | "Per an"
       tip_voucher: "Valoare" | "Procent" | "Special"
@@ -6443,7 +6709,14 @@ export const Constants = {
       canal_contact: ["telefon", "sms", "email", "dm"],
       canale_online: ["Meta ADS", "Google ADS", "TikTok Ads", "Organic"],
       categorie_cheltuiala: ["Administrativa", "Salariala", "Alta"],
-      categorie_incasare: ["Abonament", "Bilet", "Merch", "Taxa", "Workshop"],
+      categorie_incasare: [
+        "Abonament",
+        "Bilet",
+        "Merch",
+        "Taxa",
+        "Workshop",
+        "Auditie",
+      ],
       categorie_inventar: [
         "Haine",
         "Accesorii",
@@ -6521,7 +6794,15 @@ export const Constants = {
         "Website",
         "Organic",
       ],
-      tip_eveniment: ["Eveniment", "Workshop"],
+      tip_document: [
+        "Contract",
+        "Anexa",
+        "Reziliere",
+        "Medical",
+        "Declaratie",
+        "Altul",
+      ],
+      tip_eveniment: ["Eveniment", "Workshop", "Auditie"],
       tip_feedback: ["Sesizare", "Review"],
       tip_plata: ["Per sedinta", "Per luna", "Per an"],
       tip_voucher: ["Valoare", "Procent", "Special"],

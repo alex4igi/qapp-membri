@@ -55,6 +55,11 @@ export function LoginPage() {
         <Button type="submit" disabled={busy} className="w-full">
           {busy ? 'Se conectează…' : 'Intră în cont'}
         </Button>
+        <div className="text-center">
+          <Link to="/reset" className="text-xs text-quasar-gray underline hover:text-quasar-black">
+            Ai uitat parola?
+          </Link>
+        </div>
         <nav className="flex flex-wrap justify-center gap-x-3 gap-y-1 pt-1 text-xs text-quasar-gray">
           <Link className="hover:text-quasar-black hover:underline" to="/servicii">Servicii</Link>
           <Link className="hover:text-quasar-black hover:underline" to="/termeni">Termeni</Link>

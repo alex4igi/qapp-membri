@@ -13,6 +13,7 @@ export function RezervariPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [returnNotice, setReturnNotice] = useState(false)
   const [pendingId, setPendingId] = useState<string | null>(null)
+  const [voucherCod, setVoucherCod] = useState('')
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['open-sesiuni'],
@@ -30,7 +31,7 @@ export function RezervariPage() {
 
   const reserve = useMutation({
     mutationFn: (sesiuneId: string) =>
-      reserveOpenAndPay({ clientId: activeMember!.clientId, sesiuneId }),
+      reserveOpenAndPay({ clientId: activeMember!.clientId, sesiuneId, voucherCod }),
     onMutate: (sesiuneId) => setPendingId(sesiuneId),
     onSuccess: (res) => {
       window.location.href = res.redirectUrl
@@ -53,6 +54,21 @@ export function RezervariPage() {
           Plata a fost inițiată. Rezervarea se confirmă automat după validarea plății de către bancă.
         </div>
       )}
+
+      <label className="block max-w-xs">
+        <span className="mb-1 block text-xs font-medium text-quasar-gray">
+          Cod voucher (opțional)
+        </span>
+        <input
+          value={voucherCod}
+          onChange={(e) => setVoucherCod(e.target.value)}
+          placeholder="ex. TRUPA50"
+          className="w-full rounded-md border border-quasar-gray-light px-3 py-2 text-sm uppercase"
+        />
+        <span className="mt-1 block text-xs text-quasar-gray">
+          Se aplică la ședința pe care o rezervi; reducerea apare la plată.
+        </span>
+      </label>
 
       {isLoading && <Spinner />}
       {error && <p className="text-sm text-red-600">Eroare la încărcare.</p>}

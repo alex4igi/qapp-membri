@@ -2757,6 +2757,7 @@ export type Database = {
           rezervare_id: string | null
           status: string
           updated: string
+          voucher_id: string | null
         }
         Insert: {
           amount: number
@@ -2771,6 +2772,7 @@ export type Database = {
           rezervare_id?: string | null
           status?: string
           updated?: string
+          voucher_id?: string | null
         }
         Update: {
           amount?: number
@@ -2785,6 +2787,7 @@ export type Database = {
           rezervare_id?: string | null
           status?: string
           updated?: string
+          voucher_id?: string | null
         }
         Relationships: [
           {
@@ -2841,6 +2844,13 @@ export type Database = {
             columns: ["rezervare_id"]
             isOneToOne: false
             referencedRelation: "open_rezervari"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "netopia_orders_voucher_id_fkey"
+            columns: ["voucher_id"]
+            isOneToOne: false
+            referencedRelation: "vouchere"
             referencedColumns: ["id"]
           },
         ]
@@ -4440,6 +4450,125 @@ export type Database = {
           },
         ]
       }
+      voucher_redemptions: {
+        Row: {
+          client: string
+          created: string
+          enrollment: string | null
+          id: string
+          incasare: string | null
+          voucher: string
+        }
+        Insert: {
+          client: string
+          created?: string
+          enrollment?: string | null
+          id?: string
+          incasare?: string | null
+          voucher: string
+        }
+        Update: {
+          client?: string
+          created?: string
+          enrollment?: string | null
+          id?: string
+          incasare?: string | null
+          voucher?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "voucher_redemptions_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "clienti"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "voucher_redemptions_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "inrolari_clienti"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "voucher_redemptions_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "lista_clienti"
+            referencedColumns: ["id_client"]
+          },
+          {
+            foreignKeyName: "voucher_redemptions_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "plati_inrolari"
+            referencedColumns: ["id_cursant"]
+          },
+          {
+            foreignKeyName: "voucher_redemptions_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "profil_client"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "voucher_redemptions_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "raport_financiar"
+            referencedColumns: ["id_cursant"]
+          },
+          {
+            foreignKeyName: "voucher_redemptions_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "raport_incasari"
+            referencedColumns: ["id_cursant"]
+          },
+          {
+            foreignKeyName: "voucher_redemptions_enrollment_fkey"
+            columns: ["enrollment"]
+            isOneToOne: false
+            referencedRelation: "enrollments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "voucher_redemptions_enrollment_fkey"
+            columns: ["enrollment"]
+            isOneToOne: false
+            referencedRelation: "lista_clienti"
+            referencedColumns: ["id_inrolare"]
+          },
+          {
+            foreignKeyName: "voucher_redemptions_enrollment_fkey"
+            columns: ["enrollment"]
+            isOneToOne: false
+            referencedRelation: "plati_inrolari"
+            referencedColumns: ["id_enrollment"]
+          },
+          {
+            foreignKeyName: "voucher_redemptions_incasare_fkey"
+            columns: ["incasare"]
+            isOneToOne: false
+            referencedRelation: "incasari"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "voucher_redemptions_incasare_fkey"
+            columns: ["incasare"]
+            isOneToOne: false
+            referencedRelation: "lista_incasari"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "voucher_redemptions_voucher_fkey"
+            columns: ["voucher"]
+            isOneToOne: false
+            referencedRelation: "vouchere"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vouchere: {
         Row: {
           client: string | null
@@ -4450,6 +4579,7 @@ export type Database = {
           data_inceperii: string | null
           descriere: string | null
           id: string
+          limita_per_client: number | null
           numar_utilizari: number | null
           tip: Database["public"]["Enums"]["tip_voucher"] | null
           tip_enrollment: Database["public"]["Enums"]["tip_plata"] | null
@@ -4465,6 +4595,7 @@ export type Database = {
           data_inceperii?: string | null
           descriere?: string | null
           id?: string
+          limita_per_client?: number | null
           numar_utilizari?: number | null
           tip?: Database["public"]["Enums"]["tip_voucher"] | null
           tip_enrollment?: Database["public"]["Enums"]["tip_plata"] | null
@@ -4480,6 +4611,7 @@ export type Database = {
           data_inceperii?: string | null
           descriere?: string | null
           id?: string
+          limita_per_client?: number | null
           numar_utilizari?: number | null
           tip?: Database["public"]["Enums"]["tip_voucher"] | null
           tip_enrollment?: Database["public"]["Enums"]["tip_plata"] | null
@@ -6444,6 +6576,22 @@ export type Database = {
         Returns: undefined
       }
       user_locatie_id: { Args: never; Returns: string }
+      validate_voucher_code: {
+        Args: {
+          p_client: string
+          p_cod: string
+          p_curs?: string
+          p_tip?: Database["public"]["Enums"]["tip_plata"]
+        }
+        Returns: {
+          cod: string
+          reason: string
+          tip: Database["public"]["Enums"]["tip_voucher"]
+          valid: boolean
+          valoare: number
+          voucher_id: string
+        }[]
+      }
     }
     Enums: {
       app_feedback_status:

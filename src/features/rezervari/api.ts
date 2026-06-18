@@ -56,9 +56,15 @@ export type ReserveResult = { redirectUrl: string; orderId: string }
 export async function reserveOpenAndPay(params: {
   clientId: string
   sesiuneId: string
+  voucherCod?: string
 }): Promise<ReserveResult> {
   const { data, error } = await supabase.functions.invoke('netopia-create-payment', {
-    body: { clientId: params.clientId, kind: 'rezervare', sesiuneId: params.sesiuneId },
+    body: {
+      clientId: params.clientId,
+      kind: 'rezervare',
+      sesiuneId: params.sesiuneId,
+      voucherCod: params.voucherCod?.trim() || undefined,
+    },
   })
   if (error) {
     const msg = (data as { error?: string } | null)?.error ?? error.message

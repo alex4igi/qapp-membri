@@ -25,8 +25,9 @@ export type Incasare = Tables<'incasari'>
 export type OpenSesiune = Tables<'open_sesiuni'>
 export type OpenRezervare = Tables<'open_rezervari'>
 export type TarifPublic = Tables<'tarife_publice'>
-export type ProdusPublic = Tables<'produse_publice'>
-export type BiletPublic = Tables<'bilete_publice'>
+// produse_publice / bilete_publice sunt VIEW-uri (migr. 20260620100100 / 20260621100000).
+export type ProdusPublic = Views<'produse_publice'>
+export type BiletPublic = Views<'bilete_publice'>
 
 // Enums folosite în UI
 export type StatusPrezenta = Enums<'status_prezenta'>

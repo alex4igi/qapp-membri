@@ -1820,6 +1820,7 @@ export type Database = {
           organizator: string | null
           participant: string[]
           pret_bilet: number | null
+          public: boolean
           status: Database["public"]["Enums"]["status_eveniment"] | null
           tip: Database["public"]["Enums"]["tip_eveniment"]
           updated: string
@@ -1837,6 +1838,7 @@ export type Database = {
           organizator?: string | null
           participant?: string[]
           pret_bilet?: number | null
+          public?: boolean
           status?: Database["public"]["Enums"]["status_eveniment"] | null
           tip?: Database["public"]["Enums"]["tip_eveniment"]
           updated?: string
@@ -1854,6 +1856,7 @@ export type Database = {
           organizator?: string | null
           participant?: string[]
           pret_bilet?: number | null
+          public?: boolean
           status?: Database["public"]["Enums"]["status_eveniment"] | null
           tip?: Database["public"]["Enums"]["tip_eveniment"]
           updated?: string
@@ -1987,12 +1990,14 @@ export type Database = {
       feedback: {
         Row: {
           autor: string | null
+          context_achizitie: string | null
           created: string
           cursul: string | null
           detalii: string | null
           detalii_rezolvare: string | null
           id: string
           nume: string | null
+          rating: number | null
           reprezentant: string | null
           rezolvat: boolean
           tip: Database["public"]["Enums"]["tip_feedback"] | null
@@ -2000,12 +2005,14 @@ export type Database = {
         }
         Insert: {
           autor?: string | null
+          context_achizitie?: string | null
           created?: string
           cursul?: string | null
           detalii?: string | null
           detalii_rezolvare?: string | null
           id?: string
           nume?: string | null
+          rating?: number | null
           reprezentant?: string | null
           rezolvat?: boolean
           tip?: Database["public"]["Enums"]["tip_feedback"] | null
@@ -2013,12 +2020,14 @@ export type Database = {
         }
         Update: {
           autor?: string | null
+          context_achizitie?: string | null
           created?: string
           cursul?: string | null
           detalii?: string | null
           detalii_rezolvare?: string | null
           id?: string
           nume?: string | null
+          rating?: number | null
           reprezentant?: string | null
           rezolvat?: boolean
           tip?: Database["public"]["Enums"]["tip_feedback"] | null
@@ -2234,6 +2243,20 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "fk_incasari_articol"
+            columns: ["articol_inventar"]
+            isOneToOne: false
+            referencedRelation: "produse_publice"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_incasari_bilet"
+            columns: ["bilet"]
+            isOneToOne: false
+            referencedRelation: "bilete_publice"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "fk_incasari_bilet"
             columns: ["bilet"]
             isOneToOne: false
@@ -2381,9 +2404,13 @@ export type Database = {
           categorie: Database["public"]["Enums"]["categorie_inventar"] | null
           created: string
           descriere: string | null
+          descriere_publica: string | null
           id: string
           locatie: string | null
+          ordine_public: number
           pret: string | null
+          pret_public: string | null
+          public: boolean
           stoc: number | null
           updated: string
         }
@@ -2392,9 +2419,13 @@ export type Database = {
           categorie?: Database["public"]["Enums"]["categorie_inventar"] | null
           created?: string
           descriere?: string | null
+          descriere_publica?: string | null
           id?: string
           locatie?: string | null
+          ordine_public?: number
           pret?: string | null
+          pret_public?: string | null
+          public?: boolean
           stoc?: number | null
           updated?: string
         }
@@ -2403,9 +2434,13 @@ export type Database = {
           categorie?: Database["public"]["Enums"]["categorie_inventar"] | null
           created?: string
           descriere?: string | null
+          descriere_publica?: string | null
           id?: string
           locatie?: string | null
+          ordine_public?: number
           pret?: string | null
+          pret_public?: string | null
+          public?: boolean
           stoc?: number | null
           updated?: string
         }
@@ -3315,69 +3350,6 @@ export type Database = {
             referencedColumns: ["id_enrollment"]
           },
         ]
-      }
-      bilete_publice: {
-        Row: {
-          capacitate: number | null
-          data: string | null
-          descriere: string | null
-          id: string | null
-          locatie: string | null
-          nume: string | null
-          pret_bilet: number | null
-        }
-        Insert: {
-          capacitate?: number | null
-          data?: string | null
-          descriere?: string | null
-          id?: string | null
-          locatie?: string | null
-          nume?: string | null
-          pret_bilet?: number | null
-        }
-        Update: {
-          capacitate?: number | null
-          data?: string | null
-          descriere?: string | null
-          id?: string | null
-          locatie?: string | null
-          nume?: string | null
-          pret_bilet?: number | null
-        }
-        Relationships: []
-      }
-      produse_publice: {
-        Row: {
-          activ: boolean
-          created: string
-          descriere: string | null
-          id: string
-          nume: string
-          ordine: number
-          pret: string
-          updated: string
-        }
-        Insert: {
-          activ?: boolean
-          created?: string
-          descriere?: string | null
-          id?: string
-          nume: string
-          ordine?: number
-          pret: string
-          updated?: string
-        }
-        Update: {
-          activ?: boolean
-          created?: string
-          descriere?: string | null
-          id?: string
-          nume?: string
-          ordine?: number
-          pret?: string
-          updated?: string
-        }
-        Relationships: []
       }
       programari_leads: {
         Row: {
@@ -4765,6 +4737,36 @@ export type Database = {
       }
     }
     Views: {
+      bilete_publice: {
+        Row: {
+          capacitate: number | null
+          data: string | null
+          descriere: string | null
+          id: string | null
+          locatie: string | null
+          nume: string | null
+          pret_bilet: number | null
+        }
+        Insert: {
+          capacitate?: number | null
+          data?: string | null
+          descriere?: string | null
+          id?: string | null
+          locatie?: string | null
+          nume?: string | null
+          pret_bilet?: number | null
+        }
+        Update: {
+          capacitate?: number | null
+          data?: string | null
+          descriere?: string | null
+          id?: string | null
+          locatie?: string | null
+          nume?: string | null
+          pret_bilet?: number | null
+        }
+        Relationships: []
+      }
       clienti_unici: {
         Row: {
           clients: string | null
@@ -5406,6 +5408,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      produse_publice: {
+        Row: {
+          activ: boolean | null
+          created: string | null
+          descriere: string | null
+          id: string | null
+          nume: string | null
+          ordine: number | null
+          pret: string | null
+          updated: string | null
+        }
+        Insert: {
+          activ?: boolean | null
+          created?: string | null
+          descriere?: never
+          id?: string | null
+          nume?: string | null
+          ordine?: number | null
+          pret?: never
+          updated?: string | null
+        }
+        Update: {
+          activ?: boolean | null
+          created?: string | null
+          descriere?: never
+          id?: string | null
+          nume?: string | null
+          ordine?: number | null
+          pret?: never
+          updated?: string | null
+        }
+        Relationships: []
       }
       profil_client: {
         Row: {
@@ -6572,6 +6607,15 @@ export type Database = {
           p_document_link: string
         }
         Returns: string
+      }
+      submit_rating_client: {
+        Args: {
+          p_client: string
+          p_context: string
+          p_detalii?: string
+          p_rating: number
+        }
+        Returns: undefined
       }
       teacher_can_access_curs: { Args: { p_curs: string }; Returns: boolean }
       update_profil_client: {

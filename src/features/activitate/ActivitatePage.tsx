@@ -7,6 +7,7 @@ import {
   getParticipariClient,
   getRezultateConcursuri,
 } from './api'
+import { EvaluareSection } from '@/features/evaluare/EvaluareSection'
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -102,6 +103,8 @@ export function ActivitatePage() {
           </ul>
         )}
       </Section>
+
+      <EvaluareSection />
     </div>
   )
 }

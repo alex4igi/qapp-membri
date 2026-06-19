@@ -7,6 +7,7 @@ import { PaymentBadges } from '@/components/PaymentBadges'
 import { formatRON, formatData } from '@/lib/format'
 import { cn } from '@/lib/cn'
 import { getSoldFamilie, getPlatiClient, createNetopiaPayment, type PlataRow } from './api/payments'
+import { ReduceriSection } from '@/features/reduceri/ReduceriSection'
 
 export function PlatiPage() {
   const { members, activeMember, loading } = useActiveMember()
@@ -133,6 +134,8 @@ export function PlatiPage() {
           </ul>
         )}
       </section>
+
+      <ReduceriSection />
 
       {/* Detaliu pe înrolări — grupat pe sezon */}
       <section className="space-y-3">

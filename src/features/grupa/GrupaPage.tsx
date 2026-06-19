@@ -3,6 +3,7 @@ import { useActiveMember } from '@/hooks/useActiveMember'
 import { Spinner } from '@/components/ui'
 import { formatData } from '@/lib/format'
 import { getGrupeClient, type GrupaRow } from './api'
+import { EvaluariSection } from '@/features/evaluari/EvaluariSection'
 
 const ZI_SCURT: Record<string, string> = {
   Luni: 'Lun', Marti: 'Mar', Miercuri: 'Mie', Joi: 'Joi',
@@ -101,6 +102,8 @@ export function GrupaPage() {
           ))}
         </div>
       )}
+
+      <EvaluariSection />
     </div>
   )
 }

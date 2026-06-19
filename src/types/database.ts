@@ -5995,6 +5995,16 @@ export type Database = {
       current_familie: { Args: never; Returns: string }
       current_teacher_id: { Args: never; Returns: string }
       expire_open_holds: { Args: never; Returns: number }
+      get_anunturi_client: {
+        Args: never
+        Returns: {
+          continut: string
+          created: string
+          id: string
+          read_at: string
+          titlu: string
+        }[]
+      }
       get_campanie_progress: {
         Args: { p_campanie_id: string }
         Returns: {
@@ -6077,6 +6087,27 @@ export type Database = {
           observatii: string
           tip: Database["public"]["Enums"]["tip_document"]
           titlu: string
+        }[]
+      }
+      get_evaluari_client: {
+        Args: { p_client: string }
+        Returns: {
+          curs_nume: string
+          data: string
+          feedback_general: string
+          id: string
+          nivel_grupa: string
+          skill_coordonare: number
+          skill_coregrafie: number
+          skill_expresivitate: number
+          skill_freeze: number
+          skill_improvizatie: number
+          skill_izolari: number
+          skill_pasi_baza: number
+          skill_prezentare: number
+          skill_ritm: number
+          skill_sincronizare: number
+          teacher_nume: string
         }[]
       }
       get_evenimente_client: {
@@ -6231,6 +6262,19 @@ export type Database = {
           locatie_nume: string
           posibile: number
           prezenti: number
+        }[]
+      }
+      get_reduceri_familie: {
+        Args: never
+        Returns: {
+          client_id: string
+          client_nume: string
+          cod_voucher: string
+          curs_nume: string
+          reducere: number
+          suma: number
+          suma_baza: number
+          tip_plata: Database["public"]["Enums"]["tip_plata"]
         }[]
       }
       get_reinscrieri_conversie: {
@@ -6470,6 +6514,7 @@ export type Database = {
         }[]
       }
       mark_anunt_read: { Args: { p_anunt_id: string }; Returns: undefined }
+      mark_anunturi_citite: { Args: never; Returns: undefined }
       mark_opt_out: {
         Args: { p_entity: string; p_id: string; p_motiv?: string }
         Returns: undefined

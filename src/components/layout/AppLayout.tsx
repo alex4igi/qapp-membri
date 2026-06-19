@@ -2,6 +2,7 @@ import { Link, NavLink, Outlet } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { ActiveMemberProvider, useActiveMember } from '@/hooks/useActiveMember'
 import { PaymentBadges } from '@/components/PaymentBadges'
+import { NotificationBell } from '@/features/notificari/NotificationBell'
 import { FIRMA } from '@/features/legal/firma'
 import { cn } from '@/lib/cn'
 
@@ -46,6 +47,7 @@ function Header() {
       </div>
       <div className="flex items-center gap-3">
         <MemberSwitcher />
+        <NotificationBell />
         <span className="hidden text-xs text-quasar-gray-light sm:inline">{user?.email}</span>
         <button
           onClick={signOut}

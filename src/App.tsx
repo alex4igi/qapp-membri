@@ -10,6 +10,7 @@ import { RezervariPage } from '@/features/rezervari/RezervariPage'
 import { GrupaPage } from '@/features/grupa/GrupaPage'
 import { ActivitatePage } from '@/features/activitate/ActivitatePage'
 import { DocumentePage } from '@/features/documente/DocumentePage'
+import { NotificariPage } from '@/features/notificari/NotificariPage'
 import { ProfilPage } from '@/features/profil/ProfilPage'
 import { LegalLayout } from '@/features/legal/LegalLayout'
 import { ServiciiPage } from '@/features/legal/ServiciiPage'
@@ -45,6 +46,7 @@ export default function App() {
             <Route path="prezente" element={<PrezentePage />} />
             <Route path="rezervari" element={<RezervariPage />} />
             <Route path="documente" element={<DocumentePage />} />
+            <Route path="notificari" element={<NotificariPage />} />
             <Route path="profil" element={<ProfilPage />} />
           </Route>
         </Route>

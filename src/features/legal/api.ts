@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase'
-import type { TarifPublic, ProdusPublic } from '@/types/db'
+import type { TarifPublic, ProdusPublic, BiletPublic } from '@/types/db'
 
 // Oferta publică editată de staff în qapp (Setări → Tarife publice). Citită cu
 // rolul `anon` (vizitator nelogat) — RLS permite SELECT public pe tarife_publice.
@@ -21,6 +21,17 @@ export async function listProdusePublice(): Promise<ProdusPublic[]> {
     .select('*')
     .eq('activ', true)
     .order('ordine', { ascending: true })
+  if (error) throw error
+  return data ?? []
+}
+
+// Bilete la evenimentele viitoare, derivate din modulul Evenimente (qapp). View-ul
+// `bilete_publice` filtrează deja la public + viitoare + neanulat — citit cu rolul `anon`.
+export async function listBiletePublice(): Promise<BiletPublic[]> {
+  const { data, error } = await supabase
+    .from('bilete_publice')
+    .select('*')
+    .order('data', { ascending: true })
   if (error) throw error
   return data ?? []
 }

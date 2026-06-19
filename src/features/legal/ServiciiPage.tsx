@@ -3,6 +3,7 @@ import { PaymentBadges } from '@/components/PaymentBadges'
 import { FIRMA, ULTIMA_ACTUALIZARE } from './firma'
 import { TarifeList } from './TarifeList'
 import { ProduseList } from './ProduseList'
+import { BileteList } from './BileteList'
 import { H1, H2, P, UL, Updated } from './ui'
 
 // Pagină PUBLICĂ (fără cont) — servicii, prețuri în RON, mod de plată online,
@@ -38,6 +39,8 @@ export function ServiciiPage() {
       </P>
 
       <ProduseList />
+
+      <BileteList />
 
       <H2>Cum funcționează plata online</H2>
       <P>

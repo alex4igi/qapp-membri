@@ -3316,6 +3316,36 @@ export type Database = {
           },
         ]
       }
+      bilete_publice: {
+        Row: {
+          capacitate: number | null
+          data: string | null
+          descriere: string | null
+          id: string | null
+          locatie: string | null
+          nume: string | null
+          pret_bilet: number | null
+        }
+        Insert: {
+          capacitate?: number | null
+          data?: string | null
+          descriere?: string | null
+          id?: string | null
+          locatie?: string | null
+          nume?: string | null
+          pret_bilet?: number | null
+        }
+        Update: {
+          capacitate?: number | null
+          data?: string | null
+          descriere?: string | null
+          id?: string | null
+          locatie?: string | null
+          nume?: string | null
+          pret_bilet?: number | null
+        }
+        Relationships: []
+      }
       produse_publice: {
         Row: {
           activ: boolean

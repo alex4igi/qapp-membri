@@ -6155,6 +6155,19 @@ export type Database = {
           zile: Database["public"]["Enums"]["zi_saptamana"][]
         }[]
       }
+      get_rezervari_client: {
+        Args: { p_client: string }
+        Returns: {
+          rezervare_id: string
+          sesiune_id: string
+          curs_nume: string
+          data: string
+          locatie: string
+          instructor_nume: string
+          suma: number
+          status: Database["public"]["Enums"]["status_rezervare"]
+        }[]
+      }
       get_incasari_per_sezon: {
         Args: never
         Returns: {

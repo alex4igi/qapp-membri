@@ -9,6 +9,7 @@ import { PrezentePage } from '@/features/prezente/PrezentePage'
 import { RezervariPage } from '@/features/rezervari/RezervariPage'
 import { GrupaPage } from '@/features/grupa/GrupaPage'
 import { ActivitatePage } from '@/features/activitate/ActivitatePage'
+import { CalendarPage } from '@/features/calendar/CalendarPage'
 import { DocumentePage } from '@/features/documente/DocumentePage'
 import { NotificariPage } from '@/features/notificari/NotificariPage'
 import { ProfilPage } from '@/features/profil/ProfilPage'
@@ -42,6 +43,7 @@ export default function App() {
             <Route index element={<AcasaPage />} />
             <Route path="grupa" element={<GrupaPage />} />
             <Route path="activitate" element={<ActivitatePage />} />
+            <Route path="calendar" element={<CalendarPage />} />
             <Route path="plati" element={<PlatiPage />} />
             <Route path="prezente" element={<PrezentePage />} />
             <Route path="rezervari" element={<RezervariPage />} />

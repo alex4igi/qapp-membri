@@ -10,6 +10,7 @@ const NAV = [
   { to: '/', label: 'Acasă', end: true },
   { to: '/grupa', label: 'Grupa mea' },
   { to: '/activitate', label: 'Activitate' },
+  { to: '/calendar', label: 'Calendar' },
   { to: '/plati', label: 'Plăți' },
   { to: '/prezente', label: 'Prezențe' },
   { to: '/rezervari', label: 'Rezervări' },

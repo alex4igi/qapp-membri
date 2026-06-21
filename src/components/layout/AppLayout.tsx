@@ -15,6 +15,7 @@ const NAV = [
   { to: '/prezente', label: 'Prezențe' },
   { to: '/rezervari', label: 'Rezervări' },
   { to: '/documente', label: 'Documente' },
+  { to: '/adeverinta', label: 'Adeverință' },
   { to: '/profil', label: 'Profil' },
 ]
 

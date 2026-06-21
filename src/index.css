@@ -29,3 +29,26 @@ body {
   background: var(--color-quasar-gray-light);
   color: var(--color-quasar-black);
 }
+
+/* La tipărire arătăm DOAR documentul marcat `.print-area` (ex: adeverința),
+   ascunzând restul aplicației (header/nav/footer/controale). */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .print-area,
+  .print-area * {
+    visibility: visible;
+  }
+  .print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    border: none !important;
+    box-shadow: none !important;
+  }
+  @page {
+    margin: 1.5cm;
+  }
+}

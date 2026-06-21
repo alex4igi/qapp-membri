@@ -11,6 +11,7 @@ import { GrupaPage } from '@/features/grupa/GrupaPage'
 import { ActivitatePage } from '@/features/activitate/ActivitatePage'
 import { CalendarPage } from '@/features/calendar/CalendarPage'
 import { DocumentePage } from '@/features/documente/DocumentePage'
+import { AdeverintaPage } from '@/features/adeverinta/AdeverintaPage'
 import { NotificariPage } from '@/features/notificari/NotificariPage'
 import { ProfilPage } from '@/features/profil/ProfilPage'
 import { LegalLayout } from '@/features/legal/LegalLayout'
@@ -48,6 +49,7 @@ export default function App() {
             <Route path="prezente" element={<PrezentePage />} />
             <Route path="rezervari" element={<RezervariPage />} />
             <Route path="documente" element={<DocumentePage />} />
+            <Route path="adeverinta" element={<AdeverintaPage />} />
             <Route path="notificari" element={<NotificariPage />} />
             <Route path="profil" element={<ProfilPage />} />
           </Route>

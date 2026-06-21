@@ -3,6 +3,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { ActiveMemberProvider, useActiveMember } from '@/hooks/useActiveMember'
 import { PaymentBadges } from '@/components/PaymentBadges'
 import { NotificationBell } from '@/features/notificari/NotificationBell'
+import { Logo } from '@/components/Logo'
 import { FIRMA } from '@/features/legal/firma'
 import { cn } from '@/lib/cn'
 
@@ -42,9 +43,7 @@ function Header() {
   return (
     <header className="flex items-center justify-between border-b border-quasar-gray-light bg-quasar-black px-4 py-3">
       <div className="flex items-center gap-2">
-        <span className="rounded bg-quasar-yellow px-2 py-1 text-sm font-black text-quasar-black">
-          QUASAR
-        </span>
+        <Logo className="h-6 w-auto" />
         <span className="text-sm font-semibold text-white">Contul meu</span>
       </div>
       <div className="flex items-center gap-3">

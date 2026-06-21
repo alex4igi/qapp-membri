@@ -1,5 +1,6 @@
 import { Link, NavLink, Outlet } from 'react-router-dom'
 import { PaymentBadges } from '@/components/PaymentBadges'
+import { Logo } from '@/components/Logo'
 import { FIRMA } from './firma'
 
 const links = [
@@ -20,8 +21,8 @@ export function LegalLayout() {
       <header className="border-b border-quasar-gray-light bg-white">
         <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-3 px-4 py-3">
           <Link to="/login" className="flex items-center gap-2">
-            <span className="rounded bg-quasar-yellow px-2 py-0.5 text-base font-black text-quasar-black">
-              QUASAR
+            <span className="inline-block rounded bg-quasar-black px-2 py-1">
+              <Logo className="h-5 w-auto" />
             </span>
             <span className="text-sm font-semibold">Contul meu</span>
           </Link>

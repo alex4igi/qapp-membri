@@ -3,6 +3,7 @@ import { Link, Navigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { Button } from '@/components/ui'
 import { PaymentBadges } from '@/components/PaymentBadges'
+import { Logo } from '@/components/Logo'
 
 export function LoginPage() {
   const { session, signIn } = useAuth()
@@ -29,8 +30,8 @@ export function LoginPage() {
         className="w-full max-w-sm space-y-4 rounded-xl bg-white p-6 shadow-md"
       >
         <div className="text-center">
-          <span className="rounded bg-quasar-yellow px-2 py-1 text-lg font-black text-quasar-black">
-            QUASAR
+          <span className="inline-block rounded-md bg-quasar-black px-3 py-2">
+            <Logo className="h-8 w-auto" />
           </span>
           <h1 className="mt-3 text-xl font-bold">Contul meu</h1>
           <p className="text-sm text-quasar-gray">Quasar Dance</p>

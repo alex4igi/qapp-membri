@@ -1,46 +1,33 @@
-import { useEffect, useState, type FormEvent } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { supabase } from '@/lib/supabase'
-import { useAuth } from '@/hooks/useAuth'
+import { useState, type FormEvent } from 'react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { callPortalAuth } from '@/lib/supabase'
 import { Button } from '@/components/ui'
 
-// Reset parolă în 2 moduri pe aceeași pagină:
-//  - fără sesiune de recuperare → formular „trimite-mi link" (resetPasswordForEmail)
-//  - cu sesiune de recuperare (după click pe linkul din email) → formular „parolă nouă"
-// Supabase emite un eveniment PASSWORD_RECOVERY și creează o sesiune temporară la
-// aterizarea din link; o detectăm prin prezența unei sesiuni pe această rută.
+// Reset parolă în 2 moduri pe aceeași pagină (director de login separat — portal-auth):
+//  - fără ?token în URL → formular „trimite-mi link" (portal-auth request_reset → email)
+//  - cu ?token=… (din linkul primit pe email) → formular „parolă nouă" (portal-auth reset)
 
 export function ResetPage() {
   const navigate = useNavigate()
-  const { updatePassword } = useAuth()
-  const [recovery, setRecovery] = useState(false)
+  const [params] = useSearchParams()
+  const token = params.get('token')
+  const recovery = !!token
+
   const [email, setEmail] = useState('')
   const [pwd, setPwd] = useState('')
   const [msg, setMsg] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) setRecovery(true)
-    })
-    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'PASSWORD_RECOVERY') setRecovery(true)
-    })
-    return () => sub.subscription.unsubscribe()
-  }, [])
-
   async function sendLink(e: FormEvent) {
     e.preventDefault()
     setBusy(true)
     setMsg(null)
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset`,
-    })
+    const { ok, data } = await callPortalAuth({ action: 'request_reset', email })
     setBusy(false)
     setMsg(
-      error
-        ? `Eroare: ${error.message}`
-        : 'Dacă adresa există, ți-am trimis un link de resetare pe email.',
+      ok
+        ? 'Dacă adresa există, ți-am trimis un link de resetare pe email.'
+        : `Eroare: ${(data.error as string) ?? 'încearcă din nou'}`,
     )
   }
 
@@ -48,14 +35,14 @@ export function ResetPage() {
     e.preventDefault()
     setBusy(true)
     setMsg(null)
-    const { error } = await updatePassword(pwd)
+    const { ok, data } = await callPortalAuth({ action: 'reset', token, password: pwd })
     setBusy(false)
-    if (error) {
-      setMsg(`Eroare: ${error}`)
+    if (!ok) {
+      setMsg(`Eroare: ${(data.error as string) ?? 'link invalid sau expirat'}`)
       return
     }
-    setMsg('Parola a fost schimbată. Te redirecționăm…')
-    setTimeout(() => navigate('/'), 1200)
+    setMsg('Parola a fost schimbată. Te redirecționăm la autentificare…')
+    setTimeout(() => navigate('/login'), 1400)
   }
 
   return (
@@ -74,10 +61,10 @@ export function ResetPage() {
           <form onSubmit={setNewPassword} className="space-y-3">
             <input
               type="password"
-              placeholder="Parolă nouă"
+              placeholder="Parolă nouă (min. 8)"
               value={pwd}
               onChange={(e) => setPwd(e.target.value)}
-              minLength={6}
+              minLength={8}
               required
               className="w-full rounded-md border border-quasar-gray-light px-3 py-2 text-sm"
             />

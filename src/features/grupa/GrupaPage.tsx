@@ -21,63 +21,54 @@ function formatOra(ora: string | null): string {
   return ora.slice(0, 5) // "18:00:00" → "18:00"
 }
 
+function Field({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <p className="text-[11px] font-bold text-sub">{label}</p>
+      <p className="text-sm font-bold text-ink">{value}</p>
+    </div>
+  )
+}
+
 function GrupaCard({ g }: { g: GrupaRow }) {
   const subtitlu = [g.nivel, g.varsta, g.stil].filter(Boolean).join(' · ')
   const program = g.zile.map((z) => ZI_SCURT[z] ?? z).join(', ')
+  const programVal = `${program}${g.ora ? ` · ${formatOra(g.ora)}` : ''}`
+  const locatieVal = [g.locatie, g.sala].filter(Boolean).join(' · ')
+  const valabilitate = `${g.dataIncepere ? formatData(g.dataIncepere) : '—'}${
+    g.dataFinal ? ` → ${formatData(g.dataFinal)}` : ''
+  }`
   return (
-    <div className="rounded-lg border border-quasar-gray-light p-4">
+    <div className="bg-surf border border-line rounded-2xl p-6 shadow-card">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="font-semibold">{g.cursNume ?? 'Curs'}</p>
-          {subtitlu && <p className="text-xs text-quasar-gray">{subtitlu}</p>}
+          <p className="text-lg font-extrabold text-ink">{g.cursNume ?? 'Curs'}</p>
+          {subtitlu && <p className="text-sub">{subtitlu}</p>}
         </div>
         {g.tipPlata && (
-          <span className="shrink-0 rounded-full bg-quasar-yellow/20 px-2.5 py-0.5 text-xs font-semibold text-quasar-black">
+          <span className="shrink-0 rounded-full bg-surf2 px-2.5 py-0.5 text-xs font-semibold text-ink">
             {TIP_PLATA_LABEL[g.tipPlata] ?? g.tipPlata}
           </span>
         )}
       </div>
 
-      <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
-        {(program || g.ora) && (
-          <div>
-            <dt className="text-xs text-quasar-gray">Program</dt>
-            <dd className="font-medium">
-              {program}
-              {g.ora ? ` · ${formatOra(g.ora)}` : ''}
-            </dd>
-          </div>
-        )}
-        {(g.locatie || g.sala) && (
-          <div>
-            <dt className="text-xs text-quasar-gray">Locație</dt>
-            <dd className="font-medium">
-              {[g.locatie, g.sala].filter(Boolean).join(' · ')}
-            </dd>
-          </div>
-        )}
+      <div className="mt-4 grid grid-cols-2 gap-x-3 gap-y-3">
+        {(program || g.ora) && <Field label="Program" value={programVal} />}
+        {(g.locatie || g.sala) && <Field label="Locație" value={locatieVal} />}
         {g.instructori.length > 0 && (
-          <div>
-            <dt className="text-xs text-quasar-gray">
-              {g.instructori.length > 1 ? 'Instructori' : 'Instructor'}
-            </dt>
-            <dd className="font-medium">{g.instructori.join(', ')}</dd>
-          </div>
+          <Field
+            label={g.instructori.length > 1 ? 'Instructori' : 'Instructor'}
+            value={g.instructori.join(', ')}
+          />
         )}
-        <div>
-          <dt className="text-xs text-quasar-gray">Valabilitate</dt>
-          <dd className="font-medium">
-            {g.dataIncepere ? formatData(g.dataIncepere) : '—'}
-            {g.dataFinal ? ` → ${formatData(g.dataFinal)}` : ''}
-          </dd>
-        </div>
-      </dl>
+        <Field label="Valabilitate" value={valabilitate} />
+      </div>
     </div>
   )
 }
 
 export function GrupaPage() {
-  const { activeMember, loading } = useActiveMember()
+  const { activeMember, members, activeClientId, setActiveClientId, loading } = useActiveMember()
   const { data, isLoading, error } = useQuery({
     queryKey: ['grupe', activeMember?.clientId],
     queryFn: () => getGrupeClient(activeMember!.clientId),
@@ -85,18 +76,36 @@ export function GrupaPage() {
   })
 
   if (loading) return <Spinner />
-  if (!activeMember) return <p className="text-sm text-quasar-gray">Niciun membru de afișat.</p>
+  if (!activeMember) return <p className="text-sm text-sub">Niciun membru de afișat.</p>
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-bold">Grupa mea — {activeMember.nume}</h1>
+    <div className="mx-auto max-w-5xl space-y-6">
+      {members.length > 1 && (
+        <div className="flex flex-wrap gap-2">
+          {members.map((m) => (
+            <button
+              key={m.clientId}
+              type="button"
+              onClick={() => setActiveClientId(m.clientId)}
+              className={
+                m.clientId === activeClientId
+                  ? 'rounded-full bg-acc px-4 py-1.5 text-sm font-bold text-acc-ink'
+                  : 'rounded-full bg-surf border border-line px-4 py-1.5 text-sm font-bold text-sub'
+              }
+            >
+              {m.nume}
+            </button>
+          ))}
+        </div>
+      )}
+
       {isLoading && <Spinner />}
-      {error && <p className="text-sm text-red-600">Eroare la încărcare.</p>}
+      {error && <p className="text-sm text-danger">Eroare la încărcare.</p>}
       {data && data.length === 0 && (
-        <p className="text-sm text-quasar-gray">Nicio înrolare activă momentan.</p>
+        <p className="text-sm text-sub">Nicio înrolare activă momentan.</p>
       )}
       {data && data.length > 0 && (
-        <div className="space-y-3">
+        <div className="grid gap-4 sm:grid-cols-2">
           {data.map((g) => (
             <GrupaCard key={g.enrollmentId} g={g} />
           ))}

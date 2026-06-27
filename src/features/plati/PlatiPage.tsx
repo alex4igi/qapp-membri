@@ -88,17 +88,16 @@ export function PlatiPage() {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="mx-auto max-w-5xl space-y-5">
       <div>
-        <h1 className="text-2xl font-bold">Plăți</h1>
-        <p className="text-sm text-quasar-gray">
+        <p className="text-sm text-sub">
           Tot ce ai de plată și ce ai achitat. Poți plăti lună cu lună, dar nu poți sări peste o lună
           mai veche neachitată (plata în avans e permisă).
         </p>
       </div>
 
       {returnNotice && (
-        <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-quasar-yellow bg-quasar-yellow/10 px-4 py-3 text-sm">
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-acc bg-surf2 px-4 py-3 text-sm text-ink">
           <span>
             Plata a fost inițiată. Confirmarea apare după procesarea de către bancă; soldul se
             actualizează automat.
@@ -116,19 +115,19 @@ export function PlatiPage() {
       )}
 
       {/* Sold familie */}
-      <section className="rounded-lg border border-quasar-gray-light p-4">
-        <div className="flex items-center justify-between">
-          <span className="text-sm font-semibold">Sold familie</span>
-          <span className={cn('text-lg font-bold', totalFamilie > 0 ? 'text-red-600' : 'text-green-700')}>
+      <section className="rounded-2xl border border-line bg-surf p-5 shadow-card">
+        <div className="flex items-center justify-between gap-3">
+          <span className="text-sm font-semibold text-sub">Sold familie</span>
+          <span className={cn('text-2xl font-extrabold tracking-tight', totalFamilie > 0 ? 'text-danger' : 'text-ok')}>
             {formatRON(totalFamilie)}
           </span>
         </div>
         {(sold.data ?? []).filter((r) => r.restanta > 0).length > 0 && (
-          <ul className="mt-2 space-y-1">
+          <ul className="mt-3 space-y-1 border-t border-line pt-3">
             {sold.data!.filter((r) => r.restanta > 0).map((r) => (
               <li key={r.clientId} className="flex justify-between text-sm">
-                <span>{numeById.get(r.clientId) ?? r.nume}</span>
-                <span className="font-medium text-red-600">{formatRON(r.restanta)}</span>
+                <span className="text-ink">{numeById.get(r.clientId) ?? r.nume}</span>
+                <span className="font-medium text-danger">{formatRON(r.restanta)}</span>
               </li>
             ))}
           </ul>
@@ -139,50 +138,53 @@ export function PlatiPage() {
 
       {/* Detaliu pe înrolări — grupat pe sezon */}
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold">Situația — {activeMember?.nume ?? '—'}</h2>
+        <h2 className="text-base font-extrabold tracking-tight text-ink">Situația — {activeMember?.nume ?? '—'}</h2>
         {plati.isLoading && <Spinner />}
         {plati.data && rows.length === 0 && (
-          <p className="text-sm text-quasar-gray">Nicio înrolare.</p>
+          <p className="text-sm text-sub">Nicio înrolare.</p>
         )}
 
         {groups.map((g) => (
-          <div key={g.sezon} className="rounded-lg border border-quasar-gray-light">
-            <div className="border-b border-quasar-gray-light bg-quasar-gray-light/20 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-quasar-gray">
+          <div key={g.sezon} className="overflow-hidden rounded-2xl border border-line bg-surf shadow-card">
+            <div className="border-b border-line bg-surf2 px-4 py-2 text-xs font-bold uppercase tracking-wide text-sub">
               {g.sezon}
             </div>
-            <ul className="divide-y divide-quasar-gray-light">
+            <ul className="divide-y divide-line">
               {g.rows.map((r) => {
                 const achitat = r.rest <= 0
                 const selectable = !achitat && !!r.dataIncepere
                 const checked = isSelected(r)
                 return (
-                  <li key={r.enrollmentId} className="flex items-center justify-between gap-3 px-4 py-3">
+                  <li
+                    key={r.enrollmentId}
+                    className={cn('flex items-center justify-between gap-3 px-4 py-3', achitat && 'opacity-70')}
+                  >
                     <div className="flex items-center gap-3">
                       {selectable ? (
                         <input
                           type="checkbox"
                           checked={checked}
                           onChange={() => toggle(r)}
-                          className="h-4 w-4 shrink-0"
+                          className="h-4 w-4 shrink-0 accent-acc"
                           aria-label={`Selectează ${r.cursNume ?? ''}`}
                         />
                       ) : (
                         <span className="h-4 w-4 shrink-0" />
                       )}
                       <div>
-                        <p className="text-sm font-medium">{r.cursNume ?? 'Curs'}</p>
-                        <p className="text-xs text-quasar-gray">
+                        <p className="text-sm font-medium text-ink">{r.cursNume ?? 'Curs'}</p>
+                        <p className="text-xs text-sub">
                           {formatData(r.dataIncepere)} · {r.tipPlata ?? ''}
                           {r.codVoucher ? ` · voucher ${r.codVoucher}` : ''}
                         </p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm">{formatRON(r.platit)} / {formatRON(r.total)}</p>
+                      <p className="text-sm text-ink">{formatRON(r.platit)} / {formatRON(r.total)}</p>
                       {achitat ? (
-                        <span className="text-xs font-semibold text-green-700">ACHITAT</span>
+                        <span className="text-xs font-semibold text-ok">ACHITAT</span>
                       ) : (
-                        <span className="text-xs font-semibold text-red-600">rest {formatRON(r.rest)}</span>
+                        <span className="text-xs font-semibold text-danger">rest {formatRON(r.rest)}</span>
                       )}
                     </div>
                   </li>
@@ -195,28 +197,28 @@ export function PlatiPage() {
 
       {/* Rezumat comandă + plată */}
       {unpaid.length > 0 && (
-        <section className="space-y-2 rounded-lg border border-quasar-gray-light bg-quasar-gray-light/10 p-4">
-          <p className="text-sm font-semibold">Rezumat comandă</p>
+        <section className="space-y-2 rounded-2xl bg-surf2 p-5">
+          <p className="text-base font-extrabold tracking-tight text-ink">Rezumat comandă</p>
           <div className="flex justify-between text-sm">
-            <span className="text-quasar-gray">
+            <span className="text-sub">
               {selectedRows.length === 0
                 ? 'Nicio lună selectată'
                 : `${selectedRows.length} ${selectedRows.length === 1 ? 'lună selectată' : 'luni selectate'}`}
             </span>
-            <span className="font-bold">{formatRON(selectedSum)}</span>
+            <span className="font-extrabold text-ink">{formatRON(selectedSum)}</span>
           </div>
-          <p className="text-xs text-quasar-gray">
+          <p className="text-xs text-sub">
             Moneda: RON. Vei fi redirecționat către NETOPIA Payments pentru plata securizată cu cardul.
           </p>
           <PaymentBadges />
           <Button
             onClick={() => pay.mutate()}
             disabled={pay.isPending || selectedSum <= 0}
-            className="w-full sm:w-auto"
+            className="w-full"
           >
             {pay.isPending ? 'Se inițiază…' : `Plătește ${formatRON(selectedSum)}`}
           </Button>
-          {pay.isError && <p className="mt-1 text-xs text-red-600">{(pay.error as Error).message}</p>}
+          {pay.isError && <p className="mt-1 text-xs text-danger">{(pay.error as Error).message}</p>}
         </section>
       )}
     </div>

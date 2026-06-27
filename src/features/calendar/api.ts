@@ -19,6 +19,41 @@ export type RezervareRow = {
   instructorNume: string | null
 }
 
+// Sezonul activ (interval an școlar) + vacanțele lui — surse studio-wide expuse
+// prin RPC-uri SECURITY DEFINER din qapp v2 (portal nu poate citi tabelele direct).
+export type SezonInfo = {
+  sezonId: string
+  nume: string | null
+  dataIncepere: string | null
+  dataFinal: string | null
+}
+
+export async function getSezonCurentClient(): Promise<SezonInfo | null> {
+  const { data, error } = await supabase.rpc('get_sezon_curent_client')
+  if (error) throw error
+  const r = (data ?? [])[0]
+  if (!r) return null
+  return { sezonId: r.sezon_id, nume: r.nume, dataIncepere: r.data_incepere, dataFinal: r.data_final }
+}
+
+export type VacantaInfo = {
+  id: string
+  nume: string | null
+  dataIncepere: string
+  dataFinal: string
+}
+
+export async function getVacanteClient(): Promise<VacantaInfo[]> {
+  const { data, error } = await supabase.rpc('get_vacante_client')
+  if (error) throw error
+  return (data ?? []).map((r) => ({
+    id: r.vacanta_id,
+    nume: r.nume,
+    dataIncepere: r.data_incepere,
+    dataFinal: r.data_final,
+  }))
+}
+
 export async function getRezervariClient(clientId: string): Promise<RezervareRow[]> {
   const { data, error } = await supabase.rpc('get_rezervari_client', { p_client: clientId })
   if (error) throw error

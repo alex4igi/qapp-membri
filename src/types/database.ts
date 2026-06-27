@@ -12,31 +12,6 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
       anunturi: {
@@ -401,6 +376,42 @@ export type Database = {
           },
         ]
       }
+      chat_logs: {
+        Row: {
+          answer: string | null
+          audienta: string
+          created_at: string
+          id: string
+          locatie_id: string | null
+          question: string
+          role: string
+          tools_used: string[] | null
+          user_id: string
+        }
+        Insert: {
+          answer?: string | null
+          audienta: string
+          created_at?: string
+          id?: string
+          locatie_id?: string | null
+          question: string
+          role: string
+          tools_used?: string[] | null
+          user_id: string
+        }
+        Update: {
+          answer?: string | null
+          audienta?: string
+          created_at?: string
+          id?: string
+          locatie_id?: string | null
+          question?: string
+          role?: string
+          tools_used?: string[] | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       cheltuieli: {
         Row: {
           achitat: boolean
@@ -598,6 +609,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "clienti_auth_user_id_fkey"
+            columns: ["auth_user_id"]
+            isOneToOne: false
+            referencedRelation: "portal_accounts"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "fk_clienti_familia"
             columns: ["familia"]
             isOneToOne: false
@@ -669,6 +687,102 @@ export type Database = {
         }
         Relationships: []
       }
+      confirmari_inrolare_sms: {
+        Row: {
+          created: string
+          enrollment_id: string
+          error: string | null
+          id: string
+          mesaj: string | null
+          send_after: string
+          status: string
+          telefon: string | null
+          trimis_la: string | null
+        }
+        Insert: {
+          created?: string
+          enrollment_id: string
+          error?: string | null
+          id?: string
+          mesaj?: string | null
+          send_after?: string
+          status?: string
+          telefon?: string | null
+          trimis_la?: string | null
+        }
+        Update: {
+          created?: string
+          enrollment_id?: string
+          error?: string | null
+          id?: string
+          mesaj?: string | null
+          send_after?: string
+          status?: string
+          telefon?: string | null
+          trimis_la?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "confirmari_inrolare_sms_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "enrollments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "confirmari_inrolare_sms_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "lista_clienti"
+            referencedColumns: ["id_inrolare"]
+          },
+          {
+            foreignKeyName: "confirmari_inrolare_sms_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "plati_inrolari"
+            referencedColumns: ["id_enrollment"]
+          },
+        ]
+      }
+      confirmari_programare_sms: {
+        Row: {
+          created: string
+          error: string | null
+          id: string
+          lead_id: string
+          send_after: string
+          status: string
+          trimis_la: string | null
+        }
+        Insert: {
+          created?: string
+          error?: string | null
+          id?: string
+          lead_id: string
+          send_after?: string
+          status?: string
+          trimis_la?: string | null
+        }
+        Update: {
+          created?: string
+          error?: string | null
+          id?: string
+          lead_id?: string
+          send_after?: string
+          status?: string
+          trimis_la?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "confirmari_programare_sms_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cursuri: {
         Row: {
           capacitate_maxima: number | null
@@ -677,12 +791,14 @@ export type Database = {
           durata_cursului: number | null
           facultativ: boolean
           id: string
+          link_whatsapp: string | null
           locatie: string | null
           nivelul: Database["public"]["Enums"]["nivel_curs"] | null
           numele: string
           old_sub_id: number | null
           one_time: boolean
           ora: string | null
+          ore_pe_zi: Json | null
           participari_eveniment: boolean
           pret_anual: number | null
           pret_lunar: number | null
@@ -705,12 +821,14 @@ export type Database = {
           durata_cursului?: number | null
           facultativ?: boolean
           id?: string
+          link_whatsapp?: string | null
           locatie?: string | null
           nivelul?: Database["public"]["Enums"]["nivel_curs"] | null
           numele: string
           old_sub_id?: number | null
           one_time?: boolean
           ora?: string | null
+          ore_pe_zi?: Json | null
           participari_eveniment?: boolean
           pret_anual?: number | null
           pret_lunar?: number | null
@@ -733,12 +851,14 @@ export type Database = {
           durata_cursului?: number | null
           facultativ?: boolean
           id?: string
+          link_whatsapp?: string | null
           locatie?: string | null
           nivelul?: Database["public"]["Enums"]["nivel_curs"] | null
           numele?: string
           old_sub_id?: number | null
           one_time?: boolean
           ora?: string | null
+          ore_pe_zi?: Json | null
           participari_eveniment?: boolean
           pret_anual?: number | null
           pret_lunar?: number | null
@@ -1817,6 +1937,7 @@ export type Database = {
           locatia: string | null
           notite: string | null
           nume_eveniment: string
+          ora: string | null
           organizator: string | null
           participant: string[]
           pret_bilet: number | null
@@ -1835,6 +1956,7 @@ export type Database = {
           locatia?: string | null
           notite?: string | null
           nume_eveniment: string
+          ora?: string | null
           organizator?: string | null
           participant?: string[]
           pret_bilet?: number | null
@@ -1853,6 +1975,7 @@ export type Database = {
           locatia?: string | null
           notite?: string | null
           nume_eveniment?: string
+          ora?: string | null
           organizator?: string | null
           participant?: string[]
           pret_bilet?: number | null
@@ -1985,7 +2108,15 @@ export type Database = {
           telefon_2?: string | null
           updated?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "familii_auth_user_id_fkey"
+            columns: ["auth_user_id"]
+            isOneToOne: false
+            referencedRelation: "portal_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       feedback: {
         Row: {
@@ -2755,6 +2886,7 @@ export type Database = {
           id: string
           link_maps: string | null
           nume: string
+          ora_inchidere: string
           telefon: string | null
           updated: string
         }
@@ -2764,6 +2896,7 @@ export type Database = {
           id?: string
           link_maps?: string | null
           nume: string
+          ora_inchidere?: string
           telefon?: string | null
           updated?: string
         }
@@ -2773,10 +2906,131 @@ export type Database = {
           id?: string
           link_maps?: string | null
           nume?: string
+          ora_inchidere?: string
           telefon?: string | null
           updated?: string
         }
         Relationships: []
+      }
+      motivari_absenta: {
+        Row: {
+          absente: number
+          aprobat_de: string | null
+          client: string
+          created: string
+          document: string | null
+          enrollment: string
+          id: string
+          luna: string
+          observatii: string | null
+          prag: number
+          scutit: boolean
+        }
+        Insert: {
+          absente?: number
+          aprobat_de?: string | null
+          client: string
+          created?: string
+          document?: string | null
+          enrollment: string
+          id?: string
+          luna: string
+          observatii?: string | null
+          prag?: number
+          scutit?: boolean
+        }
+        Update: {
+          absente?: number
+          aprobat_de?: string | null
+          client?: string
+          created?: string
+          document?: string | null
+          enrollment?: string
+          id?: string
+          luna?: string
+          observatii?: string | null
+          prag?: number
+          scutit?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "motivari_absenta_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "clienti"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "motivari_absenta_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "inrolari_clienti"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "motivari_absenta_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "lista_clienti"
+            referencedColumns: ["id_client"]
+          },
+          {
+            foreignKeyName: "motivari_absenta_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "plati_inrolari"
+            referencedColumns: ["id_cursant"]
+          },
+          {
+            foreignKeyName: "motivari_absenta_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "profil_client"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "motivari_absenta_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "raport_financiar"
+            referencedColumns: ["id_cursant"]
+          },
+          {
+            foreignKeyName: "motivari_absenta_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "raport_incasari"
+            referencedColumns: ["id_cursant"]
+          },
+          {
+            foreignKeyName: "motivari_absenta_document_fkey"
+            columns: ["document"]
+            isOneToOne: false
+            referencedRelation: "documente_client"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "motivari_absenta_enrollment_fkey"
+            columns: ["enrollment"]
+            isOneToOne: false
+            referencedRelation: "enrollments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "motivari_absenta_enrollment_fkey"
+            columns: ["enrollment"]
+            isOneToOne: false
+            referencedRelation: "lista_clienti"
+            referencedColumns: ["id_inrolare"]
+          },
+          {
+            foreignKeyName: "motivari_absenta_enrollment_fkey"
+            columns: ["enrollment"]
+            isOneToOne: false
+            referencedRelation: "plati_inrolari"
+            referencedColumns: ["id_enrollment"]
+          },
+        ]
       }
       netopia_orders: {
         Row: {
@@ -2899,6 +3153,10 @@ export type Database = {
           payload: Json | null
           read_at: string | null
           recipient_user_id: string
+          requires_action: boolean
+          resolved_at: string | null
+          resolved_by: string | null
+          status: string | null
           title: string
         }
         Insert: {
@@ -2909,6 +3167,10 @@ export type Database = {
           payload?: Json | null
           read_at?: string | null
           recipient_user_id: string
+          requires_action?: boolean
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string | null
           title: string
         }
         Update: {
@@ -2919,6 +3181,10 @@ export type Database = {
           payload?: Json | null
           read_at?: string | null
           recipient_user_id?: string
+          requires_action?: boolean
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string | null
           title?: string
         }
         Relationships: []
@@ -3250,6 +3516,109 @@ export type Database = {
         }
         Relationships: []
       }
+      portal_accounts: {
+        Row: {
+          created_at: string
+          email: string
+          failed_attempts: number
+          id: string
+          last_login_at: string | null
+          locked_until: string | null
+          password_hash: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          failed_attempts?: number
+          id?: string
+          last_login_at?: string | null
+          locked_until?: string | null
+          password_hash: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          failed_attempts?: number
+          id?: string
+          last_login_at?: string | null
+          locked_until?: string | null
+          password_hash?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      portal_reset_tokens: {
+        Row: {
+          account_id: string
+          created_at: string
+          expires_at: string
+          id: string
+          token_hash: string
+          used_at: string | null
+        }
+        Insert: {
+          account_id: string
+          created_at?: string
+          expires_at: string
+          id?: string
+          token_hash: string
+          used_at?: string | null
+        }
+        Update: {
+          account_id?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          token_hash?: string
+          used_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "portal_reset_tokens_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "portal_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      portal_sessions: {
+        Row: {
+          account_id: string
+          created_at: string
+          expires_at: string
+          id: string
+          last_used_at: string | null
+          token_hash: string
+        }
+        Insert: {
+          account_id: string
+          created_at?: string
+          expires_at: string
+          id?: string
+          last_used_at?: string | null
+          token_hash: string
+        }
+        Update: {
+          account_id?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          last_used_at?: string | null
+          token_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "portal_sessions_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "portal_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       prezente: {
         Row: {
           client: string | null
@@ -3356,11 +3725,13 @@ export type Database = {
           created: string
           cursul_programat: string | null
           data_programarii: string | null
+          eveniment_programat: string | null
           id: string
           interes: Database["public"]["Enums"]["interes_programare"] | null
           lead: string | null
           locatie: string | null
           observatii: string | null
+          ora: string | null
           prezenta: Database["public"]["Enums"]["prezenta_lead"]
           updated: string
         }
@@ -3368,11 +3739,13 @@ export type Database = {
           created?: string
           cursul_programat?: string | null
           data_programarii?: string | null
+          eveniment_programat?: string | null
           id?: string
           interes?: Database["public"]["Enums"]["interes_programare"] | null
           lead?: string | null
           locatie?: string | null
           observatii?: string | null
+          ora?: string | null
           prezenta?: Database["public"]["Enums"]["prezenta_lead"]
           updated?: string
         }
@@ -3380,11 +3753,13 @@ export type Database = {
           created?: string
           cursul_programat?: string | null
           data_programarii?: string | null
+          eveniment_programat?: string | null
           id?: string
           interes?: Database["public"]["Enums"]["interes_programare"] | null
           lead?: string | null
           locatie?: string | null
           observatii?: string | null
+          ora?: string | null
           prezenta?: Database["public"]["Enums"]["prezenta_lead"]
           updated?: string
         }
@@ -3501,6 +3876,20 @@ export type Database = {
             referencedRelation: "restante_locatie_luna"
             referencedColumns: ["id_locatie"]
           },
+          {
+            foreignKeyName: "programari_leads_eveniment_programat_fkey"
+            columns: ["eveniment_programat"]
+            isOneToOne: false
+            referencedRelation: "bilete_publice"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "programari_leads_eveniment_programat_fkey"
+            columns: ["eveniment_programat"]
+            isOneToOne: false
+            referencedRelation: "evenimente"
+            referencedColumns: ["id"]
+          },
         ]
       }
       prospecti: {
@@ -3555,6 +3944,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      qbot_kb: {
+        Row: {
+          activ: boolean
+          audienta: string
+          categorie: string
+          continut: string
+          id: string
+          pagina: string | null
+          rol_necesar: string | null
+          titlu: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          activ?: boolean
+          audienta: string
+          categorie: string
+          continut: string
+          id?: string
+          pagina?: string | null
+          rol_necesar?: string | null
+          titlu: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          activ?: boolean
+          audienta?: string
+          categorie?: string
+          continut?: string
+          id?: string
+          pagina?: string | null
+          rol_necesar?: string | null
+          titlu?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
       }
       reconcilieri_cash: {
         Row: {
@@ -4573,6 +5001,7 @@ export type Database = {
       }
       vouchere: {
         Row: {
+          cerinta_eligibilitate: string | null
           client: string | null
           cod_voucher: string
           created: string
@@ -4589,6 +5018,7 @@ export type Database = {
           valoare: number | null
         }
         Insert: {
+          cerinta_eligibilitate?: string | null
           client?: string | null
           cod_voucher: string
           created?: string
@@ -4605,6 +5035,7 @@ export type Database = {
           valoare?: number | null
         }
         Update: {
+          cerinta_eligibilitate?: string | null
           client?: string | null
           cod_voucher?: string
           created?: string
@@ -5366,6 +5797,7 @@ export type Database = {
           platit: number | null
           politica_discount: number | null
           prenume_client: string | null
+          prescris: boolean | null
           rest: number | null
           suma_baza: number | null
           tip_plata: Database["public"]["Enums"]["tip_plata"] | null
@@ -5502,6 +5934,7 @@ export type Database = {
       }
       raport_incasari: {
         Row: {
+          categorie: Database["public"]["Enums"]["categorie_incasare"] | null
           data: string | null
           data_incepere: string | null
           data_platii: string | null
@@ -5850,6 +6283,10 @@ export type Database = {
         Returns: number
       }
       activate_sezon: { Args: { p_sezon_id: string }; Returns: undefined }
+      add_eveniment_participant: {
+        Args: { p_client: string; p_eveniment: string }
+        Returns: undefined
+      }
       anuleaza_rezervare_open: {
         Args: { p_motiv?: string; p_rezervare: string }
         Returns: undefined
@@ -5861,6 +6298,14 @@ export type Database = {
           p_curs_tinta_id: string
         }
         Returns: string
+      }
+      aproba_motivare_absenta: {
+        Args: {
+          p_document?: string
+          p_enrollment: string
+          p_observatii?: string
+        }
+        Returns: Json
       }
       archive_expired_sezoane: { Args: never; Returns: number }
       audit_digest_dispatch_weekly: { Args: never; Returns: number }
@@ -5926,6 +6371,7 @@ export type Database = {
         Args: { p_entity: string; p_id: string }
         Returns: undefined
       }
+      client_in_trupa: { Args: { p_client: string }; Returns: boolean }
       client_member_ids: { Args: never; Returns: string[] }
       clone_sezon: {
         Args: {
@@ -5994,7 +6440,31 @@ export type Database = {
       current_client: { Args: never; Returns: string }
       current_familie: { Args: never; Returns: string }
       current_teacher_id: { Args: never; Returns: string }
+      delete_curs_safe: {
+        Args: { p_force?: boolean; p_id: string }
+        Returns: undefined
+      }
+      delete_teacher_safe: {
+        Args: { p_force?: boolean; p_id: string }
+        Returns: undefined
+      }
+      enqueue_confirmare_programare: {
+        Args: { p_lead: string }
+        Returns: undefined
+      }
+      evaluare_in_locatia_mea: { Args: { p_curs: string }; Returns: boolean }
       expire_open_holds: { Args: never; Returns: number }
+      get_absente_consecutive: {
+        Args: { p_locatie?: string; p_prag?: number }
+        Returns: {
+          absente_consecutive: number
+          client_id: string
+          client_nume: string
+          curs_id: string
+          curs_nume: string
+          ultima_prezenta: string
+        }[]
+      }
       get_anunturi_client: {
         Args: never
         Returns: {
@@ -6003,6 +6473,15 @@ export type Database = {
           id: string
           read_at: string
           titlu: string
+        }[]
+      }
+      get_arpu_trend: {
+        Args: { p_from: string; p_locatie?: string; p_to: string }
+        Returns: {
+          arpu: number
+          clienti_activi: number
+          luna: string
+          venit: number
         }[]
       }
       get_campanie_progress: {
@@ -6043,6 +6522,16 @@ export type Database = {
           locatie_nume: string
         }[]
       }
+      get_colectare_dso: {
+        Args: { p_from: string; p_to: string }
+        Returns: {
+          dso_zile: number
+          facturat: number
+          incasat: number
+          rata_colectare: number
+          restante_net: number
+        }[]
+      }
       get_conversie_leads: {
         Args: { p_luni?: number }
         Returns: {
@@ -6078,6 +6567,14 @@ export type Database = {
           status: string
         }[]
       }
+      get_cursanti_multi_stil: {
+        Args: never
+        Returns: {
+          multi_stil: number
+          procent: number
+          total_activi: number
+        }[]
+      }
       get_documente_client: {
         Args: { p_client: string }
         Returns: {
@@ -6087,6 +6584,13 @@ export type Database = {
           observatii: string
           tip: Database["public"]["Enums"]["tip_document"]
           titlu: string
+        }[]
+      }
+      get_durata_medie_ltv: {
+        Args: { p_locatie?: string }
+        Returns: {
+          durata_medie_luni: number
+          ltv_mediu: number
         }[]
       }
       get_evaluari_client: {
@@ -6122,6 +6626,14 @@ export type Database = {
           tip: Database["public"]["Enums"]["tip_eveniment"]
         }[]
       }
+      get_familii_frati: {
+        Args: never
+        Returns: {
+          copii_in_familii_frati: number
+          familii_cu_frati: number
+          total_familii: number
+        }[]
+      }
       get_grad_ocupare: {
         Args: { p_locatie?: string }
         Returns: {
@@ -6155,19 +6667,6 @@ export type Database = {
           zile: Database["public"]["Enums"]["zi_saptamana"][]
         }[]
       }
-      get_rezervari_client: {
-        Args: { p_client: string }
-        Returns: {
-          rezervare_id: string
-          sesiune_id: string
-          curs_nume: string
-          data: string
-          locatie: string
-          instructor_nume: string
-          suma: number
-          status: Database["public"]["Enums"]["status_rezervare"]
-        }[]
-      }
       get_incasari_per_sezon: {
         Args: never
         Returns: {
@@ -6180,6 +6679,48 @@ export type Database = {
           total_incasari: number
         }[]
       }
+      get_instructori_clienti_trend: {
+        Args: { p_luni?: number }
+        Returns: {
+          clienti_curent: number
+          clienti_prev: number
+          delta: number
+          retentie_procent: number
+          serie: number[]
+          teacher_id: string
+          teacher_nume: string
+        }[]
+      }
+      get_kpis_financiar: {
+        Args: { p_from: string; p_to: string }
+        Returns: {
+          cheltuieli: number
+          incasari: number
+          restante: number
+        }[]
+      }
+      get_lead_funnel: {
+        Args: { p_from: string; p_locatie?: string; p_to: string }
+        Returns: {
+          contactati: number
+          convertiti: number
+          leads_total: number
+          prezenti: number
+          proba: number
+          retentie_90z: number
+          retentie_eligibili: number
+          sursa_id: string
+          sursa_nume: string
+        }[]
+      }
+      get_leads_pe_luna: {
+        Args: { p_from: string; p_locatie?: string; p_to: string }
+        Returns: {
+          convertiti: number
+          leads: number
+          luna: string
+        }[]
+      }
       get_membri_familie: {
         Args: never
         Returns: {
@@ -6187,6 +6728,52 @@ export type Database = {
           data_nasterii: string
           nume: string
           prenume: string
+        }[]
+      }
+      get_mix_categorii_cheltuieli: {
+        Args: { p_from: string; p_to: string }
+        Returns: {
+          categorie: string
+          total: number
+        }[]
+      }
+      get_mix_categorii_incasari: {
+        Args: { p_from: string; p_to: string }
+        Returns: {
+          categorie: string
+          total: number
+        }[]
+      }
+      get_mix_metode: {
+        Args: { p_from: string; p_to: string }
+        Returns: {
+          metoda: string
+          total: number
+        }[]
+      }
+      get_mix_recurent_oneoff: {
+        Args: { p_from: string; p_to: string }
+        Returns: {
+          tip: string
+          total: number
+        }[]
+      }
+      get_mrr_trend: {
+        Args: { p_locatie?: string; p_luni?: number }
+        Returns: {
+          enrolari: number
+          luna: string
+          mrr: number
+        }[]
+      }
+      get_ocupare_prime_time: {
+        Args: { p_locatie?: string }
+        Returns: {
+          activi: number
+          capacitate: number
+          grupe: number
+          procent: number
+          slot: string
         }[]
       }
       get_participari_client: {
@@ -6324,8 +6911,36 @@ export type Database = {
           varsta: Database["public"]["Enums"]["varsta_curs"]
         }[]
       }
-      get_restante_worklist: {
+      get_rentabilitate_grupa: {
+        Args: { p_luni?: number }
+        Returns: {
+          activi: number
+          curs_id: string
+          curs_nume: string
+          incasari: number
+          locatie_nume: string
+          marja: number
+          salariu_atribuit: number
+        }[]
+      }
+      get_restante_aging: {
         Args: { p_locatie?: string }
+        Returns: {
+          bucket: string
+          nr: number
+          total: number
+        }[]
+      }
+      get_restante_totale: {
+        Args: { p_locatie?: string }
+        Returns: {
+          rest_net: number
+          rest_prescris: number
+          rest_total: number
+        }[]
+      }
+      get_restante_worklist: {
+        Args: { p_locatie?: string; p_sezon?: string }
         Returns: {
           client_id: string
           nr_rate_neachitate: number
@@ -6338,6 +6953,37 @@ export type Database = {
           ultim_apel_rezultat: string
           ultima_prezenta: string
           zile_depasire: number
+        }[]
+      }
+      get_retentie_cohorte: {
+        Args: { p_sezon?: string }
+        Returns: {
+          cohorta_luna: string
+          luni_de_la_start: number
+          procent: number
+          ramasi: number
+          total_initial: number
+        }[]
+      }
+      get_retentie_membri: {
+        Args: never
+        Returns: {
+          baza_prev: number
+          pierduti: number
+          retinuti: number
+        }[]
+      }
+      get_rezervari_client: {
+        Args: { p_client: string }
+        Returns: {
+          curs_nume: string
+          data: string
+          instructor_nume: string
+          locatie: string
+          rezervare_id: string
+          sesiune_id: string
+          status: Database["public"]["Enums"]["status_rezervare"]
+          suma: number
         }[]
       }
       get_rezultate_concursuri: {
@@ -6422,6 +7068,15 @@ export type Database = {
           volum_clasa: string
         }[]
       }
+      get_sezon_curent_client: {
+        Args: never
+        Returns: {
+          data_final: string
+          data_incepere: string
+          nume: string
+          sezon_id: string
+        }[]
+      }
       get_sms_recipients: {
         Args: { p_cod?: string; p_locatie?: string; p_sezon?: string }
         Returns: {
@@ -6446,6 +7101,7 @@ export type Database = {
       }
       get_statistica_prezente_achitare: {
         Args: {
+          p_curs?: string
           p_from: string
           p_locatie?: string
           p_teacher?: string
@@ -6456,6 +7112,19 @@ export type Database = {
           din_trecut: number
           luna: string
           neachitate: number
+        }[]
+      }
+      get_teacher_overview: {
+        Args: { p_teacher_id: string }
+        Returns: {
+          activi: number
+          curs_id: string
+          curs_nivel: string
+          curs_nume: string
+          datorie: number
+          facultativ: boolean
+          posibile: number
+          prezenti: number
         }[]
       }
       get_trend_prezente: {
@@ -6474,6 +7143,23 @@ export type Database = {
           rata_recenta: number
           saptamani: Json
           teacher_nume: string
+        }[]
+      }
+      get_vacante_client: {
+        Args: never
+        Returns: {
+          data_final: string
+          data_incepere: string
+          nume: string
+          vacanta_id: string
+        }[]
+      }
+      get_yoy_aceeasi_luna: {
+        Args: { p_locatie?: string; p_metrica?: string }
+        Returns: {
+          an_curent: number
+          an_precedent: number
+          luna_num: number
         }[]
       }
       hold_loc_open: {
@@ -6534,6 +7220,10 @@ export type Database = {
       }
       my_teacher_id: { Args: never; Returns: string }
       notifications_mark_all_read: { Args: never; Returns: number }
+      notifications_resolve: {
+        Args: { p_id: string; p_raspuns?: string }
+        Returns: undefined
+      }
       notifications_unread_count: { Args: never; Returns: number }
       notify_enrollment_move: {
         Args: {
@@ -6577,6 +7267,10 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      pontaj_closing_at: {
+        Args: { p_locatie: string; p_start: string }
+        Returns: string
+      }
       pontaj_open_session: {
         Args: never
         Returns: {
@@ -6595,10 +7289,40 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      portal_create_account: {
+        Args: { p_email: string; p_password: string }
+        Returns: string
+      }
+      portal_login: {
+        Args: { p_email: string; p_password: string }
+        Returns: {
+          email: string
+          id: string
+        }[]
+      }
+      portal_set_password: {
+        Args: { p_id: string; p_password: string }
+        Returns: undefined
+      }
+      portal_upsert_credentials: {
+        Args: { p_email: string; p_password: string }
+        Returns: string
+      }
       preview_anunt_client: { Args: { p_curs_id?: string }; Returns: number }
       preview_anunt_staff: {
         Args: { p_target_locatie_ids: string[]; p_target_roles: string[] }
         Returns: number
+      }
+      preview_pool_discount: {
+        Args: {
+          p_client: string
+          p_suma_baza: number
+          p_tip_plata: Database["public"]["Enums"]["tip_plata"]
+        }
+        Returns: {
+          politica_discount: number
+          suma_finala: number
+        }[]
       }
       prune_expired_leads: { Args: never; Returns: number }
       recalculate_pool_discount: {
@@ -6622,6 +7346,10 @@ export type Database = {
         }
         Returns: string
       }
+      remove_eveniment_participant: {
+        Args: { p_client: string; p_eveniment: string }
+        Returns: undefined
+      }
       resolve_anunt_clienti: {
         Args: { p_curs_id?: string }
         Returns: {
@@ -6637,9 +7365,11 @@ export type Database = {
           p_instructor?: string
           p_locatie: string
           p_metoda: Database["public"]["Enums"]["metoda_plata"]
+          p_metoda2?: Database["public"]["Enums"]["metoda_plata"]
           p_permite_overbook?: boolean
           p_sesiune?: string
           p_suma: number
+          p_suma2?: number
         }
         Returns: string
       }
@@ -6786,7 +7516,7 @@ export type Database = {
         | "L"
         | "XL"
         | "XXL"
-      metoda_plata: "Cash" | "Card" | "Transfer" | "Revolut"
+      metoda_plata: "Cash" | "Card" | "Transfer" | "Revolut" | "Online"
       nivel_curs: "Incepator" | "Intermediar" | "Avansat" | "Trupa"
       nivel_teacher: "Junior" | "Senior" | "Expert"
       prezenta_lead: "programat" | "prezent" | "absent"
@@ -6972,9 +7702,6 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {
       app_feedback_status: [
@@ -7037,7 +7764,7 @@ export const Constants = {
         "XL",
         "XXL",
       ],
-      metoda_plata: ["Cash", "Card", "Transfer", "Revolut"],
+      metoda_plata: ["Cash", "Card", "Transfer", "Revolut", "Online"],
       nivel_curs: ["Incepator", "Intermediar", "Avansat", "Trupa"],
       nivel_teacher: ["Junior", "Senior", "Expert"],
       prezenta_lead: ["programat", "prezent", "absent"],

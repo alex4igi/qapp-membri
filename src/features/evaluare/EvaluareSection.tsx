@@ -18,7 +18,7 @@ function Stars({ value, onChange }: { value: number; onChange: (v: number) => vo
           onClick={() => onChange(n)}
           className={cn(
             'text-2xl leading-none transition-colors',
-            n <= (hover || value) ? 'text-quasar-yellow' : 'text-quasar-gray-light',
+            n <= (hover || value) ? 'text-acc' : 'text-line',
           )}
         >
           ★
@@ -42,17 +42,17 @@ function ContextRow({ context, label }: { context: ContextAchizitie; label: stri
 
   if (done) {
     return (
-      <div className="rounded-lg border border-quasar-gray-light p-4">
-        <p className="text-sm font-medium">{label}</p>
-        <p className="mt-1 text-sm font-medium text-green-700">✓ Mulțumim pentru evaluare!</p>
+      <div className="rounded-2xl border border-line bg-surf p-4 shadow-card">
+        <p className="text-sm font-medium text-ink">{label}</p>
+        <p className="mt-1 text-sm font-medium text-ok">✓ Mulțumim pentru evaluare!</p>
       </div>
     )
   }
 
   return (
-    <div className="space-y-2 rounded-lg border border-quasar-gray-light p-4">
+    <div className="space-y-2 rounded-2xl border border-line bg-surf p-4 shadow-card">
       <div className="flex items-center justify-between gap-3">
-        <p className="text-sm font-medium">{label}</p>
+        <p className="text-sm font-medium text-ink">{label}</p>
         <Stars value={rating} onChange={setRating} />
       </div>
       {rating > 0 && (
@@ -62,9 +62,9 @@ function ContextRow({ context, label }: { context: ContextAchizitie; label: stri
             value={detalii}
             onChange={(e) => setDetalii(e.target.value)}
             placeholder="Un comentariu (opțional)"
-            className="w-full rounded-md border border-quasar-gray-light px-3 py-2 text-sm"
+            className="w-full rounded-md border border-line bg-surf2 px-3 py-2 text-sm text-ink"
           />
-          {mut.isError && <p className="text-xs text-red-600">Eroare la trimitere.</p>}
+          {mut.isError && <p className="text-xs text-danger">Eroare la trimitere.</p>}
           <Button onClick={() => mut.mutate()} disabled={mut.isPending}>
             {mut.isPending ? 'Se trimite…' : 'Trimite evaluarea'}
           </Button>
@@ -78,9 +78,9 @@ export function EvaluareSection() {
   const { activeMember } = useActiveMember()
   if (!activeMember) return null
   return (
-    <section className="space-y-2">
-      <h2 className="text-sm font-semibold">Cât de mulțumit ești?</h2>
-      <p className="text-xs text-quasar-gray">Evaluează experiența cu fiecare tip de activitate.</p>
+    <section className="space-y-3">
+      <h2 className="text-base font-extrabold tracking-tight text-ink">Cât de mulțumit ești?</h2>
+      <p className="text-xs text-sub">Evaluează experiența cu fiecare tip de activitate.</p>
       <div className="space-y-2">
         {CONTEXTE.map((c) => (
           <ContextRow key={c.key} context={c.key} label={c.label} />

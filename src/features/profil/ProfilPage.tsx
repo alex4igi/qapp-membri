@@ -17,14 +17,14 @@ import {
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-xs font-medium text-quasar-gray">{label}</span>
+      <span className="mb-1 block text-xs font-bold text-sub">{label}</span>
       {children}
     </label>
   )
 }
 
 const inputCls =
-  'w-full rounded-md border border-quasar-gray-light px-3 py-2 text-sm disabled:bg-quasar-gray-light/50'
+  'w-full rounded-xl border border-line bg-surf px-3 py-2 text-sm text-ink disabled:bg-surf2 disabled:opacity-60'
 
 function Text({
   value,
@@ -47,7 +47,7 @@ function Text({
 
 function SavedHint({ saved }: { saved: boolean }) {
   if (!saved) return null
-  return <span className="text-xs font-medium text-green-700">✓ salvat</span>
+  return <span className="text-xs font-medium text-ok">✓ salvat</span>
 }
 
 // ───────────────────────── Schimbă parola ─────────────────────────
@@ -68,8 +68,11 @@ function SchimbaParola() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-2 rounded-lg border border-quasar-gray-light p-4">
-      <h2 className="font-semibold">Schimbă parola</h2>
+    <form
+      onSubmit={onSubmit}
+      className="space-y-2 rounded-2xl border border-line bg-surf p-5 shadow-card"
+    >
+      <h2 className="text-base font-extrabold text-ink">Schimbă parola</h2>
       <input
         type="password"
         placeholder="Parolă nouă"
@@ -79,7 +82,7 @@ function SchimbaParola() {
         required
         className={inputCls}
       />
-      {msg && <p className="text-sm text-quasar-gray">{msg}</p>}
+      {msg && <p className="text-sm text-sub">{msg}</p>}
       <Button type="submit" disabled={busy}>
         {busy ? 'Se salvează…' : 'Salvează'}
       </Button>
@@ -116,10 +119,10 @@ function FisaFamilie() {
         e.preventDefault()
         mut.mutate(form)
       }}
-      className="space-y-3 rounded-lg border border-quasar-gray-light p-4"
+      className="space-y-3 rounded-2xl border border-line bg-surf p-5 shadow-card"
     >
       <div className="flex items-center justify-between">
-        <h2 className="font-semibold">Datele mele (familia {form.numeFamilie})</h2>
+        <h2 className="text-base font-extrabold text-ink">Datele mele (familia {form.numeFamilie})</h2>
         <SavedHint saved={saved} />
       </div>
       <div className="grid grid-cols-2 gap-3">
@@ -143,10 +146,11 @@ function FisaFamilie() {
         </Field>
       </div>
 
-      <div className="flex flex-col gap-2 border-t border-quasar-gray-light pt-3">
+      <div className="flex flex-col gap-2 border-t border-line pt-3">
         <label className="flex items-center gap-2 text-sm">
           <input
             type="checkbox"
+            className="accent-acc"
             checked={form.dorestePoze}
             onChange={(e) => set('dorestePoze', e.target.checked)}
           />
@@ -155,6 +159,7 @@ function FisaFamilie() {
         <label className="flex items-center gap-2 text-sm">
           <input
             type="checkbox"
+            className="accent-acc"
             checked={form.optOutMarketing}
             onChange={(e) => set('optOutMarketing', e.target.checked)}
           />
@@ -162,10 +167,11 @@ function FisaFamilie() {
         </label>
       </div>
 
-      <div className="border-t border-quasar-gray-light pt-3">
+      <div className="border-t border-line pt-3">
         <label className="flex items-center gap-2 text-sm font-medium">
           <input
             type="checkbox"
+            className="accent-acc"
             checked={form.facturaPeFirma}
             onChange={(e) => set('facturaPeFirma', e.target.checked)}
           />
@@ -195,7 +201,7 @@ function FisaFamilie() {
         )}
       </div>
 
-      {mut.isError && <p className="text-sm text-red-600">Eroare la salvare.</p>}
+      {mut.isError && <p className="text-sm text-danger">Eroare la salvare.</p>}
       <Button type="submit" disabled={mut.isPending}>
         {mut.isPending ? 'Se salvează…' : 'Salvează datele'}
       </Button>
@@ -236,15 +242,15 @@ function FisaMembru() {
         e.preventDefault()
         mut.mutate(form)
       }}
-      className="space-y-3 rounded-lg border border-quasar-gray-light p-4"
+      className="space-y-3 rounded-2xl border border-line bg-surf p-5 shadow-card"
     >
       <div className="flex items-center justify-between">
-        <h2 className="font-semibold">
+        <h2 className="text-base font-extrabold text-ink">
           Fișă — {form.nume} {form.prenume ?? ''}
         </h2>
         <SavedHint saved={saved} />
       </div>
-      <p className="text-xs text-quasar-gray">
+      <p className="text-xs text-sub">
         Nume și data nașterii ({formatData(form.dataNasterii)}) se modifică doar prin recepție.
       </p>
       <div className="grid grid-cols-2 gap-3">
@@ -275,7 +281,7 @@ function FisaMembru() {
           </select>
         </Field>
       </div>
-      {mut.isError && <p className="text-sm text-red-600">Eroare la salvare.</p>}
+      {mut.isError && <p className="text-sm text-danger">Eroare la salvare.</p>}
       <Button type="submit" disabled={mut.isPending}>
         {mut.isPending ? 'Se salvează…' : 'Salvează'}
       </Button>
@@ -283,13 +289,25 @@ function FisaMembru() {
   )
 }
 
+function Logout() {
+  const { signOut } = useAuth()
+  return (
+    <button
+      onClick={signOut}
+      className="w-full rounded-2xl border border-danger bg-surf px-4 py-3 text-sm font-extrabold text-danger shadow-card"
+    >
+      Ieșire din cont
+    </button>
+  )
+}
+
 export function ProfilPage() {
   return (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-bold">Profil</h1>
+    <div className="mx-auto max-w-3xl space-y-4">
       <FisaFamilie />
       <FisaMembru />
       <SchimbaParola />
+      <Logout />
     </div>
   )
 }

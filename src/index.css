@@ -1,17 +1,79 @@
 @import 'tailwindcss';
 
+/* ===== Token-uri de temă (warm) ======================================
+   Valorile concrete trăiesc în :root (light) și [data-theme="dark"] (dark),
+   ca variabile CSS — așa schimbarea temei e instant, fără rebuild.
+   În @theme inline le expunem ca utilități Tailwind (bg-surf, text-ink, …). */
+:root {
+  --canvas: #f4efe3;
+  --bar: #fbf6ea;
+  --side: #ffffff;
+  --side-line: #ece5d2;
+  --side-ink: #1a1714;
+  --side-sub: #8c8678;
+  --side-card: #fbf6ea;
+  --surf: #ffffff;
+  --surf2: #fbf1cc;
+  --ink: #1a1714;
+  --sub: #8c8678;
+  --line: #ece5d2;
+  --acc: #ffd600;
+  --acc-ink: #1a1714;
+  --danger: #ce4a3d;
+  --ok: #2e9e6b;
+  --shadow: 0 14px 34px rgba(40, 34, 20, 0.07);
+}
+
+[data-theme='dark'] {
+  --canvas: #100e0a;
+  --bar: #16130d;
+  --side: #0d0b08;
+  --side-line: #322b1d;
+  --side-ink: #f7f2e6;
+  --side-sub: #9a937f;
+  --side-card: #221e16;
+  --surf: #211c13;
+  --surf2: #322a19;
+  --ink: #f7f2e6;
+  --sub: #a8a08d;
+  --line: #463c28;
+  --acc: #ffd600;
+  --acc-ink: #1a1714;
+  --danger: #f2897b;
+  --ok: #5bc793;
+  --shadow: 0 14px 38px rgba(0, 0, 0, 0.55);
+}
+
 @theme inline {
-  /* Branding Quasar Dance */
+  /* Branding Quasar Dance (păstrat pentru compatibilitate) */
   --color-quasar-yellow: #ffd600;
   --color-quasar-yellow-dark: #e6c000;
   --color-quasar-black: #000000;
   --color-quasar-gray: #6b6b6b;
   --color-quasar-gray-light: #f3f3f3;
 
-  --color-brand: var(--color-quasar-yellow);
-  --color-ink: var(--color-quasar-black);
+  /* Token-uri de temă → utilități Tailwind */
+  --color-canvas: var(--canvas);
+  --color-bar: var(--bar);
+  --color-side: var(--side);
+  --color-side-line: var(--side-line);
+  --color-side-ink: var(--side-ink);
+  --color-side-sub: var(--side-sub);
+  --color-side-card: var(--side-card);
+  --color-surf: var(--surf);
+  --color-surf2: var(--surf2);
+  --color-ink: var(--ink);
+  --color-sub: var(--sub);
+  --color-line: var(--line);
+  --color-acc: var(--acc);
+  --color-acc-ink: var(--acc-ink);
+  --color-danger: var(--danger);
+  --color-ok: var(--ok);
 
-  --font-sans: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --shadow-card: var(--shadow);
+
+  --font-sans: 'Plus Jakarta Sans', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
 }
 
 html,
@@ -26,8 +88,8 @@ body,
 body {
   margin: 0;
   font-family: var(--font-sans);
-  background: var(--color-quasar-gray-light);
-  color: var(--color-quasar-black);
+  background: var(--canvas);
+  color: var(--ink);
 }
 
 /* La tipărire arătăm DOAR documentul marcat `.print-area` (ex: adeverința),

@@ -11,8 +11,8 @@ import { EvaluareSection } from '@/features/evaluare/EvaluareSection'
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="space-y-2">
-      <h2 className="text-sm font-semibold">{title}</h2>
+    <section className="space-y-3">
+      <h2 className="text-base font-extrabold tracking-tight text-ink">{title}</h2>
       {children}
     </section>
   )
@@ -30,28 +30,26 @@ export function ActivitatePage() {
   const rezultate = useQuery({ queryKey: ['rezultate-concursuri'], queryFn: getRezultateConcursuri })
 
   return (
-    <div className="space-y-5">
-      <h1 className="text-2xl font-bold">Activitate</h1>
-
+    <div className="mx-auto max-w-5xl space-y-6">
       <Section title="Evenimente care urmează">
         {evenimente.isLoading && <Spinner />}
         {evenimente.data && evenimente.data.length === 0 && (
-          <p className="text-sm text-quasar-gray">Niciun eveniment programat momentan.</p>
+          <p className="text-sm text-sub">Niciun eveniment programat momentan.</p>
         )}
         {evenimente.data && evenimente.data.length > 0 && (
-          <ul className="divide-y divide-quasar-gray-light rounded-lg border border-quasar-gray-light">
+          <ul className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surf shadow-card">
             {evenimente.data.map((e) => (
               <li key={e.id} className="flex items-center justify-between gap-3 px-4 py-3">
                 <div>
-                  <p className="text-sm font-medium">{e.nume ?? 'Eveniment'}</p>
-                  <p className="text-xs text-quasar-gray">
+                  <p className="text-sm font-medium text-ink">{e.nume ?? 'Eveniment'}</p>
+                  <p className="text-xs text-sub">
                     {formatData(e.data)}
                     {e.locatie ? ` · ${e.locatie}` : ''}
                     {e.tip ? ` · ${e.tip}` : ''}
                   </p>
                 </div>
                 {e.pretBilet ? (
-                  <span className="shrink-0 text-sm font-semibold">{e.pretBilet} RON</span>
+                  <span className="shrink-0 text-sm font-semibold text-ink">{e.pretBilet} RON</span>
                 ) : null}
               </li>
             ))}
@@ -62,14 +60,14 @@ export function ActivitatePage() {
       <Section title={`Participări — ${activeMember?.nume ?? '—'}`}>
         {participari.isLoading && <Spinner />}
         {participari.data && participari.data.length === 0 && (
-          <p className="text-sm text-quasar-gray">Nicio participare înregistrată încă.</p>
+          <p className="text-sm text-sub">Nicio participare înregistrată încă.</p>
         )}
         {participari.data && participari.data.length > 0 && (
-          <ul className="divide-y divide-quasar-gray-light rounded-lg border border-quasar-gray-light">
+          <ul className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surf shadow-card">
             {participari.data.map((p) => (
               <li key={p.id} className="flex items-center justify-between gap-3 px-4 py-3">
-                <p className="text-sm font-medium">{p.nume ?? 'Eveniment'}</p>
-                <p className="text-xs text-quasar-gray">{formatData(p.data)}</p>
+                <p className="text-sm font-medium text-ink">{p.nume ?? 'Eveniment'}</p>
+                <p className="text-xs text-sub">{formatData(p.data)}</p>
               </li>
             ))}
           </ul>
@@ -79,10 +77,10 @@ export function ActivitatePage() {
       <Section title="Rezultate la concursuri (Quasar Dance)">
         {rezultate.isLoading && <Spinner />}
         {rezultate.data && rezultate.data.length === 0 && (
-          <p className="text-sm text-quasar-gray">Niciun rezultat înregistrat.</p>
+          <p className="text-sm text-sub">Niciun rezultat înregistrat.</p>
         )}
         {rezultate.data && rezultate.data.length > 0 && (
-          <ul className="divide-y divide-quasar-gray-light rounded-lg border border-quasar-gray-light">
+          <ul className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-surf shadow-card">
             {rezultate.data.map((c) => {
               const locuri = [
                 c.loculI ? `${c.loculI}× 🥇` : null,
@@ -92,11 +90,11 @@ export function ActivitatePage() {
               return (
                 <li key={c.id} className="px-4 py-3">
                   <div className="flex items-center justify-between gap-3">
-                    <p className="text-sm font-medium">{c.nume ?? 'Concurs'}</p>
-                    <p className="text-xs text-quasar-gray">{formatData(c.data)}</p>
+                    <p className="text-sm font-medium text-ink">{c.nume ?? 'Concurs'}</p>
+                    <p className="text-xs text-sub">{formatData(c.data)}</p>
                   </div>
-                  {locuri && <p className="mt-0.5 text-sm">{locuri}</p>}
-                  {c.rezultate && <p className="mt-0.5 text-xs text-quasar-gray">{c.rezultate}</p>}
+                  {locuri && <p className="mt-0.5 text-sm text-ink">{locuri}</p>}
+                  {c.rezultate && <p className="mt-0.5 text-xs text-sub">{c.rezultate}</p>}
                 </li>
               )
             })}

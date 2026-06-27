@@ -4,7 +4,8 @@
    Valorile concrete trăiesc în :root (light) și [data-theme="dark"] (dark),
    ca variabile CSS — așa schimbarea temei e instant, fără rebuild.
    În @theme inline le expunem ca utilități Tailwind (bg-surf, text-ink, …). */
-:root {
+:root,
+[data-theme='light'] {
   --canvas: #f4efe3;
   --bar: #fbf6ea;
   --side: #ffffff;

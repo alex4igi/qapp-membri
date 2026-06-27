@@ -46,7 +46,7 @@ export function ResetPage() {
   }
 
   return (
-    <div className="flex min-h-full items-center justify-center p-4">
+    <div data-theme="light" className="flex min-h-full items-center justify-center bg-canvas p-4 text-ink">
       <div className="w-full max-w-sm space-y-4 rounded-xl bg-white p-6 shadow-md">
         <div className="text-center">
           <span className="rounded bg-quasar-yellow px-2 py-1 text-lg font-black text-quasar-black">

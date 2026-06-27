@@ -17,7 +17,7 @@ const links = [
 // punctului de lucru Netopia. Accesibile și de un vizitator/recenzent fără cont.
 export function LegalLayout() {
   return (
-    <div className="flex min-h-full flex-col">
+    <div data-theme="light" className="flex min-h-full flex-col bg-canvas text-ink">
       <header className="border-b border-quasar-gray-light bg-white">
         <div className="mx-auto flex max-w-3xl flex-wrap items-center justify-between gap-3 px-4 py-3">
           <Link to="/login" className="flex items-center gap-2">

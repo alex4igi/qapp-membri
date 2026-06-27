@@ -24,7 +24,7 @@ export function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-full items-center justify-center p-4">
+    <div data-theme="light" className="flex min-h-full items-center justify-center bg-canvas p-4 text-ink">
       <form
         onSubmit={onSubmit}
         className="w-full max-w-sm space-y-4 rounded-xl bg-white p-6 shadow-md"

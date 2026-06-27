@@ -289,12 +289,25 @@ function FisaMembru() {
   )
 }
 
+function Logout() {
+  const { signOut } = useAuth()
+  return (
+    <button
+      onClick={signOut}
+      className="w-full rounded-2xl border border-danger bg-surf px-4 py-3 text-sm font-extrabold text-danger shadow-card"
+    >
+      Ieșire din cont
+    </button>
+  )
+}
+
 export function ProfilPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-4">
       <FisaFamilie />
       <FisaMembru />
       <SchimbaParola />
+      <Logout />
     </div>
   )
 }

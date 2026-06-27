@@ -56,6 +56,41 @@ export function AcasaPage() {
         </div>
       </section>
 
+      {/* Acces rapid — DOAR pe mobil (paginile secundare nu sunt în bottom-nav) */}
+      <div className="grid grid-cols-2 gap-3 lg:hidden">
+        <button
+          onClick={() => navigate('/rezervari')}
+          className="flex flex-col items-start rounded-2xl border border-line bg-surf p-4 text-left shadow-card"
+        >
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-surf2 text-lg">📅</span>
+          <span className="mt-2.5 text-sm font-extrabold text-ink">Rezervă</span>
+          <span className="text-xs text-sub">ședință liberă</span>
+        </button>
+        <button
+          onClick={() => navigate('/prezente')}
+          className="flex flex-col items-start rounded-2xl border border-line bg-surf p-4 text-left shadow-card"
+        >
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-surf2 text-lg">✅</span>
+          <span className="mt-2.5 text-sm font-extrabold text-ink">Prezențe</span>
+          <span className="text-xs text-sub">istoricul tău</span>
+        </button>
+      </div>
+      <div className="flex flex-wrap gap-2 lg:hidden">
+        {[
+          { to: '/calendar', label: 'Calendar' },
+          { to: '/activitate', label: 'Activitate' },
+          { to: '/documente', label: 'Documente' },
+        ].map((b) => (
+          <button
+            key={b.to}
+            onClick={() => navigate(b.to)}
+            className="flex-1 rounded-xl border border-line bg-surf px-3 py-3 text-[12.5px] font-bold text-ink"
+          >
+            {b.label}
+          </button>
+        ))}
+      </div>
+
       {/* Ședințe disponibile */}
       <section className="rounded-2xl border border-line bg-surf p-5 shadow-card">
         <div className="flex items-center justify-between">

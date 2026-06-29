@@ -70,6 +70,31 @@ export async function getPlatiClient(clientId: string): Promise<PlataRow[]> {
   }))
 }
 
+export type DatorieRow = {
+  datorieId: string
+  categorie: string
+  descriere: string | null
+  sumaDatorata: number
+  platit: number
+  rest: number
+  created: string | null
+}
+
+// Datoriile one-off (Bilet/Merch/Taxă) neachitate ale unui membru. Se plătesc INTEGRAL.
+export async function getDatoriiClient(clientId: string): Promise<DatorieRow[]> {
+  const { data, error } = await supabase.rpc('get_datorii_client', { p_client: clientId })
+  if (error) throw error
+  return (data ?? []).map((r) => ({
+    datorieId: r.datorie_id,
+    categorie: r.categorie,
+    descriere: r.descriere,
+    sumaDatorata: Number(r.suma_datorata ?? 0),
+    platit: Number(r.platit ?? 0),
+    rest: Number(r.rest ?? 0),
+    created: r.created,
+  }))
+}
+
 export type CreatePaymentResult = { redirectUrl: string; orderId: string }
 
 // Inițiază plata online. Suma e recalculată server-side (FIFO) — trimitem clientId și,
@@ -78,9 +103,17 @@ export type CreatePaymentResult = { redirectUrl: string; orderId: string }
 export async function createNetopiaPayment(params: {
   clientId: string
   panaLa?: string
+  // datorii one-off selectate (plată integrală); includeInrolari=false => doar datorii.
+  datorii?: string[]
+  includeInrolari?: boolean
 }): Promise<CreatePaymentResult> {
   const { data, error } = await supabase.functions.invoke('netopia-create-payment', {
-    body: { clientId: params.clientId, panaLa: params.panaLa },
+    body: {
+      clientId: params.clientId,
+      panaLa: params.panaLa,
+      datorii: params.datorii,
+      includeInrolari: params.includeInrolari,
+    },
   })
   if (error) {
     const msg = (data as { error?: string } | null)?.error ?? error.message

@@ -6,7 +6,13 @@ import { Button, Spinner } from '@/components/ui'
 import { PaymentBadges } from '@/components/PaymentBadges'
 import { formatRON, formatData } from '@/lib/format'
 import { cn } from '@/lib/cn'
-import { getSoldFamilie, getPlatiClient, createNetopiaPayment, type PlataRow } from './api/payments'
+import {
+  getSoldFamilie,
+  getPlatiClient,
+  getDatoriiClient,
+  createNetopiaPayment,
+  type PlataRow,
+} from './api/payments'
 import { ReduceriSection } from '@/features/reduceri/ReduceriSection'
 
 export function PlatiPage() {
@@ -23,12 +29,23 @@ export function PlatiPage() {
     queryFn: () => getPlatiClient(activeMember!.clientId),
     enabled: !!activeMember,
   })
+  const datorii = useQuery({
+    queryKey: ['datorii', activeMember?.clientId],
+    queryFn: () => getDatoriiClient(activeMember!.clientId),
+    enabled: !!activeMember,
+  })
+  // Datorii one-off selectate (Bilet/Merch/Taxă) — fiecare se plătește INTEGRAL.
+  const [selectedDatorii, setSelectedDatorii] = useState<Set<string>>(new Set())
+  useEffect(() => {
+    setSelectedDatorii(new Set())
+  }, [activeMember?.clientId])
 
   useEffect(() => {
     if (!searchParams.get('order')) return
     setReturnNotice(true)
     queryClient.invalidateQueries({ queryKey: ['sold-familie'] })
     queryClient.invalidateQueries({ queryKey: ['plati'] })
+    queryClient.invalidateQueries({ queryKey: ['datorii'] })
     searchParams.delete('order')
     setSearchParams(searchParams, { replace: true })
   }, [searchParams, queryClient, setSearchParams])
@@ -55,6 +72,20 @@ export function PlatiPage() {
       ? selectedRows[selectedRows.length - 1].enrollmentId
       : undefined
 
+  const datoriiRows = useMemo(() => datorii.data ?? [], [datorii.data])
+  const selectedDatoriiRows = datoriiRows.filter((d) => selectedDatorii.has(d.datorieId))
+  const datoriiSum = selectedDatoriiRows.reduce((a, d) => a + d.rest, 0)
+  const grandTotal = selectedSum + datoriiSum
+
+  function toggleDatorie(id: string) {
+    setSelectedDatorii((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
   function toggle(r: PlataRow) {
     if (!r.dataIncepere) return
     if (isSelected(r)) {
@@ -67,7 +98,13 @@ export function PlatiPage() {
   }
 
   const pay = useMutation({
-    mutationFn: () => createNetopiaPayment({ clientId: activeMember!.clientId, panaLa: cutoffEnrollmentId }),
+    mutationFn: () =>
+      createNetopiaPayment({
+        clientId: activeMember!.clientId,
+        panaLa: cutoffEnrollmentId,
+        datorii: selectedDatorii.size ? [...selectedDatorii] : undefined,
+        includeInrolari: selectedRows.length > 0,
+      }),
     onSuccess: (res) => {
       window.location.href = res.redirectUrl
     },
@@ -195,17 +232,61 @@ export function PlatiPage() {
         ))}
       </section>
 
+      {/* Alte datorii (bilete / produse / taxe) — se plătesc integral */}
+      {datoriiRows.length > 0 && (
+        <section className="space-y-3">
+          <h2 className="text-base font-extrabold tracking-tight text-ink">
+            Alte datorii (bilete / produse / taxe)
+          </h2>
+          <div className="overflow-hidden rounded-2xl border border-line bg-surf shadow-card">
+            <ul className="divide-y divide-line">
+              {datoriiRows.map((d) => {
+                const checked = selectedDatorii.has(d.datorieId)
+                return (
+                  <li key={d.datorieId} className="flex items-center justify-between gap-3 px-4 py-3">
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={() => toggleDatorie(d.datorieId)}
+                        className="h-4 w-4 shrink-0 accent-acc"
+                        aria-label={`Selectează ${d.descriere ?? d.categorie}`}
+                      />
+                      <div>
+                        <p className="text-sm font-medium text-ink">{d.descriere || d.categorie}</p>
+                        <p className="text-xs text-sub">
+                          {d.categorie}
+                          {d.platit > 0 ? ` · achitat ${formatRON(d.platit)} / ${formatRON(d.sumaDatorata)}` : ''}
+                        </p>
+                      </div>
+                    </div>
+                    <span className="text-xs font-semibold text-danger">rest {formatRON(d.rest)}</span>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
+        </section>
+      )}
+
       {/* Rezumat comandă + plată */}
-      {unpaid.length > 0 && (
+      {(unpaid.length > 0 || datoriiRows.length > 0) && (
         <section className="space-y-2 rounded-2xl bg-surf2 p-5">
           <p className="text-base font-extrabold tracking-tight text-ink">Rezumat comandă</p>
           <div className="flex justify-between text-sm">
             <span className="text-sub">
-              {selectedRows.length === 0
-                ? 'Nicio lună selectată'
-                : `${selectedRows.length} ${selectedRows.length === 1 ? 'lună selectată' : 'luni selectate'}`}
+              {[
+                selectedRows.length > 0
+                  ? `${selectedRows.length} ${selectedRows.length === 1 ? 'lună' : 'luni'}`
+                  : null,
+                selectedDatoriiRows.length > 0
+                  ? `${selectedDatoriiRows.length} ${selectedDatoriiRows.length === 1 ? 'datorie' : 'datorii'}`
+                  : null,
+              ]
+                .filter(Boolean)
+                .join(' + ') || 'Nimic selectat'}
             </span>
-            <span className="font-extrabold text-ink">{formatRON(selectedSum)}</span>
+            <span className="font-extrabold text-ink">{formatRON(grandTotal)}</span>
           </div>
           <p className="text-xs text-sub">
             Moneda: RON. Vei fi redirecționat către NETOPIA Payments pentru plata securizată cu cardul.
@@ -213,10 +294,10 @@ export function PlatiPage() {
           <PaymentBadges />
           <Button
             onClick={() => pay.mutate()}
-            disabled={pay.isPending || selectedSum <= 0}
+            disabled={pay.isPending || grandTotal <= 0}
             className="w-full"
           >
-            {pay.isPending ? 'Se inițiază…' : `Plătește ${formatRON(selectedSum)}`}
+            {pay.isPending ? 'Se inițiază…' : `Plătește ${formatRON(grandTotal)}`}
           </Button>
           {pay.isError && <p className="mt-1 text-xs text-danger">{(pay.error as Error).message}</p>}
         </section>

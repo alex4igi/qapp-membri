@@ -6575,6 +6575,18 @@ export type Database = {
           total_activi: number
         }[]
       }
+      get_datorii_client: {
+        Args: { p_client: string }
+        Returns: {
+          categorie: Database["public"]["Enums"]["categorie_incasare"]
+          created: string
+          datorie_id: string
+          descriere: string
+          platit: number
+          rest: number
+          suma_datorata: number
+        }[]
+      }
       get_documente_client: {
         Args: { p_client: string }
         Returns: {

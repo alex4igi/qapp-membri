@@ -21,6 +21,7 @@ import { ReturPage } from '@/features/legal/ReturPage'
 import { LivrarePage } from '@/features/legal/LivrarePage'
 import { CookiesPage } from '@/features/legal/CookiesPage'
 import { ContactPage } from '@/features/legal/ContactPage'
+import { SemnarePage } from '@/features/semnare/SemnarePage'
 
 export default function App() {
   return (
@@ -28,6 +29,9 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/reset" element={<ResetPage />} />
+        {/* Semnare contracte — PUBLICĂ, cu token unic din SMS/email (fără login) */}
+        <Route path="/semneaza/:token" element={<SemnarePage />} />
+        <Route path="/s/:token" element={<SemnarePage />} />
         {/* Pagini legale PUBLICE (necesare la validarea punctului de lucru Netopia) */}
         <Route element={<LegalLayout />}>
           <Route path="/servicii" element={<ServiciiPage />} />

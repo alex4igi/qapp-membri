@@ -10,23 +10,15 @@ import { Logo } from '@/components/Logo'
 import { FIRMA } from '@/features/legal/firma'
 import { getSoldFamilie } from '@/features/plati/api/payments'
 import { cn } from '@/lib/cn'
-// Q-bot ascuns temporar — încă neimplementat. Re-activează importul + <QbotWidget /> când e gata.
-// import { QbotWidget } from '@/features/chatbot/QbotWidget'
 
 // ===== Iconițe (line icons, 24x24) =====
-type IconName =
-  | 'acasa' | 'grupa' | 'plati' | 'rezervari' | 'prezente'
-  | 'calendar' | 'documente' | 'activitate' | 'profil'
+type IconName = 'acasa' | 'grupa' | 'plati' | 'rezervari' | 'profil'
 
 const ICON_PATHS: Record<IconName, ReactNode> = {
   acasa: <><path d="M3 11l9-8 9 8" /><path d="M5 10v10h14V10" /></>,
   grupa: <><circle cx="9" cy="8" r="3" /><path d="M3 20a6 6 0 0 1 12 0" /><path d="M16 6a3 3 0 0 1 0 6" /><path d="M18 14a6 6 0 0 1 3 5" /></>,
   plati: <><rect x="2" y="5" width="20" height="14" rx="3" /><path d="M2 10h20" /></>,
   rezervari: <><rect x="3" y="5" width="18" height="16" rx="3" /><path d="M3 9h18M8 3v4M16 3v4" /></>,
-  prezente: <><path d="M9 11l3 3 8-8" /><path d="M21 12a9 9 0 1 1-6.2-8.5" /></>,
-  calendar: <><rect x="3" y="5" width="18" height="16" rx="3" /><path d="M3 9h18M8 3v4M16 3v4" /><circle cx="12" cy="14" r="2" fill="currentColor" stroke="none" /></>,
-  documente: <><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" /><path d="M14 3v5h5" /></>,
-  activitate: <><path d="M3 12h4l2 6 4-14 2 8h6" /></>,
   profil: <><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /></>,
 }
 
@@ -41,45 +33,28 @@ function NavIcon({ name }: { name: IconName }) {
   )
 }
 
-type NavItem = { to: string; label: string; icon: IconName; end?: boolean }
+type NavItem = { to: string; label: string; labelScurt: string; icon: IconName; end?: boolean }
 
-const NAV_MAIN: NavItem[] = [
-  { to: '/', label: 'Acasă', icon: 'acasa', end: true },
-  { to: '/grupa', label: 'Grupa mea', icon: 'grupa' },
-  { to: '/plati', label: 'Plăți', icon: 'plati' },
-  { to: '/rezervari', label: 'Rezervări', icon: 'rezervari' },
-  { to: '/prezente', label: 'Prezențe', icon: 'prezente' },
-  { to: '/calendar', label: 'Calendar', icon: 'calendar' },
+// 5 intrări — identice pe desktop (sidebar) și mobil (bottom-nav). Calendar și
+// Notificări NU sunt taburi: se ajung din cardul „Ce urmează" (Acasă) și din clopoțel.
+const NAV_ITEMS: NavItem[] = [
+  { to: '/', label: 'Acasă', labelScurt: 'Acasă', icon: 'acasa', end: true },
+  { to: '/grupa', label: 'Grupa mea', labelScurt: 'Grupa', icon: 'grupa' },
+  { to: '/plati', label: 'Plăți', labelScurt: 'Plăți', icon: 'plati' },
+  { to: '/rezervari', label: 'Rezervări', labelScurt: 'Rezervări', icon: 'rezervari' },
+  { to: '/profil', label: 'Profil', labelScurt: 'Profil', icon: 'profil' },
 ]
-
-const NAV_ACCOUNT: NavItem[] = [
-  { to: '/documente', label: 'Documente', icon: 'documente' },
-  { to: '/activitate', label: 'Activitate', icon: 'activitate' },
-  { to: '/profil', label: 'Profil', icon: 'profil' },
-]
-
-// Bottom-nav (mobil): 5 taburi. Restul paginilor se ajung din dashboard + clopoțel.
-const BOTTOM_TABS: NavItem[] = [
-  { to: '/', label: 'Acasă', icon: 'acasa', end: true },
-  { to: '/grupa', label: 'Grupa', icon: 'grupa' },
-  { to: '/plati', label: 'Plăți', icon: 'plati' },
-  { to: '/rezervari', label: 'Rezervări', icon: 'rezervari' },
-  { to: '/profil', label: 'Profil', icon: 'profil' },
-]
-const TAB_PATHS = new Set(BOTTOM_TABS.map((t) => t.to))
+const TAB_PATHS = new Set(NAV_ITEMS.map((t) => t.to))
 
 // Titlu + subtitlu pe rută.
 const PAGE_META: Record<string, [string, string]> = {
   '/': ['Acasă', 'Privire de ansamblu asupra contului'],
-  '/grupa': ['Grupa mea', 'Cursuri și evaluări'],
+  '/grupa': ['Grupa mea', 'Cursuri, prezențe și activitate'],
   '/plati': ['Plăți', 'Sold, istoric și plată online'],
   '/rezervari': ['Rezervări', 'Ședințe libere disponibile'],
-  '/prezente': ['Prezențe', 'Istoric prezență'],
   '/calendar': ['Calendar', 'Program și evenimente'],
-  '/documente': ['Documente', 'Contracte, regulamente și facturi'],
-  '/activitate': ['Activitate', 'Istoricul contului'],
   '/notificari': ['Notificări', 'Mesaje și alerte'],
-  '/profil': ['Profil', 'Date personale și setări'],
+  '/profil': ['Profil', 'Date personale, documente și setări'],
 }
 
 function useSoldTotal(): number {
@@ -113,7 +88,7 @@ function NavList() {
   const total = useSoldTotal()
   return (
     <nav className="flex flex-col gap-0.5">
-      {NAV_MAIN.map((item) => (
+      {NAV_ITEMS.map((item) => (
         <NavLink key={item.to} to={item.to} end={item.end} className={linkClass}>
           <NavIcon name={item.icon} />
           <span>{item.label}</span>
@@ -124,17 +99,6 @@ function NavList() {
           )}
         </NavLink>
       ))}
-      <div className="mt-4 border-t border-side-line pt-3.5 pl-3 text-[11px] font-extrabold uppercase tracking-[0.08em] text-side-sub">
-        Contul tău
-      </div>
-      <div className="mt-2 flex flex-col gap-0.5">
-        {NAV_ACCOUNT.map((item) => (
-          <NavLink key={item.to} to={item.to} className={linkClass}>
-            <NavIcon name={item.icon} />
-            <span>{item.label}</span>
-          </NavLink>
-        ))}
-      </div>
     </nav>
   )
 }
@@ -277,14 +241,14 @@ function BottomNav() {
   const total = useSoldTotal()
   return (
     <nav className="flex flex-none items-stretch justify-around border-t border-line bg-bar pb-[env(safe-area-inset-bottom)] lg:hidden">
-      {BOTTOM_TABS.map((item) => (
+      {NAV_ITEMS.map((item) => (
         <NavLink key={item.to} to={item.to} end={item.end} className="relative flex flex-1 flex-col items-center gap-1 py-2">
           {({ isActive }) => (
             <>
               <span className={cn('flex h-8 w-14 items-center justify-center rounded-full', isActive ? 'bg-acc text-acc-ink' : 'text-sub')}>
                 <NavIcon name={item.icon} />
               </span>
-              <span className={cn('text-[11px] font-bold', isActive ? 'text-ink' : 'text-sub')}>{item.label}</span>
+              <span className={cn('text-[11px] font-bold', isActive ? 'text-ink' : 'text-sub')}>{item.labelScurt}</span>
               {item.to === '/plati' && total > 0 && (
                 <span className="absolute right-4 top-1 h-2 w-2 rounded-full bg-danger" />
               )}

@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { useActiveMember } from '@/hooks/useActiveMember'
 import { Button, Spinner } from '@/components/ui'
 import { formatData } from '@/lib/format'
+import { DocumenteSection } from '@/features/documente/DocumenteSection'
 import {
   MARIMI_TRICOU,
   getProfilFamilie,
@@ -306,6 +307,7 @@ export function ProfilPage() {
     <div className="mx-auto max-w-3xl space-y-4">
       <FisaFamilie />
       <FisaMembru />
+      <DocumenteSection />
       <SchimbaParola />
       <Logout />
     </div>

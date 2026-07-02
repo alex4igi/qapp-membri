@@ -26,6 +26,7 @@ export type OpenSesiuneRow = {
   cursNume: string | null
   data: string | null
   locuriRamase: number
+  capacitate: number
   pret: number | null
   instructorNume: string | null
 }
@@ -35,15 +36,21 @@ export async function listOpenSesiuniClient(locatieId?: string | null): Promise<
     p_locatie: locatieId ?? undefined,
   })
   if (error) throw error
-  return (data ?? []).map((r) => ({
-    sesiuneId: r.sesiune_id,
-    cursId: r.curs_id,
-    cursNume: r.curs_nume,
-    data: r.data,
-    locuriRamase: r.locuri_ramase ?? 0,
-    pret: r.pret,
-    instructorNume: r.instructor_nume,
-  }))
+  return (data ?? []).map((r) => {
+    const locuriRamase = r.locuri_ramase ?? 0
+    // `capacitate` adăugată în migrația 20260702130000; cast tolerant până la gen:types.
+    const capacitate = (r as { capacitate?: number | null }).capacitate ?? locuriRamase
+    return {
+      sesiuneId: r.sesiune_id,
+      cursId: r.curs_id,
+      cursNume: r.curs_nume,
+      data: r.data,
+      locuriRamase,
+      capacitate,
+      pret: r.pret,
+      instructorNume: r.instructor_nume,
+    }
+  })
 }
 
 export type ReserveResult = { redirectUrl: string; orderId: string }

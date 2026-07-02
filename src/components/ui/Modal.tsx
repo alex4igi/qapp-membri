@@ -34,18 +34,18 @@ export function Modal({ open, title, onClose, children, footer, size = 'md' }: P
       onMouseDown={onClose}
     >
       <div
-        className={`max-h-[90vh] w-full ${SIZE_CLASS[size]} overflow-y-auto rounded-xl bg-white shadow-xl`}
+        className={`max-h-[90vh] w-full ${SIZE_CLASS[size]} overflow-y-auto rounded-xl bg-surf shadow-xl`}
         onMouseDown={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b border-quasar-gray-light px-5 py-3">
-          <h2 className="text-lg font-bold text-quasar-black">{title}</h2>
+        <div className="flex items-center justify-between border-b border-line px-5 py-3">
+          <h2 className="text-lg font-bold text-ink">{title}</h2>
           <Button variant="ghost" onClick={onClose} aria-label="Închide">
             ✕
           </Button>
         </div>
         <div className="p-5">{children}</div>
         {footer && (
-          <div className="flex justify-end gap-2 border-t border-quasar-gray-light px-5 py-3">
+          <div className="flex justify-end gap-2 border-t border-line px-5 py-3">
             {footer}
           </div>
         )}

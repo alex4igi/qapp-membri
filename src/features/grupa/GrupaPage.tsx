@@ -1,9 +1,20 @@
+import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useActiveMember } from '@/hooks/useActiveMember'
 import { Spinner } from '@/components/ui'
 import { formatData } from '@/lib/format'
 import { getGrupeClient, type GrupaRow } from './api'
 import { EvaluariSection } from '@/features/evaluari/EvaluariSection'
+import { PrezenteSection } from '@/features/prezente/PrezenteSection'
+import { ActivitateSection } from '@/features/activitate/ActivitateSection'
+
+type GrupaTab = 'cursuri' | 'prezente' | 'activitate'
+
+const TABS: { key: GrupaTab; label: string }[] = [
+  { key: 'cursuri', label: 'Cursuri' },
+  { key: 'prezente', label: 'Prezențe' },
+  { key: 'activitate', label: 'Activitate' },
+]
 
 const ZI_SCURT: Record<string, string> = {
   Luni: 'Lun', Marti: 'Mar', Miercuri: 'Mie', Joi: 'Joi',
@@ -69,10 +80,11 @@ function GrupaCard({ g }: { g: GrupaRow }) {
 
 export function GrupaPage() {
   const { activeMember, members, activeClientId, setActiveClientId, loading } = useActiveMember()
+  const [tab, setTab] = useState<GrupaTab>('cursuri')
   const { data, isLoading, error } = useQuery({
     queryKey: ['grupe', activeMember?.clientId],
     queryFn: () => getGrupeClient(activeMember!.clientId),
-    enabled: !!activeMember,
+    enabled: !!activeMember && tab === 'cursuri',
   })
 
   if (loading) return <Spinner />
@@ -99,20 +111,42 @@ export function GrupaPage() {
         </div>
       )}
 
-      {isLoading && <Spinner />}
-      {error && <p className="text-sm text-danger">Eroare la încărcare.</p>}
-      {data && data.length === 0 && (
-        <p className="text-sm text-sub">Nicio înrolare activă momentan.</p>
-      )}
-      {data && data.length > 0 && (
-        <div className="grid gap-4 sm:grid-cols-2">
-          {data.map((g) => (
-            <GrupaCard key={g.enrollmentId} g={g} />
-          ))}
-        </div>
-      )}
+      <div className="flex flex-wrap gap-2 border-b border-line pb-3">
+        {TABS.map((t) => (
+          <button
+            key={t.key}
+            type="button"
+            onClick={() => setTab(t.key)}
+            className={
+              t.key === tab
+                ? 'rounded-full bg-acc px-4 py-1.5 text-sm font-bold text-acc-ink'
+                : 'rounded-full bg-surf border border-line px-4 py-1.5 text-sm font-bold text-sub'
+            }
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
 
-      <EvaluariSection />
+      {tab === 'cursuri' && (
+        <>
+          {isLoading && <Spinner />}
+          {error && <p className="text-sm text-danger">Eroare la încărcare.</p>}
+          {data && data.length === 0 && (
+            <p className="text-sm text-sub">Nicio înrolare activă momentan.</p>
+          )}
+          {data && data.length > 0 && (
+            <div className="grid gap-4 sm:grid-cols-2">
+              {data.map((g) => (
+                <GrupaCard key={g.enrollmentId} g={g} />
+              ))}
+            </div>
+          )}
+          <EvaluariSection />
+        </>
+      )}
+      {tab === 'prezente' && <PrezenteSection />}
+      {tab === 'activitate' && <ActivitateSection />}
     </div>
   )
 }

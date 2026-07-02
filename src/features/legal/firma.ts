@@ -20,4 +20,6 @@ export const FIRMA = {
 // Tarifele publice NU mai sunt hard-codate aici — se editează în qapp (Setări →
 // Tarife publice) și se citesc live din tabelul `tarife_publice` (vezi TarifeList).
 
+// Data ultimei revizuiri a TEXTELOR LEGALE (termeni/confidențialitate/retur etc.) —
+// NU a tarifelor (acelea vin live din DB). Se actualizează manual la modificarea textelor.
 export const ULTIMA_ACTUALIZARE = '17 iunie 2026'

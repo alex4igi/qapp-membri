@@ -56,40 +56,18 @@ export function AcasaPage() {
         </div>
       </section>
 
-      {/* Acces rapid — DOAR pe mobil (paginile secundare nu sunt în bottom-nav) */}
-      <div className="grid grid-cols-2 gap-3 lg:hidden">
-        <button
-          onClick={() => navigate('/rezervari')}
-          className="flex flex-col items-start rounded-2xl border border-line bg-surf p-4 text-left shadow-card"
-        >
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-surf2 text-lg">📅</span>
-          <span className="mt-2.5 text-sm font-extrabold text-ink">Rezervă</span>
-          <span className="text-xs text-sub">ședință liberă</span>
-        </button>
-        <button
-          onClick={() => navigate('/prezente')}
-          className="flex flex-col items-start rounded-2xl border border-line bg-surf p-4 text-left shadow-card"
-        >
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-surf2 text-lg">✅</span>
-          <span className="mt-2.5 text-sm font-extrabold text-ink">Prezențe</span>
-          <span className="text-xs text-sub">istoricul tău</span>
-        </button>
-      </div>
-      <div className="flex flex-wrap gap-2 lg:hidden">
-        {[
-          { to: '/calendar', label: 'Calendar' },
-          { to: '/activitate', label: 'Activitate' },
-          { to: '/documente', label: 'Documente' },
-        ].map((b) => (
-          <button
-            key={b.to}
-            onClick={() => navigate(b.to)}
-            className="flex-1 rounded-xl border border-line bg-surf px-3 py-3 text-[12.5px] font-bold text-ink"
-          >
-            {b.label}
-          </button>
-        ))}
-      </div>
+      {/* Ce urmează — singura poartă către Calendar (scos din meniu) */}
+      <Link
+        to="/calendar"
+        className="flex items-center gap-4 rounded-2xl border border-line bg-surf p-5 shadow-card transition-colors hover:border-acc"
+      >
+        <span className="flex h-11 w-11 flex-none items-center justify-center rounded-[13px] bg-surf2 text-xl">📅</span>
+        <div className="min-w-0 flex-1">
+          <p className="text-[15px] font-extrabold text-ink">Ce urmează</p>
+          <p className="text-[13px] text-sub">Program, ședințe și evenimente în calendar</p>
+        </div>
+        <span className="text-lg text-sub">→</span>
+      </Link>
 
       {/* Ședințe disponibile */}
       <section className="rounded-2xl border border-line bg-surf p-5 shadow-card">
@@ -118,7 +96,7 @@ export function AcasaPage() {
                   <p className="text-sm font-semibold text-ink">{s.cursNume ?? 'Curs'}</p>
                   <p className="text-xs text-sub">
                     {formatData(s.data)}
-                    {s.instructorNume ? ` · ${s.instructorNume}` : ''} · {s.locuriRamase} locuri
+                    {s.instructorNume ? ` · ${s.instructorNume}` : ''} · {s.locuriRamase}/{s.capacitate} locuri
                   </p>
                 </div>
                 <span className="text-sm font-extrabold text-ink">{formatRON(s.pret ?? 0)}</span>

@@ -5,12 +5,9 @@ import { LoginPage } from '@/features/auth/LoginPage'
 import { ResetPage } from '@/features/auth/ResetPage'
 import { AcasaPage } from '@/features/dashboard/AcasaPage'
 import { PlatiPage } from '@/features/plati/PlatiPage'
-import { PrezentePage } from '@/features/prezente/PrezentePage'
 import { RezervariPage } from '@/features/rezervari/RezervariPage'
 import { GrupaPage } from '@/features/grupa/GrupaPage'
-import { ActivitatePage } from '@/features/activitate/ActivitatePage'
 import { CalendarPage } from '@/features/calendar/CalendarPage'
-import { DocumentePage } from '@/features/documente/DocumentePage'
 import { NotificariPage } from '@/features/notificari/NotificariPage'
 import { ProfilPage } from '@/features/profil/ProfilPage'
 import { LegalLayout } from '@/features/legal/LegalLayout'
@@ -46,14 +43,14 @@ export default function App() {
           <Route element={<AppLayout />}>
             <Route index element={<AcasaPage />} />
             <Route path="grupa" element={<GrupaPage />} />
-            <Route path="activitate" element={<ActivitatePage />} />
             <Route path="calendar" element={<CalendarPage />} />
             <Route path="plati" element={<PlatiPage />} />
-            <Route path="prezente" element={<PrezentePage />} />
             <Route path="rezervari" element={<RezervariPage />} />
-            <Route path="documente" element={<DocumentePage />} />
-            {/* Adeverința e consolidată în Documente; păstrăm redirect pentru linkuri vechi */}
-            <Route path="adeverinta" element={<Navigate to="/documente" replace />} />
+            {/* Rute vechi — conținutul e consolidat în Grupa mea și Profil */}
+            <Route path="prezente" element={<Navigate to="/grupa" replace />} />
+            <Route path="activitate" element={<Navigate to="/grupa" replace />} />
+            <Route path="documente" element={<Navigate to="/profil" replace />} />
+            <Route path="adeverinta" element={<Navigate to="/profil" replace />} />
             <Route path="notificari" element={<NotificariPage />} />
             <Route path="profil" element={<ProfilPage />} />
           </Route>

@@ -7,7 +7,6 @@ import {
   getParticipariClient,
   getRezultateConcursuri,
 } from './api'
-import { EvaluareSection } from '@/features/evaluare/EvaluareSection'
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -18,7 +17,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   )
 }
 
-export function ActivitatePage() {
+export function ActivitateSection() {
   const { activeMember } = useActiveMember()
 
   const evenimente = useQuery({ queryKey: ['evenimente'], queryFn: getEvenimenteClient })
@@ -30,7 +29,7 @@ export function ActivitatePage() {
   const rezultate = useQuery({ queryKey: ['rezultate-concursuri'], queryFn: getRezultateConcursuri })
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
+    <div className="space-y-6">
       <Section title="Evenimente care urmează">
         {evenimente.isLoading && <Spinner />}
         {evenimente.data && evenimente.data.length === 0 && (
@@ -101,8 +100,6 @@ export function ActivitatePage() {
           </ul>
         )}
       </Section>
-
-      <EvaluareSection />
     </div>
   )
 }

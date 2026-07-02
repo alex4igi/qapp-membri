@@ -1,18 +1,27 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useActiveMember } from '@/hooks/useActiveMember'
-import { Button, Spinner } from '@/components/ui'
+import { Button, Modal, Spinner } from '@/components/ui'
 import { PaymentBadges } from '@/components/PaymentBadges'
 import { formatRON, formatData } from '@/lib/format'
-import { listOpenSesiuniClient, reserveOpenAndPay } from './api'
+import { listOpenSesiuniClient, reserveOpenAndPay, type OpenSesiuneRow } from './api'
+
+function SummaryRow({ label, value }: { label: string; value: ReactNode }) {
+  return (
+    <div className="flex items-center justify-between gap-3">
+      <span className="text-sm text-sub">{label}</span>
+      <span className="text-sm font-bold text-ink">{value}</span>
+    </div>
+  )
+}
 
 export function RezervariPage() {
   const { activeMember } = useActiveMember()
   const queryClient = useQueryClient()
   const [searchParams, setSearchParams] = useSearchParams()
   const [returnNotice, setReturnNotice] = useState(false)
-  const [pendingId, setPendingId] = useState<string | null>(null)
+  const [selected, setSelected] = useState<OpenSesiuneRow | null>(null)
   const [voucherCod, setVoucherCod] = useState('')
 
   const { data, isLoading, error } = useQuery({
@@ -32,12 +41,16 @@ export function RezervariPage() {
   const reserve = useMutation({
     mutationFn: (sesiuneId: string) =>
       reserveOpenAndPay({ clientId: activeMember!.clientId, sesiuneId, voucherCod }),
-    onMutate: (sesiuneId) => setPendingId(sesiuneId),
     onSuccess: (res) => {
       window.location.href = res.redirectUrl
     },
-    onError: () => setPendingId(null),
   })
+
+  const closeModal = () => {
+    if (reserve.isPending) return
+    setSelected(null)
+    reserve.reset()
+  }
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
@@ -76,7 +89,6 @@ export function RezervariPage() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {data.map((s) => {
             const plin = s.locuriRamase <= 0
-            const busy = reserve.isPending && pendingId === s.sesiuneId
             return (
               <div
                 key={s.sesiuneId}
@@ -85,7 +97,7 @@ export function RezervariPage() {
                 <div className="flex items-start justify-between gap-2">
                   <span className="text-sm font-medium text-sub">{formatData(s.data)}</span>
                   <span className="rounded-full bg-surf2 px-2.5 py-1 text-xs font-medium text-sub">
-                    {plin ? 'Complet' : `${s.locuriRamase} locuri`}
+                    {plin ? 'Complet' : `${s.locuriRamase}/${s.capacitate} locuri`}
                   </span>
                 </div>
                 <div>
@@ -94,11 +106,8 @@ export function RezervariPage() {
                 </div>
                 <div className="mt-auto flex items-center justify-between gap-3 pt-1">
                   <span className="text-lg font-extrabold text-ink">{formatRON(s.pret ?? 0)}</span>
-                  <Button
-                    onClick={() => reserve.mutate(s.sesiuneId)}
-                    disabled={plin || !activeMember || (reserve.isPending && !busy)}
-                  >
-                    {busy ? 'Se inițiază…' : plin ? 'Complet' : 'Rezervă'}
+                  <Button onClick={() => setSelected(s)} disabled={plin || !activeMember}>
+                    {plin ? 'Complet' : 'Rezervă'}
                   </Button>
                 </div>
               </div>
@@ -107,14 +116,53 @@ export function RezervariPage() {
         </div>
       )}
 
-      {reserve.isError && (
-        <p className="text-sm text-danger">{(reserve.error as Error).message}</p>
-      )}
-
       <div className="flex flex-wrap items-center gap-2 pt-1 text-xs text-sub">
         <span>Plată securizată cu cardul (RON) prin:</span>
         <PaymentBadges />
       </div>
+
+      <Modal
+        open={!!selected}
+        title="Rezumat comandă"
+        onClose={closeModal}
+        footer={
+          <>
+            <Button variant="ghost" onClick={closeModal} disabled={reserve.isPending}>
+              Renunță
+            </Button>
+            <Button
+              onClick={() => selected && reserve.mutate(selected.sesiuneId)}
+              disabled={reserve.isPending || !activeMember}
+            >
+              {reserve.isPending ? 'Se inițiază…' : 'Continuă la plată'}
+            </Button>
+          </>
+        }
+      >
+        {selected && (
+          <div className="space-y-3">
+            <SummaryRow label="Curs" value={selected.cursNume ?? 'Curs'} />
+            <SummaryRow label="Dată" value={formatData(selected.data)} />
+            {selected.instructorNume && (
+              <SummaryRow label="Instructor" value={selected.instructorNume} />
+            )}
+            <SummaryRow label="Voucher" value={voucherCod.trim() ? voucherCod.trim().toUpperCase() : '—'} />
+            <div className="border-t border-line pt-3">
+              <SummaryRow label="Total de plată" value={formatRON(selected.pret ?? 0)} />
+            </div>
+            <p className="text-xs text-sub">
+              Reducerea aferentă voucherului (dacă e valid) se calculează la plată.
+            </p>
+            {reserve.isError && (
+              <p className="text-sm text-danger">{(reserve.error as Error).message}</p>
+            )}
+            <div className="flex flex-wrap items-center gap-2 pt-1 text-xs text-sub">
+              <span>Plată securizată cu cardul (RON) prin:</span>
+              <PaymentBadges />
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   )
 }

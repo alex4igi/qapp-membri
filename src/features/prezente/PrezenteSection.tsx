@@ -17,16 +17,13 @@ const DOT_STYLE: Record<string, string> = {
   Motivat: 'bg-amber-500',
 }
 
-export function PrezentePage() {
-  const { activeMember, loading } = useActiveMember()
+export function PrezenteSection() {
+  const { activeMember } = useActiveMember()
   const { data, isLoading, error } = useQuery({
     queryKey: ['prezente', activeMember?.clientId],
     queryFn: () => getPrezenteClient(activeMember!.clientId),
     enabled: !!activeMember,
   })
-
-  if (loading) return <Spinner />
-  if (!activeMember) return <p className="text-sm text-sub">Niciun membru de afișat.</p>
 
   const prezentCount = data?.filter((p) => p.status === 'Prezent').length ?? 0
   const absentCount = data?.filter((p) => p.status === 'Absent').length ?? 0
@@ -34,7 +31,7 @@ export function PrezentePage() {
   const rate = totalRated > 0 ? Math.round((prezentCount / totalRated) * 100) + '%' : '—'
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
+    <div className="space-y-6">
       <div className="grid grid-cols-3 gap-4">
         <div className="rounded-2xl border border-line bg-surf p-5 shadow-card">
           <p className="text-sm text-sub">Prezent</p>

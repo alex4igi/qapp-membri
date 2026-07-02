@@ -14,8 +14,8 @@ function DownloadIcon() {
   )
 }
 
-export function DocumentePage() {
-  const { activeMember, loading } = useActiveMember()
+export function DocumenteSection() {
+  const { activeMember } = useActiveMember()
   const [showAdeverinta, setShowAdeverinta] = useState(false)
   const { data, isLoading, error } = useQuery({
     queryKey: ['documente', activeMember?.clientId],
@@ -23,11 +23,11 @@ export function DocumentePage() {
     enabled: !!activeMember,
   })
 
-  if (loading) return <Spinner />
-  if (!activeMember) return <p className="text-sm text-sub">Niciun membru de afișat.</p>
+  if (!activeMember) return null
 
   return (
-    <div className="max-w-5xl space-y-4">
+    <section className="space-y-3">
+      <h2 className="text-base font-extrabold text-ink">Documente</h2>
       {isLoading && <Spinner />}
       {error && <p className="text-sm text-danger">Eroare la încărcare.</p>}
 
@@ -86,6 +86,6 @@ export function DocumentePage() {
       )}
 
       {showAdeverinta && <AdeverintaDocument />}
-    </div>
+    </section>
   )
 }

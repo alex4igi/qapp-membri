@@ -4,6 +4,12 @@ import { Spinner } from '@/components/ui'
 import { loadContract, submitContract, type LoadResult } from './api'
 import { SignatureCanvas } from './SignatureCanvas'
 
+// Un checkbox nebifat (`false`) e o valoare validă, nu o „lipsă" — nu-l tratăm
+// ca gol la fel ca un string netăiat.
+function hasValue(v: string | boolean | undefined): boolean {
+  return typeof v === 'boolean' ? v : !!(v ?? '').trim()
+}
+
 // Pagină PUBLICĂ (fără login): părintele deschide linkul din SMS/email,
 // verifică datele precompletate, completează ce lipsește, desenează semnătura.
 export function SemnarePage() {
@@ -11,7 +17,7 @@ export function SemnarePage() {
   const [state, setState] = useState<'loading' | 'form' | 'done' | 'error'>('loading')
   const [data, setData] = useState<LoadResult | null>(null)
   const [errMsg, setErrMsg] = useState('')
-  const [valori, setValori] = useState<Record<string, string>>({})
+  const [valori, setValori] = useState<Record<string, string | boolean>>({})
   const [semnatura, setSemnatura] = useState<string | null>(null)
   const [consimtamant, setConsimtamant] = useState(false)
   const [marketingOptin, setMarketingOptin] = useState(false)
@@ -31,11 +37,17 @@ export function SemnarePage() {
         setState('error')
       } else {
         setData(res)
-        setValori(
-          Object.fromEntries(
-            Object.entries(res.prefill ?? {}).map(([k, v]) => [k, String(v ?? '')]),
-          ),
+        const checkboxKeys = new Set(
+          (res.fields ?? []).filter((f) => f.type === 'checkbox').map((f) => f.key),
         )
+        // checkbox-urile pornesc nebifate — sursa lor e aproape mereu 'manual',
+        // deci practic nu vin niciodată din prefill (care e mereu string oricum).
+        const initial: Record<string, string | boolean> = {}
+        for (const key of checkboxKeys) initial[key] = false
+        for (const [k, v] of Object.entries(res.prefill ?? {})) {
+          if (!checkboxKeys.has(k)) initial[k] = String(v ?? '')
+        }
+        setValori(initial)
         setState('form')
       }
     }).catch(() => {
@@ -57,7 +69,7 @@ export function SemnarePage() {
           f.type !== 'signature' &&
           f.type !== 'copii_table' &&
           f.source !== 'azi' &&
-          (f.editable || !(valori[f.key] ?? '').trim()),
+          (f.editable || !hasValue(valori[f.key])),
       ),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [data],
@@ -70,7 +82,7 @@ export function SemnarePage() {
           f.type !== 'copii_table' &&
           f.source !== 'azi' &&
           !f.editable &&
-          (valori[f.key] ?? '').trim(),
+          hasValue(valori[f.key]),
       ),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [data],
@@ -87,7 +99,13 @@ export function SemnarePage() {
       return
     }
     for (const f of inputFields) {
-      if (f.required && !(valori[f.key] ?? '').trim()) {
+      if (!f.required) continue
+      if (f.type === 'checkbox') {
+        if (valori[f.key] !== true) {
+          setSubmitErr(`Bifează „${f.label}".`)
+          return
+        }
+      } else if (!hasValue(valori[f.key])) {
         setSubmitErr(`Completează câmpul „${f.label}".`)
         return
       }
@@ -181,7 +199,9 @@ export function SemnarePage() {
                   {readonlyFields.map((f) => (
                     <div key={f.key} className="flex justify-between gap-4 text-sm">
                       <dt className="text-sub">{f.label}</dt>
-                      <dd className="font-medium text-ink">{valori[f.key]}</dd>
+                      <dd className="font-medium text-ink">
+                        {typeof valori[f.key] === 'boolean' ? (valori[f.key] ? 'Da' : 'Nu') : valori[f.key]}
+                      </dd>
                     </div>
                   ))}
                 </dl>
@@ -194,22 +214,44 @@ export function SemnarePage() {
                   Completează
                 </h2>
                 <div className="space-y-3">
-                  {inputFields.map((f) => (
-                    <label key={f.key} className="block">
-                      <span className="mb-1 block text-sm text-ink">
-                        {f.label}
-                        {f.required && <span className="text-danger"> *</span>}
-                      </span>
-                      <input
-                        type={f.type === 'date' ? 'date' : 'text'}
-                        value={valori[f.key] ?? ''}
-                        onChange={(e) =>
-                          setValori((v) => ({ ...v, [f.key]: e.target.value }))
-                        }
-                        className="w-full rounded-xl border border-line bg-white px-3 py-2.5 text-sm text-ink outline-none focus:border-acc focus:ring-2 focus:ring-acc/30"
-                      />
-                    </label>
-                  ))}
+                  {inputFields.map((f) =>
+                    f.type === 'checkbox' ? (
+                      <label key={f.key} className="flex items-start gap-3 text-sm text-ink">
+                        <input
+                          type="checkbox"
+                          checked={valori[f.key] === true}
+                          onChange={(e) =>
+                            setValori((v) => ({ ...v, [f.key]: e.target.checked }))
+                          }
+                          className="mt-0.5 h-4 w-4"
+                        />
+                        <span>
+                          {f.label}
+                          {f.required && <span className="text-danger"> *</span>}
+                        </span>
+                      </label>
+                    ) : (
+                      (() => {
+                        const val = valori[f.key]
+                        return (
+                          <label key={f.key} className="block">
+                            <span className="mb-1 block text-sm text-ink">
+                              {f.label}
+                              {f.required && <span className="text-danger"> *</span>}
+                            </span>
+                            <input
+                              type={f.type === 'date' ? 'date' : 'text'}
+                              value={typeof val === 'string' ? val : ''}
+                              onChange={(e) =>
+                                setValori((v) => ({ ...v, [f.key]: e.target.value }))
+                              }
+                              className="w-full rounded-xl border border-line bg-white px-3 py-2.5 text-sm text-ink outline-none focus:border-acc focus:ring-2 focus:ring-acc/30"
+                            />
+                          </label>
+                        )
+                      })()
+                    ),
+                  )}
                 </div>
               </div>
             )}

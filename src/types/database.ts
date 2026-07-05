@@ -12,6 +12,31 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       anunturi: {
@@ -783,6 +808,331 @@ export type Database = {
           },
         ]
       }
+      confirmari_review_sms: {
+        Row: {
+          created: string
+          error: string | null
+          id: string
+          lead_id: string
+          send_after: string
+          status: string
+          trimis_la: string | null
+        }
+        Insert: {
+          created?: string
+          error?: string | null
+          id?: string
+          lead_id: string
+          send_after?: string
+          status?: string
+          trimis_la?: string | null
+        }
+        Update: {
+          created?: string
+          error?: string | null
+          id?: string
+          lead_id?: string
+          send_after?: string
+          status?: string
+          trimis_la?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "confirmari_review_sms_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contract_events: {
+        Row: {
+          contract_id: string
+          created: string
+          id: number
+          meta: Json | null
+          tip: string
+        }
+        Insert: {
+          contract_id: string
+          created?: string
+          id?: never
+          meta?: Json | null
+          tip: string
+        }
+        Update: {
+          contract_id?: string
+          created?: string
+          id?: never
+          meta?: Json | null
+          tip?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contract_events_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracte"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contract_templates: {
+        Row: {
+          activ: boolean
+          created: string
+          created_by: string | null
+          fields: Json
+          id: string
+          locked_at: string | null
+          nume: string
+          pdf_storage_path: string
+          sezon: string | null
+          tip: string
+          updated: string
+          valabilitate_zile: number
+          versiune: number
+        }
+        Insert: {
+          activ?: boolean
+          created?: string
+          created_by?: string | null
+          fields?: Json
+          id?: string
+          locked_at?: string | null
+          nume: string
+          pdf_storage_path: string
+          sezon?: string | null
+          tip: string
+          updated?: string
+          valabilitate_zile?: number
+          versiune?: number
+        }
+        Update: {
+          activ?: boolean
+          created?: string
+          created_by?: string | null
+          fields?: Json
+          id?: string
+          locked_at?: string | null
+          nume?: string
+          pdf_storage_path?: string
+          sezon?: string | null
+          tip?: string
+          updated?: string
+          valabilitate_zile?: number
+          versiune?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contract_templates_sezon_fkey"
+            columns: ["sezon"]
+            isOneToOne: false
+            referencedRelation: "sezoane"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contracte: {
+        Row: {
+          campanie_id: string | null
+          client_id: string | null
+          consimtamant_esign_la: string | null
+          created: string
+          created_by: string | null
+          deschis_prima_data_la: string | null
+          documente_client_id: string | null
+          familie_id: string
+          finalizat_la: string | null
+          gate_id: string | null
+          id: string
+          last_reminder_la: string | null
+          marketing_optin: boolean | null
+          motiv_respingere: string | null
+          pdf_drive_link: string | null
+          pdf_hash_final: string | null
+          pdf_hash_pre: string | null
+          pdf_storage_path: string | null
+          reminder_count: number
+          semnat_la: string | null
+          semnatura_path: string | null
+          status: string
+          template_id: string
+          token_expira_la: string | null
+          token_hash: string | null
+          trimis_la: string | null
+          updated: string
+          valori: Json | null
+        }
+        Insert: {
+          campanie_id?: string | null
+          client_id?: string | null
+          consimtamant_esign_la?: string | null
+          created?: string
+          created_by?: string | null
+          deschis_prima_data_la?: string | null
+          documente_client_id?: string | null
+          familie_id: string
+          finalizat_la?: string | null
+          gate_id?: string | null
+          id?: string
+          last_reminder_la?: string | null
+          marketing_optin?: boolean | null
+          motiv_respingere?: string | null
+          pdf_drive_link?: string | null
+          pdf_hash_final?: string | null
+          pdf_hash_pre?: string | null
+          pdf_storage_path?: string | null
+          reminder_count?: number
+          semnat_la?: string | null
+          semnatura_path?: string | null
+          status?: string
+          template_id: string
+          token_expira_la?: string | null
+          token_hash?: string | null
+          trimis_la?: string | null
+          updated?: string
+          valori?: Json | null
+        }
+        Update: {
+          campanie_id?: string | null
+          client_id?: string | null
+          consimtamant_esign_la?: string | null
+          created?: string
+          created_by?: string | null
+          deschis_prima_data_la?: string | null
+          documente_client_id?: string | null
+          familie_id?: string
+          finalizat_la?: string | null
+          gate_id?: string | null
+          id?: string
+          last_reminder_la?: string | null
+          marketing_optin?: boolean | null
+          motiv_respingere?: string | null
+          pdf_drive_link?: string | null
+          pdf_hash_final?: string | null
+          pdf_hash_pre?: string | null
+          pdf_storage_path?: string | null
+          reminder_count?: number
+          semnat_la?: string | null
+          semnatura_path?: string | null
+          status?: string
+          template_id?: string
+          token_expira_la?: string | null
+          token_hash?: string | null
+          trimis_la?: string | null
+          updated?: string
+          valori?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contracte_campanie_id_fkey"
+            columns: ["campanie_id"]
+            isOneToOne: false
+            referencedRelation: "campanii_reinscriere"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contracte_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clienti"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contracte_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "inrolari_clienti"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contracte_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "lista_clienti"
+            referencedColumns: ["id_client"]
+          },
+          {
+            foreignKeyName: "contracte_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "plati_inrolari"
+            referencedColumns: ["id_cursant"]
+          },
+          {
+            foreignKeyName: "contracte_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "profil_client"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contracte_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "raport_financiar"
+            referencedColumns: ["id_cursant"]
+          },
+          {
+            foreignKeyName: "contracte_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "raport_incasari"
+            referencedColumns: ["id_cursant"]
+          },
+          {
+            foreignKeyName: "contracte_documente_client_id_fkey"
+            columns: ["documente_client_id"]
+            isOneToOne: false
+            referencedRelation: "documente_client"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contracte_familie_id_fkey"
+            columns: ["familie_id"]
+            isOneToOne: false
+            referencedRelation: "familii"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contracte_familie_id_fkey"
+            columns: ["familie_id"]
+            isOneToOne: false
+            referencedRelation: "lista_familii"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contracte_familie_id_fkey"
+            columns: ["familie_id"]
+            isOneToOne: false
+            referencedRelation: "profil_client"
+            referencedColumns: ["id_familie"]
+          },
+          {
+            foreignKeyName: "contracte_familie_id_fkey"
+            columns: ["familie_id"]
+            isOneToOne: false
+            referencedRelation: "raport_financiar"
+            referencedColumns: ["id_familie"]
+          },
+          {
+            foreignKeyName: "contracte_gate_id_fkey"
+            columns: ["gate_id"]
+            isOneToOne: false
+            referencedRelation: "reinscrieri_gate"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contracte_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "contract_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cursuri: {
         Row: {
           capacitate_maxima: number | null
@@ -1189,6 +1539,188 @@ export type Database = {
             columns: ["teacher_id"]
             isOneToOne: false
             referencedRelation: "teacheri"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      datorii: {
+        Row: {
+          articol_inventar: string | null
+          bilet: string | null
+          bucati: number | null
+          categorie: Database["public"]["Enums"]["categorie_incasare"]
+          client: string
+          created: string
+          descriere: string | null
+          id: string
+          locatie: string | null
+          sezon: string | null
+          suma_datorata: number
+          updated: string
+          voucher: string | null
+        }
+        Insert: {
+          articol_inventar?: string | null
+          bilet?: string | null
+          bucati?: number | null
+          categorie: Database["public"]["Enums"]["categorie_incasare"]
+          client: string
+          created?: string
+          descriere?: string | null
+          id?: string
+          locatie?: string | null
+          sezon?: string | null
+          suma_datorata: number
+          updated?: string
+          voucher?: string | null
+        }
+        Update: {
+          articol_inventar?: string | null
+          bilet?: string | null
+          bucati?: number | null
+          categorie?: Database["public"]["Enums"]["categorie_incasare"]
+          client?: string
+          created?: string
+          descriere?: string | null
+          id?: string
+          locatie?: string | null
+          sezon?: string | null
+          suma_datorata?: number
+          updated?: string
+          voucher?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "datorii_articol_inventar_fkey"
+            columns: ["articol_inventar"]
+            isOneToOne: false
+            referencedRelation: "inventar"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "datorii_articol_inventar_fkey"
+            columns: ["articol_inventar"]
+            isOneToOne: false
+            referencedRelation: "produse_publice"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "datorii_bilet_fkey"
+            columns: ["bilet"]
+            isOneToOne: false
+            referencedRelation: "bilete_publice"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "datorii_bilet_fkey"
+            columns: ["bilet"]
+            isOneToOne: false
+            referencedRelation: "evenimente"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "datorii_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "clienti"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "datorii_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "inrolari_clienti"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "datorii_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "lista_clienti"
+            referencedColumns: ["id_client"]
+          },
+          {
+            foreignKeyName: "datorii_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "plati_inrolari"
+            referencedColumns: ["id_cursant"]
+          },
+          {
+            foreignKeyName: "datorii_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "profil_client"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "datorii_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "raport_financiar"
+            referencedColumns: ["id_cursant"]
+          },
+          {
+            foreignKeyName: "datorii_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "raport_incasari"
+            referencedColumns: ["id_cursant"]
+          },
+          {
+            foreignKeyName: "datorii_locatie_fkey"
+            columns: ["locatie"]
+            isOneToOne: false
+            referencedRelation: "incasari_locatie_luna"
+            referencedColumns: ["id_locatie"]
+          },
+          {
+            foreignKeyName: "datorii_locatie_fkey"
+            columns: ["locatie"]
+            isOneToOne: false
+            referencedRelation: "locatii"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "datorii_locatie_fkey"
+            columns: ["locatie"]
+            isOneToOne: false
+            referencedRelation: "plati_inrolari"
+            referencedColumns: ["id_locatie"]
+          },
+          {
+            foreignKeyName: "datorii_locatie_fkey"
+            columns: ["locatie"]
+            isOneToOne: false
+            referencedRelation: "raport_financiar"
+            referencedColumns: ["id_locatie"]
+          },
+          {
+            foreignKeyName: "datorii_locatie_fkey"
+            columns: ["locatie"]
+            isOneToOne: false
+            referencedRelation: "raport_incasari"
+            referencedColumns: ["id_locatie"]
+          },
+          {
+            foreignKeyName: "datorii_locatie_fkey"
+            columns: ["locatie"]
+            isOneToOne: false
+            referencedRelation: "restante_locatie_luna"
+            referencedColumns: ["id_locatie"]
+          },
+          {
+            foreignKeyName: "datorii_sezon_fkey"
+            columns: ["sezon"]
+            isOneToOne: false
+            referencedRelation: "sezoane"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "datorii_voucher_fkey"
+            columns: ["voucher"]
+            isOneToOne: false
+            referencedRelation: "vouchere"
             referencedColumns: ["id"]
           },
         ]
@@ -2029,6 +2561,167 @@ export type Database = {
           },
         ]
       }
+      facturi_fgo: {
+        Row: {
+          client_id: string | null
+          client_nume: string
+          created: string
+          data_tranzactie: string
+          descriere: string | null
+          emis_la: string | null
+          eroare_mesaj: string | null
+          factura_fgo: string | null
+          factura_link: string | null
+          familia_id: string | null
+          firma_cui: string
+          incasare_id: string | null
+          linii: Json | null
+          platit_la: string | null
+          ref: string
+          status: Database["public"]["Enums"]["factura_fgo_status"]
+          suma: number
+          sursa: Database["public"]["Enums"]["factura_fgo_sursa"]
+          updated: string
+          valuta: string
+        }
+        Insert: {
+          client_id?: string | null
+          client_nume?: string
+          created?: string
+          data_tranzactie: string
+          descriere?: string | null
+          emis_la?: string | null
+          eroare_mesaj?: string | null
+          factura_fgo?: string | null
+          factura_link?: string | null
+          familia_id?: string | null
+          firma_cui: string
+          incasare_id?: string | null
+          linii?: Json | null
+          platit_la?: string | null
+          ref: string
+          status?: Database["public"]["Enums"]["factura_fgo_status"]
+          suma: number
+          sursa: Database["public"]["Enums"]["factura_fgo_sursa"]
+          updated?: string
+          valuta?: string
+        }
+        Update: {
+          client_id?: string | null
+          client_nume?: string
+          created?: string
+          data_tranzactie?: string
+          descriere?: string | null
+          emis_la?: string | null
+          eroare_mesaj?: string | null
+          factura_fgo?: string | null
+          factura_link?: string | null
+          familia_id?: string | null
+          firma_cui?: string
+          incasare_id?: string | null
+          linii?: Json | null
+          platit_la?: string | null
+          ref?: string
+          status?: Database["public"]["Enums"]["factura_fgo_status"]
+          suma?: number
+          sursa?: Database["public"]["Enums"]["factura_fgo_sursa"]
+          updated?: string
+          valuta?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "facturi_fgo_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clienti"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "facturi_fgo_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "inrolari_clienti"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "facturi_fgo_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "lista_clienti"
+            referencedColumns: ["id_client"]
+          },
+          {
+            foreignKeyName: "facturi_fgo_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "plati_inrolari"
+            referencedColumns: ["id_cursant"]
+          },
+          {
+            foreignKeyName: "facturi_fgo_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "profil_client"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "facturi_fgo_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "raport_financiar"
+            referencedColumns: ["id_cursant"]
+          },
+          {
+            foreignKeyName: "facturi_fgo_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "raport_incasari"
+            referencedColumns: ["id_cursant"]
+          },
+          {
+            foreignKeyName: "facturi_fgo_familia_id_fkey"
+            columns: ["familia_id"]
+            isOneToOne: false
+            referencedRelation: "familii"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "facturi_fgo_familia_id_fkey"
+            columns: ["familia_id"]
+            isOneToOne: false
+            referencedRelation: "lista_familii"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "facturi_fgo_familia_id_fkey"
+            columns: ["familia_id"]
+            isOneToOne: false
+            referencedRelation: "profil_client"
+            referencedColumns: ["id_familie"]
+          },
+          {
+            foreignKeyName: "facturi_fgo_familia_id_fkey"
+            columns: ["familia_id"]
+            isOneToOne: false
+            referencedRelation: "raport_financiar"
+            referencedColumns: ["id_familie"]
+          },
+          {
+            foreignKeyName: "facturi_fgo_incasare_id_fkey"
+            columns: ["incasare_id"]
+            isOneToOne: false
+            referencedRelation: "incasari"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "facturi_fgo_incasare_id_fkey"
+            columns: ["incasare_id"]
+            isOneToOne: false
+            referencedRelation: "lista_incasari"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       familii: {
         Row: {
           auth_user_id: string | null
@@ -2115,6 +2808,71 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "portal_accounts"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      familii_date_semnatar: {
+        Row: {
+          actualizat_la: string
+          actualizat_sursa: string | null
+          adresa: string | null
+          ci_eliberat_de: string | null
+          ci_eliberat_la: string | null
+          ci_numar: string | null
+          ci_serie: string | null
+          cnp: string | null
+          familie_id: string
+        }
+        Insert: {
+          actualizat_la?: string
+          actualizat_sursa?: string | null
+          adresa?: string | null
+          ci_eliberat_de?: string | null
+          ci_eliberat_la?: string | null
+          ci_numar?: string | null
+          ci_serie?: string | null
+          cnp?: string | null
+          familie_id: string
+        }
+        Update: {
+          actualizat_la?: string
+          actualizat_sursa?: string | null
+          adresa?: string | null
+          ci_eliberat_de?: string | null
+          ci_eliberat_la?: string | null
+          ci_numar?: string | null
+          ci_serie?: string | null
+          cnp?: string | null
+          familie_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "familii_date_semnatar_familie_id_fkey"
+            columns: ["familie_id"]
+            isOneToOne: true
+            referencedRelation: "familii"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "familii_date_semnatar_familie_id_fkey"
+            columns: ["familie_id"]
+            isOneToOne: true
+            referencedRelation: "lista_familii"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "familii_date_semnatar_familie_id_fkey"
+            columns: ["familie_id"]
+            isOneToOne: true
+            referencedRelation: "profil_client"
+            referencedColumns: ["id_familie"]
+          },
+          {
+            foreignKeyName: "familii_date_semnatar_familie_id_fkey"
+            columns: ["familie_id"]
+            isOneToOne: true
+            referencedRelation: "raport_financiar"
+            referencedColumns: ["id_familie"]
           },
         ]
       }
@@ -2316,7 +3074,9 @@ export type Database = {
           client: string | null
           created: string
           data: string | null
+          datorie: string | null
           id: string
+          inchiriere: string | null
           inregistrare: string | null
           lead: string | null
           locatie: string | null
@@ -2335,7 +3095,9 @@ export type Database = {
           client?: string | null
           created?: string
           data?: string | null
+          datorie?: string | null
           id?: string
+          inchiriere?: string | null
           inregistrare?: string | null
           lead?: string | null
           locatie?: string | null
@@ -2354,7 +3116,9 @@ export type Database = {
           client?: string | null
           created?: string
           data?: string | null
+          datorie?: string | null
           id?: string
+          inchiriere?: string | null
           inregistrare?: string | null
           lead?: string | null
           locatie?: string | null
@@ -2521,10 +3285,280 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "incasari_datorie_fkey"
+            columns: ["datorie"]
+            isOneToOne: false
+            referencedRelation: "datorii"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incasari_datorie_fkey"
+            columns: ["datorie"]
+            isOneToOne: false
+            referencedRelation: "datorii_rest"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incasari_inchiriere_fkey"
+            columns: ["inchiriere"]
+            isOneToOne: false
+            referencedRelation: "inchirieri"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "incasari_lead_fkey"
             columns: ["lead"]
             isOneToOne: false
             referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inchirieri: {
+        Row: {
+          client: string | null
+          created: string
+          created_by: string | null
+          data: string
+          datorie: string | null
+          durata_min: number
+          guest_nume: string | null
+          guest_tel: string | null
+          id: string
+          locatie: string | null
+          observatii: string | null
+          ora_final: string
+          ora_start: string
+          pret: number
+          sala: string
+          status_plata: Database["public"]["Enums"]["status_plata_inchiriere"]
+          teacher: string | null
+          tier: Database["public"]["Enums"]["tier_inchiriere"]
+          updated: string
+        }
+        Insert: {
+          client?: string | null
+          created?: string
+          created_by?: string | null
+          data: string
+          datorie?: string | null
+          durata_min: number
+          guest_nume?: string | null
+          guest_tel?: string | null
+          id?: string
+          locatie?: string | null
+          observatii?: string | null
+          ora_final: string
+          ora_start: string
+          pret?: number
+          sala: string
+          status_plata?: Database["public"]["Enums"]["status_plata_inchiriere"]
+          teacher?: string | null
+          tier: Database["public"]["Enums"]["tier_inchiriere"]
+          updated?: string
+        }
+        Update: {
+          client?: string | null
+          created?: string
+          created_by?: string | null
+          data?: string
+          datorie?: string | null
+          durata_min?: number
+          guest_nume?: string | null
+          guest_tel?: string | null
+          id?: string
+          locatie?: string | null
+          observatii?: string | null
+          ora_final?: string
+          ora_start?: string
+          pret?: number
+          sala?: string
+          status_plata?: Database["public"]["Enums"]["status_plata_inchiriere"]
+          teacher?: string | null
+          tier?: Database["public"]["Enums"]["tier_inchiriere"]
+          updated?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inchirieri_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "clienti"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inchirieri_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "inrolari_clienti"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inchirieri_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "lista_clienti"
+            referencedColumns: ["id_client"]
+          },
+          {
+            foreignKeyName: "inchirieri_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "plati_inrolari"
+            referencedColumns: ["id_cursant"]
+          },
+          {
+            foreignKeyName: "inchirieri_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "profil_client"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inchirieri_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "raport_financiar"
+            referencedColumns: ["id_cursant"]
+          },
+          {
+            foreignKeyName: "inchirieri_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "raport_incasari"
+            referencedColumns: ["id_cursant"]
+          },
+          {
+            foreignKeyName: "inchirieri_datorie_fkey"
+            columns: ["datorie"]
+            isOneToOne: false
+            referencedRelation: "datorii"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inchirieri_datorie_fkey"
+            columns: ["datorie"]
+            isOneToOne: false
+            referencedRelation: "datorii_rest"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inchirieri_locatie_fkey"
+            columns: ["locatie"]
+            isOneToOne: false
+            referencedRelation: "incasari_locatie_luna"
+            referencedColumns: ["id_locatie"]
+          },
+          {
+            foreignKeyName: "inchirieri_locatie_fkey"
+            columns: ["locatie"]
+            isOneToOne: false
+            referencedRelation: "locatii"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inchirieri_locatie_fkey"
+            columns: ["locatie"]
+            isOneToOne: false
+            referencedRelation: "plati_inrolari"
+            referencedColumns: ["id_locatie"]
+          },
+          {
+            foreignKeyName: "inchirieri_locatie_fkey"
+            columns: ["locatie"]
+            isOneToOne: false
+            referencedRelation: "raport_financiar"
+            referencedColumns: ["id_locatie"]
+          },
+          {
+            foreignKeyName: "inchirieri_locatie_fkey"
+            columns: ["locatie"]
+            isOneToOne: false
+            referencedRelation: "raport_incasari"
+            referencedColumns: ["id_locatie"]
+          },
+          {
+            foreignKeyName: "inchirieri_locatie_fkey"
+            columns: ["locatie"]
+            isOneToOne: false
+            referencedRelation: "restante_locatie_luna"
+            referencedColumns: ["id_locatie"]
+          },
+          {
+            foreignKeyName: "inchirieri_sala_fkey"
+            columns: ["sala"]
+            isOneToOne: false
+            referencedRelation: "incasari_sala_luna"
+            referencedColumns: ["id_sala"]
+          },
+          {
+            foreignKeyName: "inchirieri_sala_fkey"
+            columns: ["sala"]
+            isOneToOne: false
+            referencedRelation: "raport_financiar"
+            referencedColumns: ["id_sala"]
+          },
+          {
+            foreignKeyName: "inchirieri_sala_fkey"
+            columns: ["sala"]
+            isOneToOne: false
+            referencedRelation: "raport_incasari"
+            referencedColumns: ["id_sala"]
+          },
+          {
+            foreignKeyName: "inchirieri_sala_fkey"
+            columns: ["sala"]
+            isOneToOne: false
+            referencedRelation: "restante_sala_luna"
+            referencedColumns: ["id_sala"]
+          },
+          {
+            foreignKeyName: "inchirieri_sala_fkey"
+            columns: ["sala"]
+            isOneToOne: false
+            referencedRelation: "sali"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inchirieri_teacher_fkey"
+            columns: ["teacher"]
+            isOneToOne: false
+            referencedRelation: "incasari_teacher_luna"
+            referencedColumns: ["id_teacher"]
+          },
+          {
+            foreignKeyName: "inchirieri_teacher_fkey"
+            columns: ["teacher"]
+            isOneToOne: false
+            referencedRelation: "lista_cursuri"
+            referencedColumns: ["id_teacher"]
+          },
+          {
+            foreignKeyName: "inchirieri_teacher_fkey"
+            columns: ["teacher"]
+            isOneToOne: false
+            referencedRelation: "profil_teacher"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inchirieri_teacher_fkey"
+            columns: ["teacher"]
+            isOneToOne: false
+            referencedRelation: "raport_incasari"
+            referencedColumns: ["id_teacher"]
+          },
+          {
+            foreignKeyName: "inchirieri_teacher_fkey"
+            columns: ["teacher"]
+            isOneToOne: false
+            referencedRelation: "restante_teacher_luna"
+            referencedColumns: ["id_teacher"]
+          },
+          {
+            foreignKeyName: "inchirieri_teacher_fkey"
+            columns: ["teacher"]
+            isOneToOne: false
+            referencedRelation: "teacheri"
             referencedColumns: ["id"]
           },
         ]
@@ -2720,6 +3754,7 @@ export type Database = {
           locatia: string | null
           motiv_pierdut: string | null
           nr_contactari: number
+          nr_neprezentari: number
           nume: string
           nume_parinte: string | null
           observatii: string | null
@@ -2760,6 +3795,7 @@ export type Database = {
           locatia?: string | null
           motiv_pierdut?: string | null
           nr_contactari?: number
+          nr_neprezentari?: number
           nume: string
           nume_parinte?: string | null
           observatii?: string | null
@@ -2800,6 +3836,7 @@ export type Database = {
           locatia?: string | null
           motiv_pierdut?: string | null
           nr_contactari?: number
+          nr_neprezentari?: number
           nume?: string
           nume_parinte?: string | null
           observatii?: string | null
@@ -3038,6 +4075,8 @@ export type Database = {
           auth_user_id: string
           client_id: string
           created: string
+          fgo_emitat: string | null
+          fgo_factura: string | null
           fifo_plan: Json
           id: string
           netopia_transaction_id: string | null
@@ -3053,6 +4092,8 @@ export type Database = {
           auth_user_id: string
           client_id: string
           created?: string
+          fgo_emitat?: string | null
+          fgo_factura?: string | null
           fifo_plan: Json
           id?: string
           netopia_transaction_id?: string | null
@@ -3068,6 +4109,8 @@ export type Database = {
           auth_user_id?: string
           client_id?: string
           created?: string
+          fgo_emitat?: string | null
+          fgo_factura?: string | null
           fifo_plan?: Json
           id?: string
           netopia_transaction_id?: string | null
@@ -3461,33 +4504,57 @@ export type Database = {
       }
       organizatie_firme: {
         Row: {
+          auto_factura_portal: boolean
           capital: number | null
+          cota_tva: number
           created: string
           cui: string | null
+          factureaza: boolean
+          ibans: string[]
           id: string
+          judet: string | null
+          localitate: string | null
           nume: string
           observatii: string | null
           registru_comert: string | null
+          serie: string | null
+          tip_factura: string
           updated: string
         }
         Insert: {
+          auto_factura_portal?: boolean
           capital?: number | null
+          cota_tva?: number
           created?: string
           cui?: string | null
+          factureaza?: boolean
+          ibans?: string[]
           id?: string
+          judet?: string | null
+          localitate?: string | null
           nume: string
           observatii?: string | null
           registru_comert?: string | null
+          serie?: string | null
+          tip_factura?: string
           updated?: string
         }
         Update: {
+          auto_factura_portal?: boolean
           capital?: number | null
+          cota_tva?: number
           created?: string
           cui?: string | null
+          factureaza?: boolean
+          ibans?: string[]
           id?: string
+          judet?: string | null
+          localitate?: string | null
           nume?: string
           observatii?: string | null
           registru_comert?: string | null
+          serie?: string | null
+          tip_factura?: string
           updated?: string
         }
         Relationships: []
@@ -4635,6 +5702,53 @@ export type Database = {
           },
         ]
       }
+      sms_amanate: {
+        Row: {
+          created: string
+          error: string | null
+          id: string
+          lead_id: string | null
+          mesaj: string
+          send_after: string
+          status: string
+          telefon: string
+          tip: string | null
+          trimis_la: string | null
+        }
+        Insert: {
+          created?: string
+          error?: string | null
+          id?: string
+          lead_id?: string | null
+          mesaj: string
+          send_after?: string
+          status?: string
+          telefon: string
+          tip?: string | null
+          trimis_la?: string | null
+        }
+        Update: {
+          created?: string
+          error?: string | null
+          id?: string
+          lead_id?: string | null
+          mesaj?: string
+          send_after?: string
+          status?: string
+          telefon?: string
+          tip?: string | null
+          trimis_la?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sms_amanate_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sms_logs: {
         Row: {
           error: string | null
@@ -4746,6 +5860,75 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "restante_locatie_luna"
             referencedColumns: ["id_locatie"]
+          },
+        ]
+      }
+      tarife_inchiriere: {
+        Row: {
+          id: string
+          increment_30: number | null
+          pret_120: number | null
+          pret_60: number | null
+          pret_90: number | null
+          sala: string
+          tier: Database["public"]["Enums"]["tier_inchiriere"]
+          updated: string
+        }
+        Insert: {
+          id?: string
+          increment_30?: number | null
+          pret_120?: number | null
+          pret_60?: number | null
+          pret_90?: number | null
+          sala: string
+          tier: Database["public"]["Enums"]["tier_inchiriere"]
+          updated?: string
+        }
+        Update: {
+          id?: string
+          increment_30?: number | null
+          pret_120?: number | null
+          pret_60?: number | null
+          pret_90?: number | null
+          sala?: string
+          tier?: Database["public"]["Enums"]["tier_inchiriere"]
+          updated?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tarife_inchiriere_sala_fkey"
+            columns: ["sala"]
+            isOneToOne: false
+            referencedRelation: "incasari_sala_luna"
+            referencedColumns: ["id_sala"]
+          },
+          {
+            foreignKeyName: "tarife_inchiriere_sala_fkey"
+            columns: ["sala"]
+            isOneToOne: false
+            referencedRelation: "raport_financiar"
+            referencedColumns: ["id_sala"]
+          },
+          {
+            foreignKeyName: "tarife_inchiriere_sala_fkey"
+            columns: ["sala"]
+            isOneToOne: false
+            referencedRelation: "raport_incasari"
+            referencedColumns: ["id_sala"]
+          },
+          {
+            foreignKeyName: "tarife_inchiriere_sala_fkey"
+            columns: ["sala"]
+            isOneToOne: false
+            referencedRelation: "restante_sala_luna"
+            referencedColumns: ["id_sala"]
+          },
+          {
+            foreignKeyName: "tarife_inchiriere_sala_fkey"
+            columns: ["sala"]
+            isOneToOne: false
+            referencedRelation: "sali"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -5205,6 +6388,153 @@ export type Database = {
           unique_clients: number | null
         }
         Relationships: []
+      }
+      datorii_rest: {
+        Row: {
+          articol_inventar: string | null
+          bilet: string | null
+          bucati: number | null
+          categorie: Database["public"]["Enums"]["categorie_incasare"] | null
+          client: string | null
+          created: string | null
+          descriere: string | null
+          id: string | null
+          locatie: string | null
+          nume: string | null
+          platit: number | null
+          prenume: string | null
+          rest: number | null
+          sezon: string | null
+          suma_datorata: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "datorii_articol_inventar_fkey"
+            columns: ["articol_inventar"]
+            isOneToOne: false
+            referencedRelation: "inventar"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "datorii_articol_inventar_fkey"
+            columns: ["articol_inventar"]
+            isOneToOne: false
+            referencedRelation: "produse_publice"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "datorii_bilet_fkey"
+            columns: ["bilet"]
+            isOneToOne: false
+            referencedRelation: "bilete_publice"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "datorii_bilet_fkey"
+            columns: ["bilet"]
+            isOneToOne: false
+            referencedRelation: "evenimente"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "datorii_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "clienti"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "datorii_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "inrolari_clienti"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "datorii_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "lista_clienti"
+            referencedColumns: ["id_client"]
+          },
+          {
+            foreignKeyName: "datorii_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "plati_inrolari"
+            referencedColumns: ["id_cursant"]
+          },
+          {
+            foreignKeyName: "datorii_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "profil_client"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "datorii_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "raport_financiar"
+            referencedColumns: ["id_cursant"]
+          },
+          {
+            foreignKeyName: "datorii_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "raport_incasari"
+            referencedColumns: ["id_cursant"]
+          },
+          {
+            foreignKeyName: "datorii_locatie_fkey"
+            columns: ["locatie"]
+            isOneToOne: false
+            referencedRelation: "incasari_locatie_luna"
+            referencedColumns: ["id_locatie"]
+          },
+          {
+            foreignKeyName: "datorii_locatie_fkey"
+            columns: ["locatie"]
+            isOneToOne: false
+            referencedRelation: "locatii"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "datorii_locatie_fkey"
+            columns: ["locatie"]
+            isOneToOne: false
+            referencedRelation: "plati_inrolari"
+            referencedColumns: ["id_locatie"]
+          },
+          {
+            foreignKeyName: "datorii_locatie_fkey"
+            columns: ["locatie"]
+            isOneToOne: false
+            referencedRelation: "raport_financiar"
+            referencedColumns: ["id_locatie"]
+          },
+          {
+            foreignKeyName: "datorii_locatie_fkey"
+            columns: ["locatie"]
+            isOneToOne: false
+            referencedRelation: "raport_incasari"
+            referencedColumns: ["id_locatie"]
+          },
+          {
+            foreignKeyName: "datorii_locatie_fkey"
+            columns: ["locatie"]
+            isOneToOne: false
+            referencedRelation: "restante_locatie_luna"
+            referencedColumns: ["id_locatie"]
+          },
+          {
+            foreignKeyName: "datorii_sezon_fkey"
+            columns: ["sezon"]
+            isOneToOne: false
+            referencedRelation: "sezoane"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       de_incasat_pe_luna: {
         Row: {
@@ -6287,6 +7617,21 @@ export type Database = {
         Args: { p_client: string; p_eveniment: string }
         Returns: undefined
       }
+      adjust_enrollment_price: {
+        Args: {
+          p_enrollment: string
+          p_motiv: string
+          p_new_suma: number
+          p_surplus_action?: string
+          p_target_id?: string
+          p_target_type?: string
+        }
+        Returns: Json
+      }
+      adjust_inchiriere_price: {
+        Args: { p_inchiriere: string; p_new_pret: number }
+        Returns: Json
+      }
       anuleaza_rezervare_open: {
         Args: { p_motiv?: string; p_rezervare: string }
         Returns: undefined
@@ -6351,7 +7696,12 @@ export type Database = {
         }[]
       }
       build_fifo_plan_membru: {
-        Args: { p_client: string; p_pana_la?: string }
+        Args: {
+          p_client: string
+          p_datorii?: string[]
+          p_include_inrolari?: boolean
+          p_pana_la?: string
+        }
         Returns: Json
       }
       calculeaza_salariu_teacher: {
@@ -6373,6 +7723,12 @@ export type Database = {
       }
       client_in_trupa: { Args: { p_client: string }; Returns: boolean }
       client_member_ids: { Args: never; Returns: string[] }
+      clienti_activi_la: {
+        Args: { p_data?: string; p_locatie?: string }
+        Returns: {
+          client: string
+        }[]
+      }
       clone_sezon: {
         Args: {
           p_cursuri?: Json
@@ -6390,6 +7746,10 @@ export type Database = {
       close_campanie_reinscriere: {
         Args: { p_campanie_id: string }
         Returns: undefined
+      }
+      close_season_open_enrollments: {
+        Args: { p_sezon: string }
+        Returns: number
       }
       confirm_netopia_payment: {
         Args: {
@@ -6425,6 +7785,14 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      converteste_abonament_in_sedinte: {
+        Args: { p_abonament: string; p_motiv?: string }
+        Returns: Json
+      }
+      converteste_sedinta_in_abonament: {
+        Args: { p_motiv?: string; p_sedinta: string; p_target: string }
+        Returns: Json
+      }
       create_campanie_reinscriere: {
         Args: {
           p_data_final: string
@@ -6449,6 +7817,10 @@ export type Database = {
         Returns: undefined
       }
       enqueue_confirmare_programare: {
+        Args: { p_lead: string }
+        Returns: undefined
+      }
+      enqueue_confirmare_review: {
         Args: { p_lead: string }
         Returns: undefined
       }
@@ -6514,6 +7886,15 @@ export type Database = {
           varsta: Database["public"]["Enums"]["varsta_curs"]
         }[]
       }
+      get_client_restante: {
+        Args: { p_client: string }
+        Returns: {
+          rest: number
+          sezon_id: string
+          sezon_nume: string
+          sursa: string
+        }[]
+      }
       get_clienti_activi: {
         Args: never
         Returns: {
@@ -6523,7 +7904,7 @@ export type Database = {
         }[]
       }
       get_colectare_dso: {
-        Args: { p_from: string; p_to: string }
+        Args: { p_from: string; p_locatie?: string; p_to: string }
         Returns: {
           dso_zile: number
           facturat: number
@@ -6533,7 +7914,7 @@ export type Database = {
         }[]
       }
       get_conversie_leads: {
-        Args: { p_luni?: number }
+        Args: { p_locatie?: string; p_luni?: number }
         Returns: {
           convertiti: number
           procent: number
@@ -6602,7 +7983,8 @@ export type Database = {
         Args: { p_locatie?: string }
         Returns: {
           durata_medie_luni: number
-          ltv_mediu: number
+          ltv_recurent: number
+          ltv_total: number
         }[]
       }
       get_evaluari_client: {
@@ -6704,7 +8086,7 @@ export type Database = {
         }[]
       }
       get_kpis_financiar: {
-        Args: { p_from: string; p_to: string }
+        Args: { p_from: string; p_locatie?: string; p_to: string }
         Returns: {
           cheltuieli: number
           incasari: number
@@ -6750,32 +8132,34 @@ export type Database = {
         }[]
       }
       get_mix_categorii_incasari: {
-        Args: { p_from: string; p_to: string }
+        Args: { p_from: string; p_locatie?: string; p_to: string }
         Returns: {
           categorie: string
           total: number
         }[]
       }
       get_mix_metode: {
-        Args: { p_from: string; p_to: string }
+        Args: { p_from: string; p_locatie?: string; p_to: string }
         Returns: {
           metoda: string
           total: number
         }[]
       }
       get_mix_recurent_oneoff: {
-        Args: { p_from: string; p_to: string }
+        Args: { p_from: string; p_locatie?: string; p_to: string }
         Returns: {
           tip: string
           total: number
         }[]
       }
       get_mrr_trend: {
-        Args: { p_locatie?: string; p_luni?: number }
+        Args: { p_from: string; p_locatie?: string; p_to: string }
         Returns: {
-          enrolari: number
+          enrolari_facultativ: number
+          enrolari_recurent: number
           luna: string
-          mrr: number
+          mrr_facultativ: number
+          mrr_recurent: number
         }[]
       }
       get_ocupare_prime_time: {
@@ -6788,6 +8172,7 @@ export type Database = {
           slot: string
         }[]
       }
+      get_pachet_luni: { Args: { p_locatie?: string }; Returns: Json }
       get_participari_client: {
         Args: { p_client: string }
         Returns: {
@@ -6811,6 +8196,17 @@ export type Database = {
           sezon_nume: string
           tip_plata: Database["public"]["Enums"]["tip_plata"]
           total_de_plata: number
+        }[]
+      }
+      get_prezenta_saptamana_grupe: {
+        Args: { p_locatie?: string }
+        Returns: {
+          curs_id: string
+          curs_nume: string
+          locatie_nume: string
+          posibile: number
+          prezenti: number
+          rata: number
         }[]
       }
       get_prezente_client: {
@@ -6924,7 +8320,7 @@ export type Database = {
         }[]
       }
       get_rentabilitate_grupa: {
-        Args: { p_luni?: number }
+        Args: { p_from: string; p_locatie?: string; p_to: string }
         Returns: {
           activi: number
           curs_id: string
@@ -6968,7 +8364,7 @@ export type Database = {
         }[]
       }
       get_retentie_cohorte: {
-        Args: { p_sezon?: string }
+        Args: { p_locatie?: string; p_sezon?: string }
         Returns: {
           cohorta_luna: string
           luni_de_la_start: number
@@ -6978,7 +8374,7 @@ export type Database = {
         }[]
       }
       get_retentie_membri: {
-        Args: never
+        Args: { p_locatie?: string }
         Returns: {
           baza_prev: number
           pierduti: number
@@ -7178,6 +8574,22 @@ export type Database = {
         Args: { p_client: string; p_sesiune: string }
         Returns: Json
       }
+      inrolari_active_la: {
+        Args: { p_data?: string }
+        Returns: {
+          client: string
+          cursul: string
+          enrollment_id: string
+        }[]
+      }
+      inrolari_active_luna: {
+        Args: { p_luna: string }
+        Returns: {
+          client: string
+          cursul: string
+          enrollment_id: string
+        }[]
+      }
       is_admin: { Args: never; Returns: boolean }
       is_front_desk: { Args: never; Returns: boolean }
       is_in_my_locatie: { Args: { loc: string }; Returns: boolean }
@@ -7204,6 +8616,7 @@ export type Database = {
       list_open_sesiuni_client: {
         Args: { p_locatie?: string }
         Returns: {
+          capacitate: number
           curs_id: string
           curs_nume: string
           data: string
@@ -7224,11 +8637,47 @@ export type Database = {
           telefon: string
         }[]
       }
+      list_targets_campanie: {
+        Args: { p_campanie_id: string }
+        Returns: {
+          act_status: string
+          are_contract: boolean
+          client_id: string
+          client_nume: string
+          curs_nume: string
+          curs_tinta_id: string
+          familie_id: string
+          familie_nume: string
+          telefon: string
+        }[]
+      }
       mark_anunt_read: { Args: { p_anunt_id: string }; Returns: undefined }
       mark_anunturi_citite: { Args: never; Returns: undefined }
+      mark_bank_factura: {
+        Args: {
+          p_client_nume: string
+          p_data: string
+          p_descriere: string
+          p_firma_cui: string
+          p_ref: string
+          p_suma: number
+          p_sursa: string
+        }
+        Returns: Json
+      }
       mark_opt_out: {
         Args: { p_entity: string; p_id: string; p_motiv?: string }
         Returns: undefined
+      }
+      match_bank_payer: {
+        Args: { p_detalii?: string; p_nume: string }
+        Returns: {
+          familia_id: string
+          id: string
+          nume: string
+          scor: number
+          tip: string
+        }[]
       }
       my_teacher_id: { Args: never; Returns: string }
       notifications_mark_all_read: { Args: never; Returns: number }
@@ -7260,6 +8709,7 @@ export type Database = {
         Args: { p_end: string; p_start: string }
         Returns: number
       }
+      ore_pe_zi_valid: { Args: { m: Json }; Returns: boolean }
       pontaj_auto_close_open_sessions: { Args: never; Returns: number }
       pontaj_close_session: {
         Args: { p_source?: string }
@@ -7328,6 +8778,7 @@ export type Database = {
       preview_pool_discount: {
         Args: {
           p_client: string
+          p_curs?: string
           p_suma_baza: number
           p_tip_plata: Database["public"]["Enums"]["tip_plata"]
         }
@@ -7340,6 +8791,38 @@ export type Database = {
       recalculate_pool_discount: {
         Args: { p_client: string }
         Returns: undefined
+      }
+      record_bank_factura: {
+        Args: {
+          p_client_id: string
+          p_client_nume: string
+          p_data: string
+          p_descriere: string
+          p_factura: string
+          p_factura_link: string
+          p_familia_id: string
+          p_firma_cui: string
+          p_ref: string
+          p_suma: number
+          p_sursa: string
+        }
+        Returns: Json
+      }
+      record_bank_incasare: {
+        Args: {
+          p_client_id: string
+          p_client_nume: string
+          p_data: string
+          p_descriere: string
+          p_factura: string
+          p_factura_link: string
+          p_familia_id: string
+          p_firma_cui: string
+          p_ref: string
+          p_suma: number
+          p_sursa: string
+        }
+        Returns: Json
       }
       record_taxa_rezervare: {
         Args: {
@@ -7368,6 +8851,10 @@ export type Database = {
           client_id: string
         }[]
       }
+      rezerva_bonus_open: {
+        Args: { p_date_list: string[]; p_enrollment: string }
+        Returns: number
+      }
       rezerva_loc_open: {
         Args: {
           p_client: string
@@ -7379,11 +8866,19 @@ export type Database = {
           p_metoda: Database["public"]["Enums"]["metoda_plata"]
           p_metoda2?: Database["public"]["Enums"]["metoda_plata"]
           p_permite_overbook?: boolean
+          p_pret?: number
           p_sesiune?: string
           p_suma: number
           p_suma2?: number
         }
         Returns: string
+      }
+      rls_parinte_gap_report: {
+        Args: never
+        Returns: {
+          problema: string
+          tabel: string
+        }[]
       }
       scor_num: { Args: { p_clasa: string }; Returns: number }
       send_anunt_client: {
@@ -7407,6 +8902,12 @@ export type Database = {
           p_document_link: string
         }
         Returns: string
+      }
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { "": string }; Returns: string[] }
+      sterge_inrolare: {
+        Args: { p_enrollment: string; p_motiv: string }
+        Returns: undefined
       }
       submit_rating_client: {
         Args: {
@@ -7449,6 +8950,17 @@ export type Database = {
         }
         Returns: undefined
       }
+      use_client_credit: {
+        Args: {
+          p_action: string
+          p_amount: number
+          p_client: string
+          p_motiv?: string
+          p_target_id?: string
+          p_target_type?: string
+        }
+        Returns: Json
+      }
       user_locatie_id: { Args: never; Returns: string }
       validate_voucher_code: {
         Args: {
@@ -7465,6 +8977,10 @@ export type Database = {
           valoare: number
           voucher_id: string
         }[]
+      }
+      warn_existing_incasare: {
+        Args: { p_client: string; p_data: string; p_suma: number }
+        Returns: boolean
       }
     }
     Enums: {
@@ -7486,12 +9002,21 @@ export type Database = {
         | "Taxa"
         | "Workshop"
         | "Auditie"
+        | "Inchiriere"
       categorie_inventar:
         | "Haine"
         | "Accesorii"
         | "Costume"
         | "Merch"
         | "Consumabil"
+      factura_fgo_status:
+        | "Pending"
+        | "Matched"
+        | "Emisa"
+        | "Marcata"
+        | "Eroare"
+        | "Ignorata"
+      factura_fgo_sursa: "banca" | "portal"
       grupa_lead:
         | "Tiny"
         | "Junior"
@@ -7546,6 +9071,7 @@ export type Database = {
         | "convertit"
         | "pierdut"
         | "nurture"
+      status_plata_inchiriere: "achitat" | "partial" | "neachitat"
       status_prezenta: "Prezent" | "Absent" | "Motivat"
       status_prospect:
         | "Nou"
@@ -7554,7 +9080,12 @@ export type Database = {
         | "Convertit"
         | "Nu doreste"
       status_rezervare: "rezervat" | "platit" | "anulat"
-      status_sms: "De trimis" | "In curs de trimitere" | "Trimis" | "Esuat"
+      status_sms:
+        | "De trimis"
+        | "In curs de trimitere"
+        | "Trimis"
+        | "Esuat"
+        | "Amanat"
       sub_status_lead: "de_revenit" | "nu_raspunde"
       sursa_prospect:
         | "Meta ADS"
@@ -7562,6 +9093,7 @@ export type Database = {
         | "Events"
         | "Website"
         | "Organic"
+      tier_inchiriere: "staff" | "client"
       tip_document:
         | "Contract"
         | "Anexa"
@@ -7714,6 +9246,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       app_feedback_status: [
@@ -7735,6 +9270,7 @@ export const Constants = {
         "Taxa",
         "Workshop",
         "Auditie",
+        "Inchiriere",
       ],
       categorie_inventar: [
         "Haine",
@@ -7743,6 +9279,15 @@ export const Constants = {
         "Merch",
         "Consumabil",
       ],
+      factura_fgo_status: [
+        "Pending",
+        "Matched",
+        "Emisa",
+        "Marcata",
+        "Eroare",
+        "Ignorata",
+      ],
+      factura_fgo_sursa: ["banca", "portal"],
       grupa_lead: ["Tiny", "Junior", "Varsity", "Teens", "Students", "Adults"],
       interes_lead: [
         "Street Dance",
@@ -7795,6 +9340,7 @@ export const Constants = {
         "pierdut",
         "nurture",
       ],
+      status_plata_inchiriere: ["achitat", "partial", "neachitat"],
       status_prezenta: ["Prezent", "Absent", "Motivat"],
       status_prospect: [
         "Nou",
@@ -7804,7 +9350,13 @@ export const Constants = {
         "Nu doreste",
       ],
       status_rezervare: ["rezervat", "platit", "anulat"],
-      status_sms: ["De trimis", "In curs de trimitere", "Trimis", "Esuat"],
+      status_sms: [
+        "De trimis",
+        "In curs de trimitere",
+        "Trimis",
+        "Esuat",
+        "Amanat",
+      ],
       sub_status_lead: ["de_revenit", "nu_raspunde"],
       sursa_prospect: [
         "Meta ADS",
@@ -7813,6 +9365,7 @@ export const Constants = {
         "Website",
         "Organic",
       ],
+      tier_inchiriere: ["staff", "client"],
       tip_document: [
         "Contract",
         "Anexa",

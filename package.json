@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "gen:types": "supabase gen types typescript --linked > src/types/database.ts"
+    "gen:types": "cd '../qapp v2' && supabase gen types typescript --linked > /tmp/qapp-types.gen.ts && cp /tmp/qapp-types.gen.ts '../qapp-membri/src/types/database.ts'"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.105.4",

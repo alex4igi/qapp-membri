@@ -9,6 +9,7 @@ export async function listTarifePublice(): Promise<TarifPublic[]> {
     .select('*')
     .eq('activ', true)
     .order('ordine', { ascending: true })
+    .limit(200)
   if (error) throw error
   return data ?? []
 }
@@ -21,6 +22,7 @@ export async function listProdusePublice(): Promise<ProdusPublic[]> {
     .select('*')
     .eq('activ', true)
     .order('ordine', { ascending: true })
+    .limit(200)
   if (error) throw error
   return data ?? []
 }
@@ -32,6 +34,7 @@ export async function listBiletePublice(): Promise<BiletPublic[]> {
     .from('bilete_publice')
     .select('*')
     .order('data', { ascending: true })
+    .limit(200)
   if (error) throw error
   return data ?? []
 }

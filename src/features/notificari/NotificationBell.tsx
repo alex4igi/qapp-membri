@@ -3,7 +3,13 @@ import { useQuery } from '@tanstack/react-query'
 import { getAnunturiClient } from './api'
 
 export function NotificationBell() {
-  const { data } = useQuery({ queryKey: ['anunturi'], queryFn: getAnunturiClient })
+  // Poll la 2 min: anunțurile noi apar fără reîncărcarea paginii (portalul stă
+  // deschis pe telefon; fără realtime, refetchInterval e suficient).
+  const { data } = useQuery({
+    queryKey: ['anunturi'],
+    queryFn: getAnunturiClient,
+    refetchInterval: 120_000,
+  })
   const unread = (data ?? []).filter((a) => !a.readAt).length
 
   return (

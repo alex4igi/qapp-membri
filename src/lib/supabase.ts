@@ -23,15 +23,14 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   accessToken: async () => portalToken ?? supabaseAnonKey,
 })
 
-const PORTAL_AUTH_URL = `${supabaseUrl}/functions/v1/portal-auth`
-
-// Apel direct la portal-auth (login/refresh/logout/reset). Nu trece prin supabase-js
-// ca să nu interfereze cu `accessToken`. Pentru change_password se trimite tokenul logat.
-export async function callPortalAuth(
+// POST direct la o edge function (fără supabase-js — ca să nu interfereze cu
+// `accessToken` și pentru fluxurile fără sesiune, ex. semnarea publică).
+export function postEdgeFunction(
+  name: string,
   body: Record<string, unknown>,
   accessToken?: string,
-): Promise<{ ok: boolean; status: number; data: Record<string, unknown> }> {
-  const res = await fetch(PORTAL_AUTH_URL, {
+): Promise<Response> {
+  return fetch(`${supabaseUrl}/functions/v1/${name}`, {
     method: 'POST',
     headers: {
       apikey: supabaseAnonKey,
@@ -40,6 +39,15 @@ export async function callPortalAuth(
     },
     body: JSON.stringify(body),
   })
+}
+
+// Apel la portal-auth (login/refresh/logout/reset). Pentru change_password se
+// trimite tokenul logat.
+export async function callPortalAuth(
+  body: Record<string, unknown>,
+  accessToken?: string,
+): Promise<{ ok: boolean; status: number; data: Record<string, unknown> }> {
+  const res = await postEdgeFunction('portal-auth', body, accessToken)
   const data = await res.json().catch(() => ({}))
   return { ok: res.ok, status: res.status, data }
 }

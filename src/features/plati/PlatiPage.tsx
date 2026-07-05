@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useActiveMember } from '@/hooks/useActiveMember'
@@ -14,6 +14,48 @@ import {
   type PlataRow,
 } from './api/payments'
 import { ReduceriSection } from '@/features/reduceri/ReduceriSection'
+
+// Rând plătibil (înrolare sau datorie one-off): checkbox + titlu/subtitlu + partea dreaptă.
+function PayableRow({
+  checked,
+  onToggle,
+  ariaLabel,
+  title,
+  subtitle,
+  right,
+  dimmed,
+}: {
+  checked: boolean
+  onToggle: (() => void) | null // null = neselectabil (placeholder pentru aliniere)
+  ariaLabel: string
+  title: string
+  subtitle: ReactNode
+  right: ReactNode
+  dimmed?: boolean
+}) {
+  return (
+    <li className={cn('flex items-center justify-between gap-3 px-4 py-3', dimmed && 'opacity-70')}>
+      <div className="flex items-center gap-3">
+        {onToggle ? (
+          <input
+            type="checkbox"
+            checked={checked}
+            onChange={onToggle}
+            className="h-4 w-4 shrink-0 accent-acc"
+            aria-label={ariaLabel}
+          />
+        ) : (
+          <span className="h-4 w-4 shrink-0" />
+        )}
+        <div>
+          <p className="text-sm font-medium text-ink">{title}</p>
+          <p className="text-xs text-sub">{subtitle}</p>
+        </div>
+      </div>
+      {right}
+    </li>
+  )
+}
 
 export function PlatiPage() {
   const { members, activeMember, loading } = useActiveMember()
@@ -190,41 +232,31 @@ export function PlatiPage() {
               {g.rows.map((r) => {
                 const achitat = r.rest <= 0
                 const selectable = !achitat && !!r.dataIncepere
-                const checked = isSelected(r)
                 return (
-                  <li
+                  <PayableRow
                     key={r.enrollmentId}
-                    className={cn('flex items-center justify-between gap-3 px-4 py-3', achitat && 'opacity-70')}
-                  >
-                    <div className="flex items-center gap-3">
-                      {selectable ? (
-                        <input
-                          type="checkbox"
-                          checked={checked}
-                          onChange={() => toggle(r)}
-                          className="h-4 w-4 shrink-0 accent-acc"
-                          aria-label={`Selectează ${r.cursNume ?? ''}`}
-                        />
-                      ) : (
-                        <span className="h-4 w-4 shrink-0" />
-                      )}
-                      <div>
-                        <p className="text-sm font-medium text-ink">{r.cursNume ?? 'Curs'}</p>
-                        <p className="text-xs text-sub">
-                          {formatData(r.dataIncepere)} · {r.tipPlata ?? ''}
-                          {r.codVoucher ? ` · voucher ${r.codVoucher}` : ''}
-                        </p>
+                    checked={isSelected(r)}
+                    onToggle={selectable ? () => toggle(r) : null}
+                    ariaLabel={`Selectează ${r.cursNume ?? ''}`}
+                    title={r.cursNume ?? 'Curs'}
+                    subtitle={
+                      <>
+                        {formatData(r.dataIncepere)} · {r.tipPlata ?? ''}
+                        {r.codVoucher ? ` · voucher ${r.codVoucher}` : ''}
+                      </>
+                    }
+                    dimmed={achitat}
+                    right={
+                      <div className="text-right">
+                        <p className="text-sm text-ink">{formatRON(r.platit)} / {formatRON(r.total)}</p>
+                        {achitat ? (
+                          <span className="text-xs font-semibold text-ok">ACHITAT</span>
+                        ) : (
+                          <span className="text-xs font-semibold text-danger">rest {formatRON(r.rest)}</span>
+                        )}
                       </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm text-ink">{formatRON(r.platit)} / {formatRON(r.total)}</p>
-                      {achitat ? (
-                        <span className="text-xs font-semibold text-ok">ACHITAT</span>
-                      ) : (
-                        <span className="text-xs font-semibold text-danger">rest {formatRON(r.rest)}</span>
-                      )}
-                    </div>
-                  </li>
+                    }
+                  />
                 )
               })}
             </ul>
@@ -240,30 +272,24 @@ export function PlatiPage() {
           </h2>
           <div className="overflow-hidden rounded-2xl border border-line bg-surf shadow-card">
             <ul className="divide-y divide-line">
-              {datoriiRows.map((d) => {
-                const checked = selectedDatorii.has(d.datorieId)
-                return (
-                  <li key={d.datorieId} className="flex items-center justify-between gap-3 px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="checkbox"
-                        checked={checked}
-                        onChange={() => toggleDatorie(d.datorieId)}
-                        className="h-4 w-4 shrink-0 accent-acc"
-                        aria-label={`Selectează ${d.descriere ?? d.categorie}`}
-                      />
-                      <div>
-                        <p className="text-sm font-medium text-ink">{d.descriere || d.categorie}</p>
-                        <p className="text-xs text-sub">
-                          {d.categorie}
-                          {d.platit > 0 ? ` · achitat ${formatRON(d.platit)} / ${formatRON(d.sumaDatorata)}` : ''}
-                        </p>
-                      </div>
-                    </div>
+              {datoriiRows.map((d) => (
+                <PayableRow
+                  key={d.datorieId}
+                  checked={selectedDatorii.has(d.datorieId)}
+                  onToggle={() => toggleDatorie(d.datorieId)}
+                  ariaLabel={`Selectează ${d.descriere ?? d.categorie}`}
+                  title={d.descriere || d.categorie}
+                  subtitle={
+                    <>
+                      {d.categorie}
+                      {d.platit > 0 ? ` · achitat ${formatRON(d.platit)} / ${formatRON(d.sumaDatorata)}` : ''}
+                    </>
+                  }
+                  right={
                     <span className="text-xs font-semibold text-danger">rest {formatRON(d.rest)}</span>
-                  </li>
-                )
-              })}
+                  }
+                />
+              ))}
             </ul>
           </div>
         </section>

@@ -1,8 +1,6 @@
 // Pagina publică de semnare vorbește DOAR cu edge function-ul contract-public
-// (fetch direct, fără supabase-js — nu există sesiune; tokenul din URL e cheia).
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
-const ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
-const ENDPOINT = `${SUPABASE_URL}/functions/v1/contract-public`
+// (fetch direct, fără sesiune supabase-js; tokenul din URL e cheia).
+import { postEdgeFunction } from '@/lib/supabase'
 
 export type SemnareField = {
   key: string
@@ -26,15 +24,7 @@ export type LoadResult = {
 }
 
 async function call(body: Record<string, unknown>): Promise<Response> {
-  return fetch(ENDPOINT, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      apikey: ANON_KEY,
-      Authorization: `Bearer ${ANON_KEY}`,
-    },
-    body: JSON.stringify(body),
-  })
+  return postEdgeFunction('contract-public', body)
 }
 
 export async function loadContract(token: string): Promise<LoadResult> {

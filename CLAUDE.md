@@ -8,16 +8,20 @@ cu școala. Accesată printr-un link de pe site, dar e o aplicație de sine stă
 
 Audiență: **familii (responsabil 18+) și adulți individuali** — NU staff.
 
-## MVP (faza 1)
+## Funcționalități LIVRATE (app în producție, membri.quasardance.ro)
 
 | Zonă | Funcție |
 |------|---------|
-| **Plăți** | Vede soldul familiei + per membru; achită înrolările restante **online cu cardul** (cronologic/FIFO); voucher |
-| **Prezențe** | Istoricul prezențelor copilului (Prezent/Absent/Motivat) |
-| **Rezervări** | Rezervă loc la cursuri **facultative** (OPEN class, K-pop Covers) + plată online |
-| **Profil** | Schimbă parola; editează date personale/copii; preferințe marketing (opt-out) |
+| **Plăți** | Sold familie + per membru; plată online Netopia (FIFO, parțială, datorii one-off); voucher |
+| **Grupa** | Roster/orar grupă + istoric prezențe + activitate concursuri |
+| **Calendar** | Sezon, vacanțe, evenimente |
+| **Rezervări** | Loc la cursuri facultative (OPEN class) + plată online |
+| **Semnare** | Contracte semnate pe canvas — autentificat (`/semneaza/:token`) sau public (`/s/:token`) |
+| **Profil** | Date personale, parolă, opt-out, documente + adeverință, reduceri, evaluare instructor |
+| **Notificări** | Anunțuri broadcast din qapp v2 (clopoțel) |
+| **Public** | /servicii (tarife/produse/bilete) + pagini legale — fără login |
 
-Faza 2 (NU acum): galerie foto/video, bilete, merch, workshop, reînscriere self-service,
+Neimplementat încă: galerie foto/video, merch checkout, workshop, reînscriere self-service,
 jurnal de ședință, factură pe firmă, roster familie self-service.
 
 ## Relația cu qapp v2 — CITEȘTE ÎNAINTE DE ORICE
@@ -29,7 +33,7 @@ jurnal de ședință, factură pe firmă, roster familie self-service.
   dată în DB** (RPC + Edge Functions). Această app e *thin* — doar apelează. Clientul NU
   calculează ce datorează și NU inserează în `incasari`.
 - `qapp v2/` se citește **read-only ca referință**. NU importa cod din el. Vezi `ARCHITECTURE.md`
-  pentru lista exactă de fișiere de studiat + planul de backend.
+  pentru structura reală, modelul de auth (portal_accounts + HS256, NU Supabase Auth) și fluxul de date.
 
 ## Stack
 
@@ -52,8 +56,9 @@ npx tsc -b           # type-check
 npm run gen:types    # regenerare src/types/database.ts din ACELAȘI Supabase ca qapp v2
 ```
 
-> ⚠️ `src/types/database.ts` e momentan **placeholder**. După `supabase link` la proiectul
-> qapp v2, rulează `npm run gen:types` ca să ai schema reală.
+> ⚠️ Repo-ul NU e linkat la Supabase — `gen:types` generează prin link-ul din
+> `../qapp v2` (același proiect). **Regulă:** după ORICE migrație aplicată din qapp v2,
+> rulează `npm run gen:types` și AICI, ca tipurile să nu rămână în urmă.
 
 ## Convenții cod
 

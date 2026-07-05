@@ -1,137 +1,119 @@
 # Arhitectura qapp-membri
 
-Portal client-facing pentru Quasar Dance. Backend = ACELAȘI Supabase ca `qapp v2/`.
-Frontend separat, *thin*. Logica de business stă în DB.
+Portal client-facing pentru Quasar Dance, **livrat și în producție** (membri.quasardance.ro).
+Backend = ACELAȘI Supabase ca `qapp v2/`. Frontend separat, *thin* — logica de business
+(bani, FIFO, capacitate, voucher) stă în DB (RPC SECURITY DEFINER + edge functions).
+
+> Istoric: prima versiune a acestui document descria planul inițial (schelet + Supabase Auth
+> + `provision-client`). Aplicația a fost livrată, iar autentificarea a pivotat pe un
+> **director de login separat** (`portal_accounts`). Documentul de față descrie realitatea.
 
 ---
 
-## Structura repo
+## Structura repo (reală)
 
 ```
 qapp-membri/
 ├── src/
-│   ├── lib/                  # supabase client, format, cn (liant minimal)
+│   ├── lib/                  # supabase client + portal token, format, cn
 │   ├── hooks/
-│   │   ├── useAuth.tsx       # auth client SIMPLIFICAT (fără rol/RBAC/pontaj)
+│   │   ├── useAuth.tsx       # auth pe portal_accounts (HS256), NU Supabase Auth
 │   │   └── useActiveMember.tsx  # switcher membru familie
 │   ├── components/
-│   │   ├── ui/               # Button, Modal, Spinner (subset din qapp v2)
-│   │   ├── layout/AppLayout  # shell: header + nav + switcher membru
+│   │   ├── ui/               # Button, Modal, Spinner, Card (fork tematizat din qapp v2)
+│   │   ├── layout/AppLayout  # shell: topbar + nav 5 taburi + switcher membru
 │   │   ├── ProtectedRoute    # redirect /login dacă nu e sesiune
-│   │   └── PagePlaceholder   # se șterge pe măsură ce paginile se implementează
-│   ├── features/
-│   │   ├── auth/             # LoginPage (funcțional)
+│   │   └── NotificationBell  # clopoțel anunțuri
+│   ├── features/             # 15 module (toate implementate)
+│   │   ├── auth/             # LoginPage + ResetPage
 │   │   ├── dashboard/        # AcasaPage
-│   │   ├── plati/            # PlatiPage + api/payments.ts (Netopia)
-│   │   ├── prezente/         # PrezentePage + api.ts
-│   │   ├── rezervari/        # RezervariPage + api.ts (open class)
-│   │   └── profil/           # ProfilPage (schimbă parola funcțional)
-│   └── types/                # database.ts (PLACEHOLDER → gen:types) + db.ts (aliasuri)
+│   │   ├── plati/            # sold + achitare online Netopia (FIFO, parțial, datorii one-off)
+│   │   ├── grupa/            # grupa copilului (roster, orar)
+│   │   ├── calendar/         # calendar sezon + vacanțe + evenimente
+│   │   ├── prezente/         # istoric prezențe (redirect în /grupa din nav)
+│   │   ├── rezervari/        # rezervare OPEN class + plată online
+│   │   ├── activitate/       # participări/rezultate concursuri (redirect în /grupa)
+│   │   ├── semnare/          # semnare contracte (canvas semnătură; și public /s/:token)
+│   │   ├── documente/        # documente client + adeverință (redirect în /profil)
+│   │   ├── evaluari/         # rating lunar către instructor
+│   │   ├── notificari/       # anunțuri broadcast din qapp v2
+│   │   ├── reduceri/         # reducerile familiei
+│   │   ├── profil/           # date personale, parolă, opt-out marketing
+│   │   └── legal/            # pagini publice: /servicii /termeni /confidentialitate etc.
+│   └── types/                # database.ts GENERAT (vezi regula de sync) + db.ts (aliasuri)
 └── (backend = ../qapp v2/supabase/ — migrații, RPC, edge functions partajate)
 ```
 
-> Backend-ul (RLS, RPC, Edge Functions Netopia) NU trăiește aici, ci în `../qapp v2/supabase/`
-> fiindcă proiectul Supabase e comun. Vezi „Backend NOU" mai jos.
-
-Stare: **schelet**. Paginile sunt placeholder, `api/*` sunt stub-uri cu TODO care trimit
-la sursa din qapp v2 și la RPC-ul de construit.
+Nav-ul autentificat are 5 taburi: Acasă / Grupa / Calendar / Plăți / Profil; rutele vechi
+(`/prezente`, `/activitate`, `/documente`, `/adeverinta`) rămân ca redirect-uri interne.
 
 ---
 
-## Ce se ia din qapp v2 (referință read-only — NU se importă)
+## Autentificarea (REALĂ — diferă de planul inițial)
 
-### Funcția MVP → fișier de studiat
+**Director de login separat, NU Supabase Auth.** Vezi `src/hooks/useAuth.tsx` + `src/lib/supabase.ts`:
 
-| Funcție | Fișier qapp v2 | Ce conține |
-|---|---|---|
-| **Plăți FIFO** | `src/features/plati/api/incasari.ts` | `registerPlataFifo()` — de mutat **server-side** |
-| | `src/features/plati/api/enrollments.ts` | tipuri înrolare, prorata |
-| | `src/features/plati/api/list.ts` | query restanțe per înrolare |
-| | modulul `vouchere` (`validateVoucher`/`calc.ts`) | validare voucher înainte de plată |
-| **Prezențe** | `src/features/prezente/api.ts` | `getPrezente`, `getCursRoster`, `getOpenRosterForDate` |
-| **Rezervare open class** | `src/features/plati/api/open-class.ts` | `rezervaLocOpen`, `listOpenSesiuni` |
-| | `supabase/migrations/20260606200100_open_class_rpc.sql` | RPC `rezerva_loc_open` (staff, sincron — vezi gotcha) |
-| | `supabase/migrations/20260606200000_open_class_tables.sql` | tabele `open_sesiuni` / `open_rezervari` |
-| **Sold familie** | `src/features/clienti/api.ts`, `src/features/familii/api.ts` | query sold/membri per familie |
-| **Profil / opt-out** | `src/features/opt-out/api.ts` | RPC `mark_opt_out` / `clear_opt_out` |
-| **Pattern auth↔user + RLS** | `supabase/migrations/20260514100200_rls.sql` | `auth_role()`, `teacheri.auth_user_id`, RLS `evaluari_teacher_*` |
+1. Tabele: `portal_accounts` (email + bcrypt) + `portal_sessions` (refresh) + `portal_reset_tokens`.
+2. Login/refresh/logout/reset/change_password trec prin edge function **`portal-auth`**
+   (apel direct `fetch`, nu supabase-js), care validează prin RPC-uri service_role-only
+   (`portal_login`, `portal_set_password`, …) și emite **access token HS256 semnat cu
+   secretul JWT al proiectului** + refresh token opac.
+3. Tokenul e injectat în supabase-js prin opțiunea `accessToken` (`setPortalToken`) —
+   toate query-urile/RPC-urile pleacă cu `Bearer <token HS256>`; nelogat → cheia anon
+   (paginile publice /servicii etc.).
+4. Claim-urile tokenului: `sub` = `portal_accounts.id`, rol aplicativ `parinte`
+   (citit de `auth_role()` în RLS).
+5. Sesiunea (access+refresh) e persistată în `localStorage` sub cheia `portal_auth`,
+   cu refresh proactiv înainte de expirare.
+6. Provisioning conturi: din qapp v2 (staff) prin edge `provision-client` / RPC
+   `portal_create_account`; seed test: `../qapp v2/scripts/seed-portal-test.mjs`.
 
-### Infra COPIATĂ în acest repo (deja făcut)
-`package.json` (curățat: fără dnd-kit/recharts), `vite.config.ts`, `tsconfig*`, `eslint.config.js`,
-`src/lib/{supabase,format,cn}.ts`, `src/index.css` (branding), `src/components/ui/*` (subset),
-`src/main.tsx` (QueryClient). **NU** s-au copiat: `rolesMatrix`, `navConfig`, `Header`/`TopNav`
-intern, `ProtectedRoute` cu RBAC — toate sunt logică staff.
-
----
-
-## Backend NOU (în Supabase qapp v2) — partea grea
-
-Se face în `qapp v2/supabase/`, NU aici. Frontend-ul de aici doar apelează.
-
-### 1. Legare clienți la auth
-- Migrație: `clienti.auth_user_id` + `familii.auth_user_id` (pattern `teacheri.auth_user_id`).
-- Funcții helper: `current_client()` / `current_familie()` (analog `current_teacher()`).
-- Un cont de familie = responsabilul (18+); un cont individual = adult legat direct la `clienti`.
-- Minorii NU au cont propriu în MVP.
-
-### 2. RLS client-facing
-Pe `clienti`, `familii`, `prezente`, `enrollments`, `incasari`, `open_sesiuni`, `open_rezervari`,
-`opt_out`. Fiecare cont vede **DOAR** familia lui. **Testat adversarial** (2 familii diferite).
-
-### 3. RPC de citire sigură
-- `get_sold_familie()` — restanțe agregate + per membru
-- `get_prezente_client(p_client, p_sezon)` 
-- `list_open_sesiuni_client()` — sesiuni viitoare + locuri rămase
-
-### 4. Plată Netopia (2 Edge Functions noi)
-- **`netopia-create-payment`**: authz pe `auth.uid()` → recalculează FIFO server-side (sursa de
-  adevăr a sumei, reutilizând logica `registerPlataFifo`) → aplică voucher → creează ordin
-  Netopia → întoarce `{ redirectUrl, orderId }`.
-- **`netopia-webhook`** (IPN): verifică semnătura → **IDEMPOTENT** (dedup pe id tranzacție
-  Netopia) → la confirmare scrie `incasari` (FIFO) + recalcul sold. Dublarea încasărilor e
-  inacceptabilă.
-
-### 5. Rezervare open class CLIENT (variantă în 2 pași)
-RPC-ul existent `rezerva_loc_open` e **staff-gated + plată sincronă** → nu e apelabil de client.
-Nou:
-- **`hold_loc_open()`**: blocaj atomic la capacitate (`SELECT ... FOR UPDATE` pe sesiune, ca în
-  RPC-ul existent), creează rezervare `status='in_asteptare'` **fără** `incasari`.
-- **`netopia-webhook`** confirmă → `incasari` + `enrollment` + `status='platit'`.
-- Expirare holduri neplătite (cron) → eliberează locul.
+### Threat model (pe scurt)
+- **Token în localStorage** → exfiltrabil prin XSS (trade-off SPA standard, fără cookie
+  httpOnly). Atenuare: fără dependencies exotice, fără `dangerouslySetInnerHTML`.
+- **Izolarea datelor e integral server-side**: gardul RESTRICTIVE `deny_parinte_direct`
+  de pe TOATE tabelele + RPC-uri SECURITY DEFINER scopate la `client_member_ids()`.
+  Frontend-ul nu e niciodată bariera.
+- **Invariant de mentenanță**: orice tabel NOU din qapp v2 trebuie să aibă RLS activ +
+  gardul `deny_parinte_direct`. Verificare re-rulabilă:
+  `node "../qapp v2/scripts/check-rls-parinte.mjs"` (de rulat după orice migrație cu
+  tabele noi; vezi migrația `20260705090000_reapply_deny_parinte_guard.sql`).
 
 ---
 
-## Stare backend (2026-06-15)
+## Fluxul de date
 
-**Faza 1 LIVRATĂ + aplicată pe remote** (migrații în `../qapp v2/supabase/migrations/`):
-`20260615120000_portal_membri_foundation` + `20260615130000_portal_membri_rpc`.
-- `clienti/familii.auth_user_id` + helperi `current_client/current_familie/client_member_ids`.
-- **Gard de securitate**: politică RESTRICTIVE `deny_parinte_direct` pe toate tabelele cu RLS →
-  rolul `parinte` nu atinge niciun tabel direct; totul prin RPC SECURITY DEFINER.
-- RPC citire: `get_sold_familie`, `get_plati_client`, `get_prezente_client`,
-  `list_open_sesiuni_client`, `get_membri_familie`.
-- Edge function `provision-client` (creează/leagă cont `parinte`) — DEPLOYAT.
-- Test adversarial RLS: `../qapp v2/scripts/test-portal-rls.mjs` (6/6 pass, auto-cleanup).
+- **Citire**: exclusiv prin RPC-uri `*_client` / `*_familie` (get_sold_familie,
+  get_plati_client, get_datorii_client, get_prezente_client, get_grupe_client,
+  get_anunturi_client, get_documente_client, get_reduceri_familie, …). Excepție:
+  3 surse publice pe /servicii (`tarife_publice`, view-urile `produse_publice`,
+  `bilete_publice`) citite direct cu anon.
+- **Scriere**: doar RPC dedicat (update_profil_client, submit_rating_client,
+  mark_anunturi_citite) sau edge functions.
+- **Bani**: `netopia-create-payment` (recalcul server-side al sumei, FIFO
+  `build_fifo_plan_membru`, holduri `hold_loc_open`) → redirect Netopia →
+  `netopia-webhook` IPN idempotent scrie `incasari` / confirmă rezervarea.
+  Clientul NU calculează ce datorează și NU inserează în `incasari`.
+- **Contracte**: semnare autenticată (`/semneaza/:token`) sau publică (`/s/:token`)
+  prin edge `contract-public`.
 
-⚠️ **Mentenanță gard**: `deny_parinte_direct` se aplică tabelelor existente la momentul migrației.
-Orice tabel NOU adăugat în qapp v2 trebuie să primească manual aceeași politică restrictivă,
-altfel devine citibil de conturile `parinte`.
+## Riscuri & puncte de atenție (rămân valabile)
 
-## Riscuri & puncte de atenție
+- **Idempotență webhook Netopia**: dedup pe id tranzacție. Dublarea încasărilor e inacceptabilă.
+- **Invariant discount familie**: plata nu schimbă `suma`/`suma_baza` pe `enrollments`.
+- **Enum-uri partajate** (metoda_plata, status_prezenta, status_rezervare): ambele
+  app-uri le iau din `database.ts` generat — vezi regula de sincronizare din CLAUDE.md
+  (după orice migrație, regen în AMBELE repo-uri).
+- **Config push**: `supabase config push` din qapp v2 rescrie `[auth].site_url` pe
+  proiectul partajat (e setat pe membri.quasardance.ro) — schimbările de auth se fac
+  țintit, nu prin push orb de config.
 
-- **RLS**: clienții devin pentru prima dată utilizatori autentificați pe acest Supabase.
-  Testare adversarială obligatorie — un cont nu trebuie să vadă altă familie. ✓ acoperit (vezi mai sus).
-- **Idempotență webhook**: dedup pe id tranzacție Netopia.
-- **Invariant discount familie**: plata nu schimbă `suma`/`suma_baza` pe `enrollments`, doar `incasari`.
-- **Enum-uri**: orice enum copiat din qapp v2 (metoda_plata, status_prezenta, status_rezervare)
-  trebuie ținut sincron cu sursa (problema `qleads-widget.js`).
-
-## Verificare end-to-end (când se implementează)
+## Verificare end-to-end
 
 1. `npx tsc -b` + `npm run build` verzi.
-2. Auth: 2 familii diferite — fiecare vede DOAR membrii proprii (izolare RLS).
+2. Izolare: 2 familii diferite — fiecare vede DOAR membrii proprii (RLS adversarial).
+   Smoke de referință pe căile reale: login portal-auth cu contul de test
+   (`portal.test@quasardance.ro`) → direct pe tabele = 0 rânduri, RPC-urile familiei = OK.
 3. Sold: restanțele din portal = la leu cu qapp v2 pentru aceeași familie.
-4. Plată: sandbox Netopia → webhook → 1 rând `incasari`, sold scade corect, fără dublare la retrimitere.
-5. Prezențe: corespund cu ce vede recepția în qapp v2.
-6. Profil: opt-out se reflectă în `clienti` și blochează marketingul (nu și tranzacționalul).
-7. Cleanup date de test în Supabase.
+4. Plată: sandbox Netopia → webhook → 1 rând `incasari`, fără dublare la retrimitere.
+5. Cleanup date de test în Supabase (fixture ZZTEST rămâne — e reutilizabil).

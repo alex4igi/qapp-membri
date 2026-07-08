@@ -6,6 +6,7 @@ import { ResetPage } from '@/features/auth/ResetPage'
 import { AcasaPage } from '@/features/dashboard/AcasaPage'
 import { PlatiPage } from '@/features/plati/PlatiPage'
 import { RezervariPage } from '@/features/rezervari/RezervariPage'
+import { BiletePage } from '@/features/bilete/BiletePage'
 import { GrupaPage } from '@/features/grupa/GrupaPage'
 import { CalendarPage } from '@/features/calendar/CalendarPage'
 import { NotificariPage } from '@/features/notificari/NotificariPage'
@@ -46,6 +47,7 @@ export default function App() {
             <Route path="calendar" element={<CalendarPage />} />
             <Route path="plati" element={<PlatiPage />} />
             <Route path="rezervari" element={<RezervariPage />} />
+            <Route path="bilete" element={<BiletePage />} />
             {/* Rute vechi — conținutul e consolidat în Grupa mea și Profil */}
             <Route path="prezente" element={<Navigate to="/grupa" replace />} />
             <Route path="activitate" element={<Navigate to="/grupa" replace />} />

@@ -12,13 +12,14 @@ import { getSoldFamilie } from '@/features/plati/api/payments'
 import { cn } from '@/lib/cn'
 
 // ===== Iconițe (line icons, 24x24) =====
-type IconName = 'acasa' | 'grupa' | 'plati' | 'rezervari' | 'profil'
+type IconName = 'acasa' | 'grupa' | 'plati' | 'rezervari' | 'bilete' | 'profil'
 
 const ICON_PATHS: Record<IconName, ReactNode> = {
   acasa: <><path d="M3 11l9-8 9 8" /><path d="M5 10v10h14V10" /></>,
   grupa: <><circle cx="9" cy="8" r="3" /><path d="M3 20a6 6 0 0 1 12 0" /><path d="M16 6a3 3 0 0 1 0 6" /><path d="M18 14a6 6 0 0 1 3 5" /></>,
   plati: <><rect x="2" y="5" width="20" height="14" rx="3" /><path d="M2 10h20" /></>,
   rezervari: <><rect x="3" y="5" width="18" height="16" rx="3" /><path d="M3 9h18M8 3v4M16 3v4" /></>,
+  bilete: <><path d="M3 8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2 2 2 0 0 0 0 4 2 2 0 0 1-2 2H5a2 2 0 0 1-2-2 2 2 0 0 0 0-4z" /><path d="M15 6v12" /></>,
   profil: <><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /></>,
 }
 
@@ -42,6 +43,7 @@ const NAV_ITEMS: NavItem[] = [
   { to: '/grupa', label: 'Grupa mea', labelScurt: 'Grupa', icon: 'grupa' },
   { to: '/plati', label: 'Plăți', labelScurt: 'Plăți', icon: 'plati' },
   { to: '/rezervari', label: 'Rezervări', labelScurt: 'Rezervări', icon: 'rezervari' },
+  { to: '/bilete', label: 'Bilete', labelScurt: 'Bilete', icon: 'bilete' },
   { to: '/profil', label: 'Profil', labelScurt: 'Profil', icon: 'profil' },
 ]
 const TAB_PATHS = new Set(NAV_ITEMS.map((t) => t.to))
@@ -52,6 +54,7 @@ const PAGE_META: Record<string, [string, string]> = {
   '/grupa': ['Grupa mea', 'Cursuri, prezențe și activitate'],
   '/plati': ['Plăți', 'Sold, istoric și plată online'],
   '/rezervari': ['Rezervări', 'Ședințe libere disponibile'],
+  '/bilete': ['Bilete', 'Bilete la spectacole și evenimente'],
   '/calendar': ['Calendar', 'Program și evenimente'],
   '/notificari': ['Notificări', 'Mesaje și alerte'],
   '/profil': ['Profil', 'Date personale, documente și setări'],

@@ -52,9 +52,10 @@ export const CONTEXT_LABEL: Record<ContextAchizitie, string> = {
   eveniment: 'Eveniment',
 }
 
-// O activitate pe care membrul o poate evalua (un curs sau un eveniment), cu ratingul lui curent.
+// O activitate evaluabilă: curs recurent, o sesiune OPEN sau un eveniment — cu ratingul curent.
+export type ActivityKind = 'curs' | 'open_sesiune' | 'eveniment'
 export type RatableActivity = {
-  kind: 'curs' | 'eveniment'
+  kind: ActivityKind
   id: string
   nume: string
   context: ContextAchizitie
@@ -68,7 +69,7 @@ export async function getRatableActivities(clientId: string): Promise<RatableAct
   })
   if (error) throw error
   return (data ?? []).map((r) => ({
-    kind: r.kind as 'curs' | 'eveniment',
+    kind: r.kind as ActivityKind,
     id: r.id,
     nume: r.nume,
     context: r.context as ContextAchizitie,
@@ -90,6 +91,7 @@ export async function submitRating(params: {
     p_rating: params.rating,
     p_detalii: params.detalii?.trim() || undefined,
     p_curs: activity.kind === 'curs' ? activity.id : undefined,
+    p_sesiune: activity.kind === 'open_sesiune' ? activity.id : undefined,
     p_eveniment: activity.kind === 'eveniment' ? activity.id : undefined,
   })
   if (error) throw error

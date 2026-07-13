@@ -22,6 +22,10 @@
   --acc-ink: #1a1714;
   --danger: #ce4a3d;
   --ok: #2e9e6b;
+  --evgrupa: #7c5cff;
+  /* Punct „Ședință" în calendar: galbenul brand (#ffd600) e ilizibil pe alb,
+     deci pe light folosim un chihlimbar închis; pe dark rămâne galbenul brand. */
+  --dot-curs: #b58900;
   --shadow: 0 14px 34px rgba(40, 34, 20, 0.07);
 }
 
@@ -42,6 +46,8 @@
   --acc-ink: #1a1714;
   --danger: #f2897b;
   --ok: #5bc793;
+  --evgrupa: #a08bff;
+  --dot-curs: #ffd600;
   --shadow: 0 14px 38px rgba(0, 0, 0, 0.55);
 }
 
@@ -70,6 +76,8 @@
   --color-acc-ink: var(--acc-ink);
   --color-danger: var(--danger);
   --color-ok: var(--ok);
+  --color-evgrupa: var(--evgrupa);
+  --color-dot-curs: var(--dot-curs);
 
   --shadow-card: var(--shadow);
 

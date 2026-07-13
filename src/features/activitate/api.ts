@@ -10,22 +10,34 @@ export type EvenimentRow = {
   nume: string | null
   tip: Enums<'tip_eveniment'> | null
   data: string | null
+  ora: string | null
   locatie: string | null
   descriere: string | null
   pretBilet: number | null
+  /** Setat = eveniment exclusiv grupei (vizibil doar membrilor înscriși). */
+  cursId: string | null
+  cursNume: string | null
 }
 
-export async function getEvenimenteClient(): Promise<EvenimentRow[]> {
-  const { data, error } = await supabase.rpc('get_evenimente_client')
+// Cu clientId: include și evenimentele grupelor în care membrul are înrolare
+// activă. Fără: doar evenimentele studio-wide.
+export async function getEvenimenteClient(clientId?: string): Promise<EvenimentRow[]> {
+  const { data, error } = await supabase.rpc(
+    'get_evenimente_client',
+    clientId ? { p_client: clientId } : {},
+  )
   if (error) throw error
   return (data ?? []).map((r) => ({
     id: r.eveniment_id,
     nume: r.nume,
     tip: r.tip,
     data: r.data,
+    ora: r.ora,
     locatie: formatLocatie(r.locatie),
     descriere: r.descriere,
     pretBilet: r.pret_bilet,
+    cursId: r.curs_id,
+    cursNume: r.curs_nume,
   }))
 }
 

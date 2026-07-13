@@ -9,7 +9,8 @@ export type { GrupaRow, EvenimentRow }
 
 // Calendarul membrului = proiecția pe zile a trei surse existente (fără tabele noi):
 //   1. ședințele recurente săptămânale din înrolările active (zile[] + ora)
-//   2. evenimentele studioului (informativ, studio-wide)
+//   2. evenimentele studioului (studio-wide) + evenimentele grupelor membrului
+//      (exclusive — vizibile doar cu înrolare activă pe grupă)
 //   3. rezervările OPEN class plătite ale membrului (RPC get_rezervari_client)
 
 export type RezervareRow = {
@@ -67,7 +68,7 @@ export async function getRezervariClient(clientId: string): Promise<RezervareRow
   }))
 }
 
-export type CalKind = 'curs' | 'eveniment' | 'rezervare'
+export type CalKind = 'curs' | 'eveniment' | 'eveniment-grupa' | 'rezervare'
 
 export type CalItem = {
   id: string
@@ -153,13 +154,17 @@ export function buildItems(
   for (const e of evenimente) {
     const k = isoToKey(e.data)
     if (!k || k < startKey || k > endKey) continue
+    const isGrupa = Boolean(e.cursId)
     items.push({
       id: `eveniment:${e.id}`,
-      kind: 'eveniment',
+      kind: isGrupa ? 'eveniment-grupa' : 'eveniment',
       dateKey: k,
-      time: e.data && e.data.length > 10 ? toTime(e.data.slice(11)) : null,
+      time: toTime(e.ora),
       title: e.nume ?? 'Eveniment',
-      subtitle: [e.locatie, e.tip].filter(Boolean).join(' · ') || null,
+      subtitle:
+        [isGrupa ? e.cursNume : null, e.locatie, e.tip]
+          .filter(Boolean)
+          .join(' · ') || null,
     })
   }
 

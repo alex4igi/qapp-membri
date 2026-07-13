@@ -16,8 +16,9 @@ import {
 } from './api'
 
 const DOT: Record<CalItem['kind'], string> = {
-  curs: 'bg-acc',
+  curs: 'bg-dot-curs',
   eveniment: 'bg-ink',
+  'eveniment-grupa': 'bg-evgrupa',
   rezervare: 'bg-ok',
 }
 
@@ -86,7 +87,10 @@ export function CalendarPage() {
     queryFn: () => getGrupeClient(activeMember!.clientId),
     enabled: !!activeMember,
   })
-  const evenimente = useQuery({ queryKey: ['evenimente'], queryFn: getEvenimenteClient })
+  const evenimente = useQuery({
+    queryKey: ['evenimente', activeMember?.clientId],
+    queryFn: () => getEvenimenteClient(activeMember?.clientId),
+  })
   const rezervari = useQuery({
     queryKey: ['rezervari-cal', activeMember?.clientId],
     queryFn: () => getRezervariClient(activeMember!.clientId),
@@ -146,8 +150,9 @@ export function CalendarPage() {
           </p>
         </div>
         <div className="flex flex-wrap gap-3 text-xs text-sub">
-          <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-acc" /> Ședință</span>
+          <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-dot-curs" /> Ședință</span>
           <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-ink" /> Eveniment</span>
+          <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-evgrupa" /> Eveniment grupă</span>
           <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-ok" /> Rezervare</span>
           <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded bg-surf2 ring-1 ring-line" /> Vacanță</span>
         </div>
@@ -192,10 +197,10 @@ export function CalendarPage() {
                       >
                         {d.getDate()}
                       </span>
-                      <span className="flex h-1.5 gap-0.5">
-                        {(['curs', 'eveniment', 'rezervare'] as const).map((kind) =>
+                      <span className="flex h-2 gap-[3px]">
+                        {(['curs', 'eveniment', 'eveniment-grupa', 'rezervare'] as const).map((kind) =>
                           kinds.has(kind) ? (
-                            <span key={kind} className={cn('h-1 w-1 rounded-full', DOT[kind])} />
+                            <span key={kind} className={cn('h-[7px] w-[7px] rounded-full', DOT[kind])} />
                           ) : null,
                         )}
                       </span>

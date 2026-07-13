@@ -20,7 +20,10 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 export function ActivitateSection() {
   const { activeMember } = useActiveMember()
 
-  const evenimente = useQuery({ queryKey: ['evenimente'], queryFn: getEvenimenteClient })
+  const evenimente = useQuery({
+    queryKey: ['evenimente', activeMember?.clientId],
+    queryFn: () => getEvenimenteClient(activeMember?.clientId),
+  })
   const participari = useQuery({
     queryKey: ['participari', activeMember?.clientId],
     queryFn: () => getParticipariClient(activeMember!.clientId),
@@ -45,6 +48,7 @@ export function ActivitateSection() {
                     {formatData(e.data)}
                     {e.locatie ? ` · ${e.locatie}` : ''}
                     {e.tip ? ` · ${e.tip}` : ''}
+                    {e.cursNume ? ` · Grupa ${e.cursNume}` : ''}
                   </p>
                 </div>
                 {e.pretBilet ? (

@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useActiveMember } from '@/hooks/useActiveMember'
 import { Spinner } from '@/components/ui'
 import { formatData } from '@/lib/format'
 import { cn } from '@/lib/cn'
-import { getPrezenteClient, getPrezenteSezoaneClient, type PrezenteSezon } from './api'
+import { getPrezenteInterval } from './api'
+import { getSezonCurentClient } from '@/features/calendar/api'
 
 const STATUS_STYLE: Record<string, string> = {
   Prezent: 'text-ok',
@@ -18,126 +18,44 @@ const DOT_STYLE: Record<string, string> = {
   Motivat: 'bg-amber-500',
 }
 
-// Un sezon din acordeon: detaliul se încarcă DOAR când grupul e deschis.
-function SezonGroup({
-  clientId,
-  sezon,
-  open,
-  onToggle,
-}: {
-  clientId: string
-  sezon: PrezenteSezon
-  open: boolean
-  onToggle: () => void
-}) {
-  const { data, isLoading, error } = useQuery({
-    queryKey: ['prezente', clientId, sezon.sezonId],
-    queryFn: () => getPrezenteClient(clientId, sezon.sezonId),
-    enabled: open,
-  })
-
-  return (
-    <div className="overflow-hidden rounded-2xl border border-line bg-surf shadow-card">
-      <button
-        type="button"
-        onClick={onToggle}
-        aria-expanded={open}
-        className={cn(
-          'flex w-full items-center justify-between gap-3 bg-surf2 px-4 py-2.5 text-left',
-          open && 'border-b border-line',
-        )}
-      >
-        <span className="text-xs font-bold uppercase tracking-wide text-sub">
-          {open ? '▾' : '▸'} {sezon.sezonNume ?? 'Fără sezon'}
-        </span>
-        <span className="text-xs text-sub">
-          <span className="font-semibold text-ok">{sezon.prezente} prezent</span>
-          {' · '}
-          <span className={cn('font-semibold', sezon.absente > 0 ? 'text-danger' : '')}>
-            {sezon.absente} absent
-          </span>
-        </span>
-      </button>
-      {open && (
-        <div className="p-2">
-          {isLoading && <Spinner />}
-          {error != null && <p className="px-3 py-2 text-sm text-danger">Eroare la încărcare.</p>}
-          {data && data.length === 0 && (
-            <p className="px-3 py-2 text-sm text-sub">Nicio prezență în acest sezon.</p>
-          )}
-          {data && data.length > 0 && (
-            <ul className="space-y-1">
-              {data.map((p, i) => (
-                <li
-                  key={i}
-                  className="flex items-center justify-between rounded-xl px-3 py-3 hover:bg-surf2"
-                >
-                  <div className="flex items-center gap-3">
-                    <span
-                      className={cn(
-                        'h-2.5 w-2.5 shrink-0 rounded-full',
-                        DOT_STYLE[p.status ?? ''] ?? 'bg-sub',
-                      )}
-                    />
-                    <div>
-                      <p className="text-sm font-medium text-ink">{p.cursNume ?? 'Curs'}</p>
-                      <p className="text-xs text-sub">{formatData(p.data)}</p>
-                    </div>
-                  </div>
-                  <span
-                    className={cn(
-                      'text-sm font-semibold',
-                      STATUS_STYLE[p.status ?? ''] ?? 'text-sub',
-                    )}
-                  >
-                    {p.status ?? '—'}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      )}
-    </div>
-  )
-}
-
 export function PrezenteSection() {
   const { activeMember } = useActiveMember()
   const clientId = activeMember?.clientId ?? null
 
-  const sezoane = useQuery({
-    queryKey: ['prezente-sezoane', clientId],
-    queryFn: () => getPrezenteSezoaneClient(clientId!),
-    enabled: !!clientId,
+  // Prezențele se calculează DOAR pentru perioada sezonului aflat în desfășurare
+  // (interval de date), nu pe tot istoricul. Perioada se afișează explicit.
+  const sezon = useQuery({
+    queryKey: ['sezon-curent'],
+    queryFn: getSezonCurentClient,
   })
-  // null = starea implicită (doar sezonul cel mai recent deschis).
-  const [openKeys, setOpenKeys] = useState<Set<string> | null>(null)
-  useEffect(() => {
-    setOpenKeys(null)
-  }, [clientId])
+  const from = sezon.data?.dataIncepere ?? null
+  const to = sezon.data?.dataFinal ?? null
 
-  const list = sezoane.data ?? []
-  const keyOf = (s: PrezenteSezon) => s.sezonId ?? 'fara-sezon'
-  const defaultKey = list.length ? keyOf(list[0]) : null
-  const isOpen = (k: string) => (openKeys ? openKeys.has(k) : k === defaultKey)
-  const toggle = (k: string) => {
-    setOpenKeys((prev) => {
-      const next = new Set(prev ?? (defaultKey ? [defaultKey] : []))
-      if (next.has(k)) next.delete(k)
-      else next.add(k)
-      return next
-    })
-  }
+  const prezente = useQuery({
+    queryKey: ['prezente', clientId, from, to],
+    queryFn: () => getPrezenteInterval(clientId!, from!, to!),
+    enabled: !!clientId && !!from && !!to,
+  })
 
-  // Statistici agregate server-side pe TOT istoricul (corecte indiferent de volum).
-  const prezentCount = list.reduce((a, s) => a + s.prezente, 0)
-  const absentCount = list.reduce((a, s) => a + s.absente, 0)
+  const list = prezente.data ?? []
+  const prezentCount = list.filter((p) => p.status === 'Prezent').length
+  const absentCount = list.filter((p) => p.status === 'Absent').length
   const totalRated = prezentCount + absentCount
   const rate = totalRated > 0 ? Math.round((prezentCount / totalRated) * 100) + '%' : '—'
 
+  const perioada = sezon.data
+    ? `${sezon.data.nume ?? 'Sezon curent'} · ${formatData(sezon.data.dataIncepere)} – ${formatData(sezon.data.dataFinal)}`
+    : null
+
   return (
     <div className="space-y-6">
+      {perioada && (
+        <p className="text-sm text-sub">
+          Prezențe pentru sezonul curent:{' '}
+          <span className="font-semibold text-ink">{perioada}</span>
+        </p>
+      )}
+
       <div className="grid grid-cols-3 gap-4">
         <div className="rounded-2xl border border-line bg-surf p-5 shadow-card">
           <p className="text-sm text-sub">Prezent</p>
@@ -153,21 +71,46 @@ export function PrezenteSection() {
         </div>
       </div>
 
-      {sezoane.isLoading && <Spinner />}
-      {sezoane.error != null && <p className="text-sm text-danger">Eroare la încărcare.</p>}
-      {sezoane.data && list.length === 0 && (
-        <p className="text-sm text-sub">Nicio prezență înregistrată.</p>
+      {(sezon.isLoading || prezente.isLoading) && <Spinner />}
+      {sezon.data === null && !sezon.isLoading && (
+        <p className="text-sm text-sub">Niciun sezon activ momentan.</p>
       )}
-      {clientId &&
-        list.map((s) => (
-          <SezonGroup
-            key={keyOf(s)}
-            clientId={clientId}
-            sezon={s}
-            open={isOpen(keyOf(s))}
-            onToggle={() => toggle(keyOf(s))}
-          />
-        ))}
+      {prezente.data && list.length === 0 && (
+        <p className="text-sm text-sub">Nicio prezență înregistrată în sezonul curent.</p>
+      )}
+      {list.length > 0 && (
+        <div className="rounded-2xl border border-line bg-surf p-2 shadow-card">
+          <ul className="space-y-1">
+            {list.map((p, i) => (
+              <li
+                key={i}
+                className="flex items-center justify-between rounded-xl px-3 py-3 hover:bg-surf2"
+              >
+                <div className="flex items-center gap-3">
+                  <span
+                    className={cn(
+                      'h-2.5 w-2.5 shrink-0 rounded-full',
+                      DOT_STYLE[p.status ?? ''] ?? 'bg-sub',
+                    )}
+                  />
+                  <div>
+                    <p className="text-sm font-medium text-ink">{p.cursNume ?? 'Curs'}</p>
+                    <p className="text-xs text-sub">{formatData(p.data)}</p>
+                  </div>
+                </div>
+                <span
+                  className={cn(
+                    'text-sm font-semibold',
+                    STATUS_STYLE[p.status ?? ''] ?? 'text-sub',
+                  )}
+                >
+                  {p.status ?? '—'}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   )
 }

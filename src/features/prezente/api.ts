@@ -1,45 +1,27 @@
 import { supabase } from '@/lib/supabase'
 import type { StatusPrezenta } from '@/types/db'
 
-// Citire prin RPC-uri client-facing scopate la familia contului. Istoricul se
-// încarcă PER SEZON (acordeon) — un singur apel nu poate depăși plafonul
-// PostgREST de 1000 de rânduri, iar statisticile de titlu vin agregate server-side.
+// Citire prin RPC client-facing scopat la familia contului. Prezențele se
+// afișează DOAR pentru perioada sezonului activ (interval de date), nu tot
+// istoricul — vezi PrezenteSection. Un interval de sezon are < 1000 rânduri,
+// deci un singur apel nu atinge plafonul PostgREST.
 export type PrezentaRow = {
   data: string | null
   cursNume: string | null
   status: StatusPrezenta | null
 }
 
-export type PrezenteSezon = {
-  sezonId: string | null
-  sezonNume: string | null
-  total: number
-  prezente: number
-  absente: number
-}
-
-export async function getPrezenteSezoaneClient(clientId: string): Promise<PrezenteSezon[]> {
-  const { data, error } = await supabase.rpc('get_prezente_sezoane_client', {
-    p_client: clientId,
-  })
-  if (error) throw error
-  return (data ?? []).map((r) => ({
-    sezonId: r.sezon_id,
-    sezonNume: r.sezon_nume,
-    total: r.total ?? 0,
-    prezente: r.prezente ?? 0,
-    absente: r.absente ?? 0,
-  }))
-}
-
-// sezonId null = prezențele pe cursuri fără sezon (grupul „Fără sezon").
-export async function getPrezenteClient(
+// Prezențele a căror dată cade în [from, to] (perioada sezonului activ),
+// indiferent de sezonul cursului.
+export async function getPrezenteInterval(
   clientId: string,
-  sezonId: string | null,
+  from: string,
+  to: string,
 ): Promise<PrezentaRow[]> {
-  const { data, error } = await supabase.rpc('get_prezente_client', {
+  const { data, error } = await supabase.rpc('get_prezente_interval_client', {
     p_client: clientId,
-    p_sezon: sezonId ?? undefined,
+    p_from: from,
+    p_to: to,
   })
   if (error) throw error
   return (data ?? []).map((r) => ({

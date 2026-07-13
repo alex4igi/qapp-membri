@@ -78,8 +78,11 @@ export function PlatiPage() {
   })
   // Datorii one-off selectate (Bilet/Merch/Taxă) — fiecare se plătește INTEGRAL.
   const [selectedDatorii, setSelectedDatorii] = useState<Set<string>>(new Set())
+  // Acordeon pe sezon: null = starea implicită (doar sezonul cel mai recent deschis).
+  const [openSezoane, setOpenSezoane] = useState<Set<string> | null>(null)
   useEffect(() => {
     setSelectedDatorii(new Set())
+    setOpenSezoane(null)
   }, [activeMember?.clientId])
 
   useEffect(() => {
@@ -155,7 +158,7 @@ export function PlatiPage() {
   if (loading) return <Spinner />
 
   const totalFamilie = (sold.data ?? []).reduce((a, r) => a + r.restanta, 0)
-  const numeById = new Map(members.map((m) => [m.clientId, m.nume]))
+  const numeById = new Map(members.map((m) => [m.clientId, m.displayName]))
 
   // Grupare pe sezon, păstrând ordinea cronologică a rândurilor.
   const groups: { sezon: string; rows: PlataRow[] }[] = []
@@ -164,6 +167,22 @@ export function PlatiPage() {
     let g = groups.find((x) => x.sezon === key)
     if (!g) { g = { sezon: key, rows: [] }; groups.push(g) }
     g.rows.push(r)
+  }
+  // Afișare recent→vechi (grupuri și rânduri). Doar prezentare: `rows`/`unpaid`
+  // rămân vechi→nou — contractul FIFO al selecției de plată.
+  const displayGroups = groups
+    .map((g) => ({ sezon: g.sezon, rows: [...g.rows].reverse() }))
+    .reverse()
+  const defaultOpenSezon = displayGroups[0]?.sezon
+  const isGroupOpen = (sezon: string) =>
+    openSezoane ? openSezoane.has(sezon) : sezon === defaultOpenSezon
+  const toggleGroup = (sezon: string) => {
+    setOpenSezoane((prev) => {
+      const next = new Set(prev ?? (defaultOpenSezon ? [defaultOpenSezon] : []))
+      if (next.has(sezon)) next.delete(sezon)
+      else next.add(sezon)
+      return next
+    })
   }
 
   return (
@@ -205,7 +224,7 @@ export function PlatiPage() {
           <ul className="mt-3 space-y-1 border-t border-line pt-3">
             {sold.data!.filter((r) => r.restanta > 0).map((r) => (
               <li key={r.clientId} className="flex justify-between text-sm">
-                <span className="text-ink">{numeById.get(r.clientId) ?? r.nume}</span>
+                <span className="text-ink">{numeById.get(r.clientId) ?? r.prenume ?? r.nume}</span>
                 <span className="font-medium text-danger">{formatRON(r.restanta)}</span>
               </li>
             ))}
@@ -217,17 +236,37 @@ export function PlatiPage() {
 
       {/* Detaliu pe înrolări — grupat pe sezon */}
       <section className="space-y-3">
-        <h2 className="text-base font-extrabold tracking-tight text-ink">Situația — {activeMember?.nume ?? '—'}</h2>
+        <h2 className="text-base font-extrabold tracking-tight text-ink">Situația — {activeMember?.displayName ?? '—'}</h2>
         {plati.isLoading && <Spinner />}
         {plati.data && rows.length === 0 && (
           <p className="text-sm text-sub">Nicio înrolare.</p>
         )}
 
-        {groups.map((g) => (
+        {displayGroups.map((g) => {
+          const open = isGroupOpen(g.sezon)
+          const restGroup = g.rows.reduce((a, r) => a + (r.rest > 0 ? r.rest : 0), 0)
+          return (
           <div key={g.sezon} className="overflow-hidden rounded-2xl border border-line bg-surf shadow-card">
-            <div className="border-b border-line bg-surf2 px-4 py-2 text-xs font-bold uppercase tracking-wide text-sub">
-              {g.sezon}
-            </div>
+            <button
+              type="button"
+              onClick={() => toggleGroup(g.sezon)}
+              aria-expanded={open}
+              className={cn(
+                'flex w-full items-center justify-between gap-3 bg-surf2 px-4 py-2 text-left',
+                open && 'border-b border-line',
+              )}
+            >
+              <span className="text-xs font-bold uppercase tracking-wide text-sub">
+                {open ? '▾' : '▸'} {g.sezon}
+              </span>
+              <span className="text-xs text-sub">
+                {g.rows.length} {g.rows.length === 1 ? 'înrolare' : 'înrolări'}
+                {restGroup > 0 && (
+                  <span className="font-semibold text-danger"> · rest {formatRON(restGroup)}</span>
+                )}
+              </span>
+            </button>
+            {open && (
             <ul className="divide-y divide-line">
               {g.rows.map((r) => {
                 const achitat = r.rest <= 0
@@ -260,8 +299,10 @@ export function PlatiPage() {
                 )
               })}
             </ul>
+            )}
           </div>
-        ))}
+          )
+        })}
       </section>
 
       {/* Alte datorii (bilete / produse / taxe) — se plătesc integral */}

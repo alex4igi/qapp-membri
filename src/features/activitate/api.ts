@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { formatLocatie } from '@/lib/format'
 import type { Enums } from '@/types/db'
 
 // „Activitatea mea" — evenimente viitoare (studio-wide, informativ), istoricul
@@ -22,7 +23,7 @@ export async function getEvenimenteClient(): Promise<EvenimentRow[]> {
     nume: r.nume,
     tip: r.tip,
     data: r.data,
-    locatie: r.locatie,
+    locatie: formatLocatie(r.locatie),
     descriere: r.descriere,
     pretBilet: r.pret_bilet,
   }))
@@ -44,7 +45,7 @@ export async function getParticipariClient(clientId: string): Promise<Participar
     nume: r.nume,
     tip: r.tip,
     data: r.data,
-    locatie: r.locatie,
+    locatie: formatLocatie(r.locatie),
   }))
 }
 

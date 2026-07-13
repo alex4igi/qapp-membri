@@ -72,7 +72,7 @@ export function RezervariPage() {
         <input
           value={voucherCod}
           onChange={(e) => setVoucherCod(e.target.value)}
-          placeholder="ex. TRUPA50"
+          placeholder="Introdu codul tău"
           className="w-full rounded-xl border border-line bg-surf px-3 py-2 text-sm uppercase text-ink"
         />
         <span className="mt-1 block text-xs text-sub">
@@ -97,7 +97,7 @@ export function RezervariPage() {
                 <div className="flex items-start justify-between gap-2">
                   <span className="text-sm font-medium text-sub">{formatData(s.data)}</span>
                   <span className="rounded-full bg-surf2 px-2.5 py-1 text-xs font-medium text-sub">
-                    {plin ? 'Complet' : `${s.locuriRamase}/${s.capacitate} locuri`}
+                    {plin ? 'Complet' : `${s.locuriRamase} ${s.locuriRamase === 1 ? 'loc liber' : 'locuri libere'} din ${s.capacitate}`}
                   </span>
                 </div>
                 <div>

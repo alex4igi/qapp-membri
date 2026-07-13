@@ -247,7 +247,7 @@ function FisaMembru() {
     >
       <div className="flex items-center justify-between">
         <h2 className="text-base font-extrabold text-ink">
-          Fișă — {form.nume} {form.prenume ?? ''}
+          Fișă — {[form.prenume, form.nume].filter(Boolean).join(' ')}
         </h2>
         <SavedHint saved={saved} />
       </div>

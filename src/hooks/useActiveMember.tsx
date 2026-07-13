@@ -10,6 +10,8 @@ export type Member = {
   clientId: string
   nume: string
   prenume: string | null
+  // Numele de referință în UI e PRENUMELE (decizie user 2026-07-13); nume = fallback.
+  displayName: string
 }
 
 async function fetchMembers(): Promise<Member[]> {
@@ -19,6 +21,7 @@ async function fetchMembers(): Promise<Member[]> {
     clientId: m.client_id,
     nume: m.nume ?? '—',
     prenume: m.prenume,
+    displayName: m.prenume?.trim() || m.nume || '—',
   }))
 }
 

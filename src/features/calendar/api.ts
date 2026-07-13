@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { formatLocatie } from '@/lib/format'
 import type { Enums } from '@/types/db'
 import { getGrupeClient, type GrupaRow } from '@/features/grupa/api'
 import { getEvenimenteClient, type EvenimentRow } from '@/features/activitate/api'
@@ -61,7 +62,7 @@ export async function getRezervariClient(clientId: string): Promise<RezervareRow
     id: r.rezervare_id,
     cursNume: r.curs_nume,
     data: r.data,
-    locatie: r.locatie,
+    locatie: formatLocatie(r.locatie),
     instructorNume: r.instructor_nume,
   }))
 }

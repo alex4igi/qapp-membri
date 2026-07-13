@@ -56,7 +56,7 @@ export function ActivitateSection() {
         )}
       </Section>
 
-      <Section title={`Participări — ${activeMember?.nume ?? '—'}`}>
+      <Section title={`Participări — ${activeMember?.displayName ?? '—'}`}>
         {participari.isLoading && <Spinner />}
         {participari.data && participari.data.length === 0 && (
           <p className="text-sm text-sub">Nicio participare înregistrată încă.</p>

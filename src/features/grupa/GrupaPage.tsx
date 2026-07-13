@@ -105,7 +105,7 @@ export function GrupaPage() {
                   : 'rounded-full bg-surf border border-line px-4 py-1.5 text-sm font-bold text-sub'
               }
             >
-              {m.nume}
+              {m.displayName}
             </button>
           ))}
         </div>

@@ -140,7 +140,7 @@ function MemberSwitcher({ className }: { className?: string }) {
       >
         {members.map((m) => (
           <option key={m.clientId} value={m.clientId}>
-            {m.nume} {m.prenume ?? ''}
+            {[m.prenume, m.nume].filter(Boolean).join(' ')}
           </option>
         ))}
       </select>
@@ -152,10 +152,10 @@ function MemberSwitcher({ className }: { className?: string }) {
 function ProfileChip() {
   const { activeMember, members, activeClientId } = useActiveMember()
   const navigate = useNavigate()
-  const initials = (activeMember?.nume?.[0] ?? 'M').toUpperCase()
+  const initials = (activeMember?.displayName?.[0] ?? 'M').toUpperCase()
   const others = members
     .filter((m) => m.clientId !== activeClientId)
-    .map((m) => m.nume)
+    .map((m) => m.displayName)
     .join(' · ')
 
   return (
@@ -170,7 +170,7 @@ function ProfileChip() {
         </span>
         <span className="hidden text-left sm:block">
           <span className="block text-[13px] font-extrabold leading-tight text-ink">
-            {activeMember?.nume ?? 'Cont'}
+            {activeMember?.displayName ?? 'Cont'}
           </span>
           {others && <span className="block text-[11px] font-semibold text-sub">{others}</span>}
         </span>
@@ -205,7 +205,7 @@ function MobileHeader() {
   const { activeMember } = useActiveMember()
   const isTab = TAB_PATHS.has(location.pathname)
   const [title] = PAGE_META[location.pathname] ?? ['', '']
-  const initials = (activeMember?.nume?.[0] ?? 'M').toUpperCase()
+  const initials = (activeMember?.displayName?.[0] ?? 'M').toUpperCase()
 
   return (
     <header className="flex h-16 flex-none items-center justify-between gap-3 border-b border-line bg-bar px-4 lg:hidden">

@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { formatLocatie } from '@/lib/format'
 import type { Enums } from '@/types/db'
 
 // „Grupa mea" — înrolările active ale unui membru cu curs + program + instructor
@@ -31,7 +32,7 @@ export async function getGrupeClient(clientId: string): Promise<GrupaRow[]> {
     nivel: r.nivel,
     varsta: r.varsta,
     stil: r.stil,
-    locatie: r.locatie_nume,
+    locatie: formatLocatie(r.locatie_nume),
     sala: r.sala,
     zile: r.zile ?? [],
     ora: r.ora,

@@ -20,9 +20,9 @@ export function AcasaPage() {
   const totalFamilie = (sold.data ?? []).reduce((a, r) => a + r.restanta, 0)
   const urmatoarele = (sesiuni.data ?? []).slice(0, 3)
   const salutNume =
-    familie.data?.numeReprezentant ||
     familie.data?.prenumeReprezentant ||
-    activeMember?.nume ||
+    familie.data?.numeReprezentant ||
+    activeMember?.displayName ||
     null
 
   return (
@@ -96,7 +96,7 @@ export function AcasaPage() {
                   <p className="text-sm font-semibold text-ink">{s.cursNume ?? 'Curs'}</p>
                   <p className="text-xs text-sub">
                     {formatData(s.data)}
-                    {s.instructorNume ? ` · ${s.instructorNume}` : ''} · {s.locuriRamase}/{s.capacitate} locuri
+                    {s.instructorNume ? ` · ${s.instructorNume}` : ''} · {s.locuriRamase} {s.locuriRamase === 1 ? 'loc liber' : 'locuri libere'} din {s.capacitate}
                   </p>
                 </div>
                 <span className="text-sm font-extrabold text-ink">{formatRON(s.pret ?? 0)}</span>

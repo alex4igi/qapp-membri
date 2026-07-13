@@ -46,23 +46,51 @@ export async function getEvaluariClient(clientId: string): Promise<EvaluareRow[]
 
 export type ContextAchizitie = 'curs_recurent' | 'open' | 'eveniment'
 
-export const CONTEXTE: { key: ContextAchizitie; label: string }[] = [
-  { key: 'curs_recurent', label: 'Cursurile recurente' },
-  { key: 'open', label: 'OPEN class' },
-  { key: 'eveniment', label: 'Evenimente' },
-]
+export const CONTEXT_LABEL: Record<ContextAchizitie, string> = {
+  curs_recurent: 'Curs recurent',
+  open: 'OPEN class',
+  eveniment: 'Eveniment',
+}
+
+// O activitate pe care membrul o poate evalua (un curs sau un eveniment), cu ratingul lui curent.
+export type RatableActivity = {
+  kind: 'curs' | 'eveniment'
+  id: string
+  nume: string
+  context: ContextAchizitie
+  rating: number | null
+  detalii: string | null
+}
+
+export async function getRatableActivities(clientId: string): Promise<RatableActivity[]> {
+  const { data, error } = await supabase.rpc('get_ratable_activities_client', {
+    p_client: clientId,
+  })
+  if (error) throw error
+  return (data ?? []).map((r) => ({
+    kind: r.kind as 'curs' | 'eveniment',
+    id: r.id,
+    nume: r.nume,
+    context: r.context as ContextAchizitie,
+    rating: r.rating,
+    detalii: r.detalii,
+  }))
+}
 
 export async function submitRating(params: {
   clientId: string
-  context: ContextAchizitie
+  activity: RatableActivity
   rating: number
   detalii?: string
 }): Promise<void> {
+  const { activity } = params
   const { error } = await supabase.rpc('submit_rating_client', {
     p_client: params.clientId,
-    p_context: params.context,
+    p_context: activity.context,
     p_rating: params.rating,
     p_detalii: params.detalii?.trim() || undefined,
+    p_curs: activity.kind === 'curs' ? activity.id : undefined,
+    p_eveniment: activity.kind === 'eveniment' ? activity.id : undefined,
   })
   if (error) throw error
 }

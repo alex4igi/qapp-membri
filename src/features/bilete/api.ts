@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase'
+import { supabase, edgeFunctionError } from '@/lib/supabase'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // BILETE SPECTACOLE — cumpărare online + biletele mele.
@@ -79,9 +79,6 @@ export async function buyBileteAndPay(params: {
       qty: params.qty,
     },
   })
-  if (error) {
-    const msg = (data as { error?: string } | null)?.error ?? error.message
-    throw new Error(msg)
-  }
+  if (error) throw await edgeFunctionError(error)
   return data as BuyResult
 }

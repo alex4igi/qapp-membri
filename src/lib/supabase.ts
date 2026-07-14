@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient, FunctionsHttpError } from '@supabase/supabase-js'
 import type { Database } from '@/types/database'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
@@ -22,6 +22,18 @@ export function setPortalToken(t: string | null) {
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   accessToken: async () => portalToken ?? supabaseAnonKey,
 })
+
+// La un răspuns non-2xx, `supabase.functions.invoke` întoarce un FunctionsHttpError
+// cu `data === null` și `error.message` generic („…non-2xx status code"). Mesajul real
+// stă în corpul răspunsului (`error.context`, un Response). Îl extragem ca să afișăm
+// userului cauza reală (ex. „Sesiune completă", „Voucher invalid").
+export async function edgeFunctionError(error: unknown): Promise<Error> {
+  if (error instanceof FunctionsHttpError) {
+    const body = await error.context.json().catch(() => null)
+    if (body?.error) return new Error(body.error as string)
+  }
+  return error instanceof Error ? error : new Error(String(error))
+}
 
 // POST direct la o edge function (fără supabase-js — ca să nu interfereze cu
 // `accessToken` și pentru fluxurile fără sesiune, ex. semnarea publică).

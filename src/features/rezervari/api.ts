@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase'
+import { supabase, edgeFunctionError } from '@/lib/supabase'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // REZERVĂRI OPEN CLASS (cursuri facultative: OPEN + K-pop Covers).
@@ -73,9 +73,6 @@ export async function reserveOpenAndPay(params: {
       voucherCod: params.voucherCod?.trim() || undefined,
     },
   })
-  if (error) {
-    const msg = (data as { error?: string } | null)?.error ?? error.message
-    throw new Error(msg)
-  }
+  if (error) throw await edgeFunctionError(error)
   return data as ReserveResult
 }

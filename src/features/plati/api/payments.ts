@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase'
+import { supabase, edgeFunctionError } from '@/lib/supabase'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // PLĂȚI ONLINE — Netopia (procesatorul confirmat).
@@ -115,9 +115,6 @@ export async function createNetopiaPayment(params: {
       includeInrolari: params.includeInrolari,
     },
   })
-  if (error) {
-    const msg = (data as { error?: string } | null)?.error ?? error.message
-    throw new Error(msg)
-  }
+  if (error) throw await edgeFunctionError(error)
   return data as CreatePaymentResult
 }

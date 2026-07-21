@@ -52,6 +52,12 @@ export const CONTEXT_LABEL: Record<ContextAchizitie, string> = {
   eveniment: 'Eveniment',
 }
 
+// Oglinda pragurilor din `submit_rating_client` — DB-ul le impune, aici doar evităm
+// un roundtrip care s-ar întoarce cu eroare.
+export const MIN_LUNI_ACHITATE = 3
+export const MIN_COMENTARIU = 10
+export const PRAG_COMENTARIU_OBLIGATORIU = 3
+
 // O activitate evaluabilă: curs recurent, o sesiune OPEN sau un eveniment — cu ratingul curent.
 export type ActivityKind = 'curs' | 'open_sesiune' | 'eveniment'
 export type RatableActivity = {
@@ -61,6 +67,12 @@ export type RatableActivity = {
   context: ContextAchizitie
   rating: number | null
   detalii: string | null
+  /** false = sub pragul de luni achitate, sau sezon încheiat */
+  poateEvalua: boolean
+  /** doar pentru cursuri recurente; null la OPEN/evenimente */
+  luniAchitate: number | null
+  /** sezonul grupei s-a încheiat — votul rămâne fixat */
+  blocat: boolean
 }
 
 export async function getRatableActivities(clientId: string): Promise<RatableActivity[]> {
@@ -75,6 +87,9 @@ export async function getRatableActivities(clientId: string): Promise<RatableAct
     context: r.context as ContextAchizitie,
     rating: r.rating,
     detalii: r.detalii,
+    poateEvalua: r.poate_evalua ?? false,
+    luniAchitate: r.luni_achitate,
+    blocat: r.blocat ?? false,
   }))
 }
 

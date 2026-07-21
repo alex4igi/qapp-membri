@@ -3969,6 +3969,7 @@ export type Database = {
           data_programare: string | null
           deja_client: boolean
           email: string | null
+          extern_id: string | null
           flag_reminder: boolean
           flag_reminder_at: string | null
           flag_streak: number
@@ -4011,6 +4012,7 @@ export type Database = {
           data_programare?: string | null
           deja_client?: boolean
           email?: string | null
+          extern_id?: string | null
           flag_reminder?: boolean
           flag_reminder_at?: string | null
           flag_streak?: number
@@ -4053,6 +4055,7 @@ export type Database = {
           data_programare?: string | null
           deja_client?: boolean
           email?: string | null
+          extern_id?: string | null
           flag_reminder?: boolean
           flag_reminder_at?: string | null
           flag_streak?: number
@@ -8150,6 +8153,11 @@ export type Database = {
       }
       _is_anunt_expeditor: { Args: { p_anunt: string }; Returns: boolean }
       _is_anunt_recipient: { Args: { p_anunt: string }; Returns: boolean }
+      _luni_achitate_curs: {
+        Args: { p_client: string; p_curs: string }
+        Returns: number
+      }
+      _sezon_curs_inchis: { Args: { p_curs: string }; Returns: boolean }
       _try_activate_gate: { Args: { p_gate_id: string }; Returns: undefined }
       activate_eligible_sezoane: { Args: never; Returns: number }
       activate_reinscriere: {
@@ -8238,6 +8246,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      auth_locatie_id: { Args: never; Returns: string }
       auth_role: { Args: never; Returns: string }
       auto_mark_inactiv_si_exclient: {
         Args: never
@@ -8393,24 +8402,26 @@ export type Database = {
         Returns: Json
       }
       get_absente_consecutive: {
-        Args: { p_locatie?: string; p_prag?: number }
+        Args: { p_locatie?: string; p_saptamani?: number }
         Returns: {
           absente_consecutive: number
           client_id: string
           client_nume: string
           curs_id: string
           curs_nume: string
+          lectii_pe_saptamana: number
           ultima_prezenta: string
         }[]
       }
       get_absente_risc_teacher: {
-        Args: { p_prag?: number }
+        Args: { p_saptamani?: number }
         Returns: {
           absente_consecutive: number
           client_id: string
           client_nume: string
           curs_id: string
           curs_nume: string
+          lectii_pe_saptamana: number
           ultima_prezenta: string
         }[]
       }
@@ -8957,11 +8968,14 @@ export type Database = {
       get_ratable_activities_client: {
         Args: { p_client: string }
         Returns: {
+          blocat: boolean
           context: string
           detalii: string
           id: string
           kind: string
+          luni_achitate: number
           nume: string
+          poate_evalua: boolean
           rating: number
         }[]
       }
@@ -9845,7 +9859,7 @@ export type Database = {
         | "Events"
         | "Website"
         | "Organic"
-      tier_inchiriere: "staff" | "client"
+      tier_inchiriere: "staff" | "client" | "manual"
       tip_document:
         | "Contract"
         | "Anexa"
@@ -10118,7 +10132,7 @@ export const Constants = {
         "Website",
         "Organic",
       ],
-      tier_inchiriere: ["staff", "client"],
+      tier_inchiriere: ["staff", "client", "manual"],
       tip_document: [
         "Contract",
         "Anexa",

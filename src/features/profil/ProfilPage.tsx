@@ -15,6 +15,11 @@ import {
   type ProfilClient,
 } from './api'
 
+// PARCAT 2026-07-20: secțiunea „factură lunară / factură pe altă persoană" așteaptă
+// aprobarea Roxanei + contabilității (tratamentul facturii la bon fiscal pt. Cash/Card).
+// Reactivare: pune true (RPC-urile și restul lanțului sunt live și testate).
+const FACTURARE_LA_CERERE_ENABLED = false
+
 function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
     <label className="block">
@@ -285,6 +290,7 @@ function FisaMembru() {
         </Field>
       </div>
 
+      {FACTURARE_LA_CERERE_ENABLED && (
       <div className="border-t border-line pt-3">
         <label className="flex items-center gap-2 text-sm font-medium">
           <input
@@ -320,6 +326,7 @@ function FisaMembru() {
           <p className="mt-1 text-xs text-danger">CNP invalid — trebuie 13 cifre.</p>
         )}
       </div>
+      )}
 
       {mut.isError && <p className="text-sm text-danger">Eroare la salvare.</p>}
       <Button type="submit" disabled={mut.isPending || cnpInvalid}>

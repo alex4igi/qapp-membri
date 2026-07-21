@@ -86,6 +86,12 @@ export type ProfilClient = {
   telefonul2: string | null
   marimeTricou: string | null
   unitateInvatamant: string | null
+  facturaLunara: boolean
+  // Data activării — setată de server la pornirea bifei; doar afișată în UI.
+  facturaLunaraDeLa: string | null
+  facturarePfNume: string | null
+  facturarePfCnp: string | null
+  facturarePfAdresa: string | null
 }
 
 export async function getProfilClient(clientId: string): Promise<ProfilClient | null> {
@@ -103,6 +109,11 @@ export async function getProfilClient(clientId: string): Promise<ProfilClient | 
     telefonul2: r.telefonul_2,
     marimeTricou: r.marime_tricou,
     unitateInvatamant: r.unitate_invatamant,
+    facturaLunara: r.factura_lunara ?? false,
+    facturaLunaraDeLa: r.factura_lunara_de_la,
+    facturarePfNume: r.facturare_pf_nume,
+    facturarePfCnp: r.facturare_pf_cnp,
+    facturarePfAdresa: r.facturare_pf_adresa,
   }
 }
 
@@ -114,6 +125,12 @@ export async function updateProfilClient(p: ProfilClient): Promise<void> {
     p_telefonul_2: u(p.telefonul2),
     p_marime_tricou: u(p.marimeTricou),
     p_unitate_invatamant: u(p.unitateInvatamant),
+    // Câmpurile de facturare: RPC-ul tratează null = neatins, '' = șterge —
+    // trimitem mereu stringul din formular ('' golește câmpul).
+    p_facturare_pf_nume: p.facturarePfNume ?? '',
+    p_facturare_pf_cnp: p.facturarePfCnp ?? '',
+    p_facturare_pf_adresa: p.facturarePfAdresa ?? '',
+    p_factura_lunara: p.facturaLunara,
   })
   if (error) throw error
 }

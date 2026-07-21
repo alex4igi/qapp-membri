@@ -236,6 +236,8 @@ function FisaMembru() {
   if (isLoading) return <Spinner />
   if (!form) return null
   const set = <K extends keyof ProfilClient>(k: K, v: ProfilClient[K]) => setForm({ ...form, [k]: v })
+  const cnpTrimmed = (form.facturarePfCnp ?? '').trim()
+  const cnpInvalid = cnpTrimmed !== '' && !/^\d{13}$/.test(cnpTrimmed)
 
   return (
     <form
@@ -282,8 +284,45 @@ function FisaMembru() {
           </select>
         </Field>
       </div>
+
+      <div className="border-t border-line pt-3">
+        <label className="flex items-center gap-2 text-sm font-medium">
+          <input
+            type="checkbox"
+            className="accent-acc"
+            checked={form.facturaLunara}
+            onChange={(e) => set('facturaLunara', e.target.checked)}
+          />
+          Doresc factură lunară pentru plățile acestui membru
+        </label>
+        <p className="mt-1 text-xs text-sub">
+          {form.facturaLunara && form.facturaLunaraDeLa
+            ? `Activ din ${formatData(form.facturaLunaraDeLa)} — se aplică plăților de la această dată încolo.`
+            : 'Se aplică facturilor emise de la data activării.'}
+        </p>
+
+        <p className="mt-3 text-sm font-medium text-ink">Factură pe altă persoană (opțional)</p>
+        <p className="text-xs text-sub">
+          Completează doar dacă factura trebuie emisă pe alt nume decât al membrului.
+        </p>
+        <div className="mt-2 grid grid-cols-2 gap-3">
+          <Field label="Nume complet">
+            <Text value={form.facturarePfNume} onChange={(v) => set('facturarePfNume', v)} />
+          </Field>
+          <Field label="CNP">
+            <Text value={form.facturarePfCnp} onChange={(v) => set('facturarePfCnp', v)} />
+          </Field>
+          <Field label="Adresă">
+            <Text value={form.facturarePfAdresa} onChange={(v) => set('facturarePfAdresa', v)} />
+          </Field>
+        </div>
+        {cnpInvalid && (
+          <p className="mt-1 text-xs text-danger">CNP invalid — trebuie 13 cifre.</p>
+        )}
+      </div>
+
       {mut.isError && <p className="text-sm text-danger">Eroare la salvare.</p>}
-      <Button type="submit" disabled={mut.isPending}>
+      <Button type="submit" disabled={mut.isPending || cnpInvalid}>
         {mut.isPending ? 'Se salvează…' : 'Salvează'}
       </Button>
     </form>

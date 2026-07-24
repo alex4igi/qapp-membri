@@ -1251,6 +1251,142 @@ export type Database = {
           },
         ]
       }
+      curs_lectii_override: {
+        Row: {
+          curs_id: string
+          id: string
+          note: string | null
+          nr_sedinta: number
+          titlu: string | null
+          updated: string
+          updated_by: string | null
+        }
+        Insert: {
+          curs_id: string
+          id?: string
+          note?: string | null
+          nr_sedinta: number
+          titlu?: string | null
+          updated?: string
+          updated_by?: string | null
+        }
+        Update: {
+          curs_id?: string
+          id?: string
+          note?: string | null
+          nr_sedinta?: number
+          titlu?: string | null
+          updated?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "curs_lectii_override_curs_id_fkey"
+            columns: ["curs_id"]
+            isOneToOne: false
+            referencedRelation: "cursuri"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "curs_lectii_override_curs_id_fkey"
+            columns: ["curs_id"]
+            isOneToOne: false
+            referencedRelation: "incasari_curs_luna"
+            referencedColumns: ["id_curs"]
+          },
+          {
+            foreignKeyName: "curs_lectii_override_curs_id_fkey"
+            columns: ["curs_id"]
+            isOneToOne: false
+            referencedRelation: "lista_clienti"
+            referencedColumns: ["id_curs"]
+          },
+          {
+            foreignKeyName: "curs_lectii_override_curs_id_fkey"
+            columns: ["curs_id"]
+            isOneToOne: false
+            referencedRelation: "lista_cursuri"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "curs_lectii_override_curs_id_fkey"
+            columns: ["curs_id"]
+            isOneToOne: false
+            referencedRelation: "plati_inrolari"
+            referencedColumns: ["id_curs"]
+          },
+          {
+            foreignKeyName: "curs_lectii_override_curs_id_fkey"
+            columns: ["curs_id"]
+            isOneToOne: false
+            referencedRelation: "raport_financiar"
+            referencedColumns: ["id_curs"]
+          },
+          {
+            foreignKeyName: "curs_lectii_override_curs_id_fkey"
+            columns: ["curs_id"]
+            isOneToOne: false
+            referencedRelation: "raport_incasari"
+            referencedColumns: ["id_curs"]
+          },
+          {
+            foreignKeyName: "curs_lectii_override_curs_id_fkey"
+            columns: ["curs_id"]
+            isOneToOne: false
+            referencedRelation: "restante_curs_luna"
+            referencedColumns: ["id_curs"]
+          },
+          {
+            foreignKeyName: "curs_lectii_override_curs_id_fkey"
+            columns: ["curs_id"]
+            isOneToOne: false
+            referencedRelation: "teacher_curs_stats"
+            referencedColumns: ["curs_id"]
+          },
+          {
+            foreignKeyName: "curs_lectii_override_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "incasari_teacher_luna"
+            referencedColumns: ["id_teacher"]
+          },
+          {
+            foreignKeyName: "curs_lectii_override_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "lista_cursuri"
+            referencedColumns: ["id_teacher"]
+          },
+          {
+            foreignKeyName: "curs_lectii_override_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profil_teacher"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "curs_lectii_override_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "raport_incasari"
+            referencedColumns: ["id_teacher"]
+          },
+          {
+            foreignKeyName: "curs_lectii_override_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "restante_teacher_luna"
+            referencedColumns: ["id_teacher"]
+          },
+          {
+            foreignKeyName: "curs_lectii_override_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "teacheri"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cursuri: {
         Row: {
           capacitate_maxima: number | null
@@ -1273,6 +1409,7 @@ export type Database = {
           pret_lunar_promo: number | null
           pret_sedinta: number | null
           pret_sedinta_reziliere: number | null
+          program_metodologic: string | null
           rezervari_online: boolean
           sala: string | null
           sezon: string | null
@@ -1304,6 +1441,7 @@ export type Database = {
           pret_lunar_promo?: number | null
           pret_sedinta?: number | null
           pret_sedinta_reziliere?: number | null
+          program_metodologic?: string | null
           rezervari_online?: boolean
           sala?: string | null
           sezon?: string | null
@@ -1335,6 +1473,7 @@ export type Database = {
           pret_lunar_promo?: number | null
           pret_sedinta?: number | null
           pret_sedinta_reziliere?: number | null
+          program_metodologic?: string | null
           rezervari_online?: boolean
           sala?: string | null
           sezon?: string | null
@@ -1346,6 +1485,13 @@ export type Database = {
           zile?: Database["public"]["Enums"]["zi_saptamana"][] | null
         }
         Relationships: [
+          {
+            foreignKeyName: "cursuri_program_metodologic_fkey"
+            columns: ["program_metodologic"]
+            isOneToOne: false
+            referencedRelation: "programe_metodologice"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "fk_cursuri_cursul_original"
             columns: ["cursul_original"]
@@ -4836,6 +4982,42 @@ export type Database = {
         }
         Relationships: []
       }
+      pontaj_luni: {
+        Row: {
+          aprobat_de: string | null
+          aprobat_la: string
+          created: string
+          id: string
+          luna: string
+          nota: string | null
+          nr_ture: number
+          total_minute: number
+          user_id: string
+        }
+        Insert: {
+          aprobat_de?: string | null
+          aprobat_la?: string
+          created?: string
+          id?: string
+          luna: string
+          nota?: string | null
+          nr_ture?: number
+          total_minute: number
+          user_id: string
+        }
+        Update: {
+          aprobat_de?: string | null
+          aprobat_la?: string
+          created?: string
+          id?: string
+          luna?: string
+          nota?: string | null
+          nr_ture?: number
+          total_minute?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       portal_accounts: {
         Row: {
           created_at: string
@@ -5040,6 +5222,241 @@ export type Database = {
           },
         ]
       }
+      program_jurnal: {
+        Row: {
+          created: string
+          curs_id: string
+          data: string
+          id: string
+          lectie_id: string | null
+          nota: string | null
+          nr_sedinta: number
+          status: string
+          teacher_id: string | null
+          updated: string
+        }
+        Insert: {
+          created?: string
+          curs_id: string
+          data: string
+          id?: string
+          lectie_id?: string | null
+          nota?: string | null
+          nr_sedinta: number
+          status: string
+          teacher_id?: string | null
+          updated?: string
+        }
+        Update: {
+          created?: string
+          curs_id?: string
+          data?: string
+          id?: string
+          lectie_id?: string | null
+          nota?: string | null
+          nr_sedinta?: number
+          status?: string
+          teacher_id?: string | null
+          updated?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "program_jurnal_curs_id_fkey"
+            columns: ["curs_id"]
+            isOneToOne: false
+            referencedRelation: "cursuri"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "program_jurnal_curs_id_fkey"
+            columns: ["curs_id"]
+            isOneToOne: false
+            referencedRelation: "incasari_curs_luna"
+            referencedColumns: ["id_curs"]
+          },
+          {
+            foreignKeyName: "program_jurnal_curs_id_fkey"
+            columns: ["curs_id"]
+            isOneToOne: false
+            referencedRelation: "lista_clienti"
+            referencedColumns: ["id_curs"]
+          },
+          {
+            foreignKeyName: "program_jurnal_curs_id_fkey"
+            columns: ["curs_id"]
+            isOneToOne: false
+            referencedRelation: "lista_cursuri"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "program_jurnal_curs_id_fkey"
+            columns: ["curs_id"]
+            isOneToOne: false
+            referencedRelation: "plati_inrolari"
+            referencedColumns: ["id_curs"]
+          },
+          {
+            foreignKeyName: "program_jurnal_curs_id_fkey"
+            columns: ["curs_id"]
+            isOneToOne: false
+            referencedRelation: "raport_financiar"
+            referencedColumns: ["id_curs"]
+          },
+          {
+            foreignKeyName: "program_jurnal_curs_id_fkey"
+            columns: ["curs_id"]
+            isOneToOne: false
+            referencedRelation: "raport_incasari"
+            referencedColumns: ["id_curs"]
+          },
+          {
+            foreignKeyName: "program_jurnal_curs_id_fkey"
+            columns: ["curs_id"]
+            isOneToOne: false
+            referencedRelation: "restante_curs_luna"
+            referencedColumns: ["id_curs"]
+          },
+          {
+            foreignKeyName: "program_jurnal_curs_id_fkey"
+            columns: ["curs_id"]
+            isOneToOne: false
+            referencedRelation: "teacher_curs_stats"
+            referencedColumns: ["curs_id"]
+          },
+          {
+            foreignKeyName: "program_jurnal_lectie_id_fkey"
+            columns: ["lectie_id"]
+            isOneToOne: false
+            referencedRelation: "program_lectii"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "program_jurnal_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "incasari_teacher_luna"
+            referencedColumns: ["id_teacher"]
+          },
+          {
+            foreignKeyName: "program_jurnal_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "lista_cursuri"
+            referencedColumns: ["id_teacher"]
+          },
+          {
+            foreignKeyName: "program_jurnal_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "profil_teacher"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "program_jurnal_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "raport_incasari"
+            referencedColumns: ["id_teacher"]
+          },
+          {
+            foreignKeyName: "program_jurnal_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "restante_teacher_luna"
+            referencedColumns: ["id_teacher"]
+          },
+          {
+            foreignKeyName: "program_jurnal_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "teacheri"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      program_lectii: {
+        Row: {
+          created: string
+          id: string
+          modul_id: string
+          note: string | null
+          nr_sedinta: number
+          program_id: string
+          tip: string
+          titlu: string
+          updated: string
+        }
+        Insert: {
+          created?: string
+          id?: string
+          modul_id: string
+          note?: string | null
+          nr_sedinta: number
+          program_id: string
+          tip?: string
+          titlu: string
+          updated?: string
+        }
+        Update: {
+          created?: string
+          id?: string
+          modul_id?: string
+          note?: string | null
+          nr_sedinta?: number
+          program_id?: string
+          tip?: string
+          titlu?: string
+          updated?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "program_lectii_modul_id_fkey"
+            columns: ["modul_id"]
+            isOneToOne: false
+            referencedRelation: "program_module"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "program_lectii_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "programe_metodologice"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      program_module: {
+        Row: {
+          id: string
+          numar: number
+          program_id: string
+          subtitlu: string | null
+          tema: string | null
+        }
+        Insert: {
+          id?: string
+          numar: number
+          program_id: string
+          subtitlu?: string | null
+          tema?: string | null
+        }
+        Update: {
+          id?: string
+          numar?: number
+          program_id?: string
+          subtitlu?: string | null
+          tema?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "program_module_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "programe_metodologice"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       programari_leads: {
         Row: {
           created: string
@@ -5208,6 +5625,53 @@ export type Database = {
             columns: ["eveniment_programat"]
             isOneToOne: false
             referencedRelation: "evenimente"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      programe_metodologice: {
+        Row: {
+          created: string
+          descriere: string | null
+          id: string
+          nivel_eticheta: string | null
+          nume: string
+          sedinte_pe_saptamana: number
+          sezon_eticheta: string
+          sezon_id: string | null
+          surse: Json
+          updated: string
+        }
+        Insert: {
+          created?: string
+          descriere?: string | null
+          id?: string
+          nivel_eticheta?: string | null
+          nume: string
+          sedinte_pe_saptamana?: number
+          sezon_eticheta: string
+          sezon_id?: string | null
+          surse?: Json
+          updated?: string
+        }
+        Update: {
+          created?: string
+          descriere?: string | null
+          id?: string
+          nivel_eticheta?: string | null
+          nume?: string
+          sedinte_pe_saptamana?: number
+          sezon_eticheta?: string
+          sezon_id?: string | null
+          surse?: Json
+          updated?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "programe_metodologice_sezon_id_fkey"
+            columns: ["sezon_id"]
+            isOneToOne: false
+            referencedRelation: "sezoane"
             referencedColumns: ["id"]
           },
         ]
@@ -5873,6 +6337,56 @@ export type Database = {
         }
         Relationships: []
       }
+      sezon_calendar: {
+        Row: {
+          created: string
+          data_final: string | null
+          data_incepere: string | null
+          id: string
+          nota: string | null
+          numar: number
+          nume: string | null
+          sezon_eticheta: string
+          sezon_id: string | null
+          tip: string
+          updated: string
+        }
+        Insert: {
+          created?: string
+          data_final?: string | null
+          data_incepere?: string | null
+          id?: string
+          nota?: string | null
+          numar: number
+          nume?: string | null
+          sezon_eticheta: string
+          sezon_id?: string | null
+          tip: string
+          updated?: string
+        }
+        Update: {
+          created?: string
+          data_final?: string | null
+          data_incepere?: string | null
+          id?: string
+          nota?: string | null
+          numar?: number
+          nume?: string | null
+          sezon_eticheta?: string
+          sezon_id?: string | null
+          tip?: string
+          updated?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sezon_calendar_sezon_id_fkey"
+            columns: ["sezon_id"]
+            isOneToOne: false
+            referencedRelation: "sezoane"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       situatie_sms_uri: {
         Row: {
           clienti_vizati: string[]
@@ -6339,30 +6853,45 @@ export type Database = {
       }
       staff_pontaj: {
         Row: {
+          corectat_de: string | null
+          corectat_la: string | null
           created: string
           end_at: string | null
           id: string
           locatie_id: string | null
+          minute_platibile: number | null
+          nota: string | null
           source: string | null
           start_at: string
+          status: string
           user_id: string
         }
         Insert: {
+          corectat_de?: string | null
+          corectat_la?: string | null
           created?: string
           end_at?: string | null
           id?: string
           locatie_id?: string | null
+          minute_platibile?: number | null
+          nota?: string | null
           source?: string | null
           start_at?: string
+          status?: string
           user_id: string
         }
         Update: {
+          corectat_de?: string | null
+          corectat_la?: string | null
           created?: string
           end_at?: string | null
           id?: string
           locatie_id?: string | null
+          minute_platibile?: number | null
+          nota?: string | null
           source?: string | null
           start_at?: string
+          status?: string
           user_id?: string
         }
         Relationships: [
@@ -8157,6 +8686,10 @@ export type Database = {
         Args: { p_client: string; p_curs: string }
         Returns: number
       }
+      _nr_sedinta_pentru: {
+        Args: { p_curs: string; p_data: string }
+        Returns: number
+      }
       _sezon_curs_inchis: { Args: { p_curs: string }; Returns: boolean }
       _try_activate_gate: { Args: { p_gate_id: string }; Returns: undefined }
       activate_eligible_sezoane: { Args: never; Returns: number }
@@ -8382,6 +8915,14 @@ export type Database = {
       delete_teacher_safe: {
         Args: { p_force?: boolean; p_id: string }
         Returns: undefined
+      }
+      duplica_program: {
+        Args: { p_nume?: string; p_program: string }
+        Returns: string
+      }
+      duplica_structura_sezon: {
+        Args: { p_sursa: string; p_tinta: string }
+        Returns: number
       }
       enqueue_confirmare_programare: {
         Args: { p_lead: string }
@@ -8960,6 +9501,56 @@ export type Database = {
           teacher_nume: string
         }[]
       }
+      get_program_lectie_azi: {
+        Args: { p_curs: string; p_data?: string }
+        Returns: {
+          adaptat: boolean
+          depasit: boolean
+          jurnal_nota: string
+          jurnal_status: string
+          lectie_id: string
+          modul_numar: number
+          modul_tema: string
+          note: string
+          nr_sedinta: number
+          program_id: string
+          program_nume: string
+          tip: string
+          titlu: string
+          total_sedinte: number
+        }[]
+      }
+      get_program_progres_admin: {
+        Args: { p_locatie?: string; p_sezon_eticheta?: string }
+        Returns: {
+          conform_count: number
+          curs_id: string
+          curs_nume: string
+          diferit_count: number
+          locatie_id: string
+          program_id: string
+          program_nume: string
+          sedinte_tinute: number
+          sezon_eticheta: string
+          total_sedinte: number
+        }[]
+      }
+      get_program_progres_teacher: {
+        Args: never
+        Returns: {
+          conform_count: number
+          curs_id: string
+          curs_nume: string
+          diferit_count: number
+          modul_numar: number
+          modul_tema: string
+          nr_sedinta_curenta: number
+          program_id: string
+          program_nume: string
+          total_sedinte: number
+          urmatoarea_lectie: string
+        }[]
+      }
       get_rata_prezenta_luna: {
         Args: { p_locatie?: string }
         Returns: {
@@ -9419,6 +10010,7 @@ export type Database = {
           p_data: string
           p_descriere: string
           p_firma_cui: string
+          p_numar_factura: string
           p_ref: string
           p_suma: number
           p_sursa: string
@@ -9470,16 +10062,64 @@ export type Database = {
         Returns: number
       }
       ore_pe_zi_valid: { Args: { m: Json }; Returns: boolean }
-      pontaj_auto_close_open_sessions: { Args: never; Returns: number }
-      pontaj_close_session: {
-        Args: { p_source?: string }
+      pontaj_aproba_luna: {
+        Args: { p_luna: string; p_nota?: string; p_user_id: string }
         Returns: {
+          aprobat_de: string | null
+          aprobat_la: string
+          created: string
+          id: string
+          luna: string
+          nota: string | null
+          nr_ture: number
+          total_minute: number
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "pontaj_luni"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      pontaj_auto_close_open_sessions: { Args: never; Returns: number }
+      pontaj_check_in: {
+        Args: { p_locatie?: string }
+        Returns: {
+          corectat_de: string | null
+          corectat_la: string | null
           created: string
           end_at: string | null
           id: string
           locatie_id: string | null
+          minute_platibile: number | null
+          nota: string | null
           source: string | null
           start_at: string
+          status: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "staff_pontaj"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      pontaj_check_out: {
+        Args: never
+        Returns: {
+          corectat_de: string | null
+          corectat_la: string | null
+          created: string
+          end_at: string | null
+          id: string
+          locatie_id: string | null
+          minute_platibile: number | null
+          nota: string | null
+          source: string | null
+          start_at: string
+          status: string
           user_id: string
         }
         SetofOptions: {
@@ -9493,15 +10133,97 @@ export type Database = {
         Args: { p_locatie: string; p_start: string }
         Returns: string
       }
-      pontaj_open_session: {
-        Args: never
+      pontaj_confirma: {
+        Args: { p_id: string }
         Returns: {
+          corectat_de: string | null
+          corectat_la: string | null
           created: string
           end_at: string | null
           id: string
           locatie_id: string | null
+          minute_platibile: number | null
+          nota: string | null
           source: string | null
           start_at: string
+          status: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "staff_pontaj"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      pontaj_deblocheaza_luna: {
+        Args: { p_luna: string; p_motiv: string; p_user_id: string }
+        Returns: undefined
+      }
+      pontaj_luna_e_aprobata: {
+        Args: { p_moment: string; p_user: string }
+        Returns: boolean
+      }
+      pontaj_round_quarter: { Args: { t: string }; Returns: string }
+      pontaj_stare_curenta: {
+        Args: never
+        Returns: {
+          corectat_de: string | null
+          corectat_la: string | null
+          created: string
+          end_at: string | null
+          id: string
+          locatie_id: string | null
+          minute_platibile: number | null
+          nota: string | null
+          source: string | null
+          start_at: string
+          status: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "staff_pontaj"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      pontaj_sterge: {
+        Args: { p_id: string; p_motiv: string }
+        Returns: undefined
+      }
+      pontaj_sumar_luna: {
+        Args: { p_luna: string }
+        Returns: {
+          aprobat: boolean
+          nr_deschise: number
+          nr_neconfirmate: number
+          nr_ture: number
+          total_minute: number
+          user_id: string
+        }[]
+      }
+      pontaj_upsert_manual: {
+        Args: {
+          p_end: string
+          p_id?: string
+          p_locatie: string
+          p_motiv: string
+          p_start: string
+          p_user_id: string
+        }
+        Returns: {
+          corectat_de: string | null
+          corectat_la: string | null
+          created: string
+          end_at: string | null
+          id: string
+          locatie_id: string | null
+          minute_platibile: number | null
+          nota: string | null
+          source: string | null
+          start_at: string
+          status: string
           user_id: string
         }
         SetofOptions: {
@@ -9668,6 +10390,10 @@ export type Database = {
       show_trgm: { Args: { "": string }; Returns: string[] }
       sterge_inrolare: {
         Args: { p_enrollment: string; p_motiv: string }
+        Returns: undefined
+      }
+      sterge_program: {
+        Args: { p_force?: boolean; p_program: string }
         Returns: undefined
       }
       submit_rating_client: {

@@ -2906,6 +2906,7 @@ export type Database = {
       }
       facturi_fgo: {
         Row: {
+          alocari: Json
           client_id: string | null
           client_nume: string
           created: string
@@ -2928,6 +2929,7 @@ export type Database = {
           valuta: string
         }
         Insert: {
+          alocari?: Json
           client_id?: string | null
           client_nume?: string
           created?: string
@@ -2950,6 +2952,7 @@ export type Database = {
           valuta?: string
         }
         Update: {
+          alocari?: Json
           client_id?: string | null
           client_nume?: string
           created?: string
@@ -8885,8 +8888,13 @@ export type Database = {
         Args: { p_abonament: string; p_motiv?: string }
         Returns: Json
       }
-      converteste_sedinta_in_abonament: {
-        Args: { p_motiv?: string; p_sedinta: string; p_target: string }
+      converteste_sedinte_in_abonament: {
+        Args: {
+          p_client: string
+          p_curs: string
+          p_luna: string
+          p_motiv?: string
+        }
         Returns: Json
       }
       corecteaza_data_inrolare: {

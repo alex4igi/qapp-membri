@@ -3,6 +3,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useActiveMember } from '@/hooks/useActiveMember'
 import { Button, Spinner } from '@/components/ui'
 import { formatData } from '@/lib/format'
+import { STELE_MAX, TREPTE_PE_STEA, formatStele } from './scale'
+import { printEvaluare } from './printEvaluare'
 import { cn } from '@/lib/cn'
 import {
   getEvaluariClient,
@@ -19,20 +21,49 @@ import {
   type RatableActivity,
 } from './api'
 
+// Valoarea vine în trepte (1-10). Steaua pe jumătate se face tăind copia plină cu
+// overflow-hidden pe 50% lățime — nu cu clip-path, care variază între browsere.
 function SkillBar({ value }: { value: number | null }) {
   return (
-    <div className="flex gap-1">
-      {[1, 2, 3, 4, 5].map((n) => (
-        <span
-          key={n}
-          className={cn('h-2.5 w-2.5 rounded-full', value && n <= value ? 'bg-acc' : 'bg-surf2')}
-        />
-      ))}
+    <div className="flex items-center gap-0.5">
+      {Array.from({ length: STELE_MAX }, (_, i) => {
+        const intreaga = (i + 1) * TREPTE_PE_STEA
+        const umplere =
+          value == null || value < intreaga - 1
+            ? 0
+            : value >= intreaga
+              ? 100
+              : 50
+        return (
+          <span key={i} className="relative block h-3.5 w-3.5">
+            <StearGlif className="text-line" />
+            {umplere > 0 && (
+              <span
+                className="absolute inset-y-0 left-0 overflow-hidden"
+                style={{ width: `${umplere}%` }}
+              >
+                <StearGlif className="text-acc" />
+              </span>
+            )}
+          </span>
+        )
+      })}
+      <span className="ml-1 w-7 text-[10px] font-semibold tabular-nums text-sub">
+        {formatStele(value)}
+      </span>
     </div>
   )
 }
 
-function EvaluareCard({ e }: { e: EvaluareRow }) {
+function StearGlif({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={cn('block h-3.5 w-3.5 fill-current', className)} aria-hidden="true">
+      <path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.4L12 17.4 6.2 20.4l1.1-6.4L2.6 9.4l6.5-.9z" />
+    </svg>
+  )
+}
+
+function EvaluareCard({ e, numeCopil }: { e: EvaluareRow; numeCopil: string }) {
   return (
     <div className="space-y-3 bg-surf border border-line rounded-2xl p-5 shadow-card">
       <div className="flex items-center justify-between">
@@ -60,6 +91,14 @@ function EvaluareCard({ e }: { e: EvaluareRow }) {
           <p className="mt-0.5 text-sm text-ink">{e.feedbackGeneral}</p>
         </div>
       )}
+
+      <button
+        type="button"
+        onClick={() => printEvaluare(e, numeCopil)}
+        className="text-xs font-semibold text-acc underline underline-offset-2"
+      >
+        Descarcă PDF
+      </button>
     </div>
   )
 }
@@ -238,7 +277,7 @@ export function EvaluariSection() {
         {data && data.length > 0 && (
           <div className="space-y-3">
             {data.map((e) => (
-              <EvaluareCard key={e.id} e={e} />
+              <EvaluareCard key={e.id} e={e} numeCopil={activeMember.nume} />
             ))}
           </div>
         )}

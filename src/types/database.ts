@@ -583,6 +583,7 @@ export type Database = {
           created: string
           id: string
           observatii: string | null
+          promisiune_data: string | null
           rezultat: Database["public"]["Enums"]["rezultat_contact"]
           scop: string
           suma_promisa: number | null
@@ -594,6 +595,7 @@ export type Database = {
           created?: string
           id?: string
           observatii?: string | null
+          promisiune_data?: string | null
           rezultat: Database["public"]["Enums"]["rezultat_contact"]
           scop: string
           suma_promisa?: number | null
@@ -605,6 +607,7 @@ export type Database = {
           created?: string
           id?: string
           observatii?: string | null
+          promisiune_data?: string | null
           rezultat?: Database["public"]["Enums"]["rezultat_contact"]
           scop?: string
           suma_promisa?: number | null
@@ -687,6 +690,9 @@ export type Database = {
           prenume: string | null
           sexul: Database["public"]["Enums"]["sex"] | null
           status: Database["public"]["Enums"]["status_client"] | null
+          suspendat_datorii: boolean
+          suspendat_datorii_de: string | null
+          suspendat_datorii_la: string | null
           telefon: string | null
           telefonul_2: string | null
           unitate_invatamant: string | null
@@ -716,6 +722,9 @@ export type Database = {
           prenume?: string | null
           sexul?: Database["public"]["Enums"]["sex"] | null
           status?: Database["public"]["Enums"]["status_client"] | null
+          suspendat_datorii?: boolean
+          suspendat_datorii_de?: string | null
+          suspendat_datorii_la?: string | null
           telefon?: string | null
           telefonul_2?: string | null
           unitate_invatamant?: string | null
@@ -745,6 +754,9 @@ export type Database = {
           prenume?: string | null
           sexul?: Database["public"]["Enums"]["sex"] | null
           status?: Database["public"]["Enums"]["status_client"] | null
+          suspendat_datorii?: boolean
+          suspendat_datorii_de?: string | null
+          suspendat_datorii_la?: string | null
           telefon?: string | null
           telefonul_2?: string | null
           unitate_invatamant?: string | null
@@ -6840,6 +6852,7 @@ export type Database = {
           mesaj: string
           send_after: string
           status: string
+          sursa_id: string | null
           telefon: string
           tip: string | null
           trimis_la: string | null
@@ -6852,6 +6865,7 @@ export type Database = {
           mesaj: string
           send_after?: string
           status?: string
+          sursa_id?: string | null
           telefon: string
           tip?: string | null
           trimis_la?: string | null
@@ -6864,6 +6878,7 @@ export type Database = {
           mesaj?: string
           send_after?: string
           status?: string
+          sursa_id?: string | null
           telefon?: string
           tip?: string | null
           trimis_la?: string | null
@@ -6874,6 +6889,13 @@ export type Database = {
             columns: ["lead_id"]
             isOneToOne: false
             referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sms_amanate_sursa_id_fkey"
+            columns: ["sursa_id"]
+            isOneToOne: false
+            referencedRelation: "situatie_sms_uri"
             referencedColumns: ["id"]
           },
         ]
@@ -8571,6 +8593,7 @@ export type Database = {
           suma_baza: number | null
           tip_plata: Database["public"]["Enums"]["tip_plata"] | null
           total_de_plata: number | null
+          viitor: boolean | null
         }
         Relationships: [
           {
@@ -8731,6 +8754,7 @@ export type Database = {
           nume_curs: string | null
           total_de_incasat: number | null
           total_incasat: number | null
+          total_restant_net: number | null
         }
         Relationships: []
       }
@@ -8742,6 +8766,7 @@ export type Database = {
           nume_locatie: string | null
           total_de_incasat: number | null
           total_incasat: number | null
+          total_restant_net: number | null
         }
         Relationships: []
       }
@@ -8753,6 +8778,7 @@ export type Database = {
           nume_sala: string | null
           total_de_incasat: number | null
           total_incasat: number | null
+          total_restant_net: number | null
         }
         Relationships: []
       }
@@ -8764,6 +8790,7 @@ export type Database = {
           nume_teacher: string | null
           total_de_incasat: number | null
           total_incasat: number | null
+          total_restant_net: number | null
         }
         Relationships: []
       }
@@ -8937,6 +8964,7 @@ export type Database = {
         Row: {
           id: string | null
           incasat: number | null
+          restant_net: number | null
           total: number | null
         }
         Relationships: []
@@ -9384,6 +9412,18 @@ export type Database = {
           venit: number
         }[]
       }
+      get_balanta_grupe: {
+        Args: { p_locatie?: string; p_luna: string }
+        Returns: {
+          id_curs: string
+          incasat_luna: number
+          nr_clienti_restanti: number
+          nume_curs: string
+          nume_locatie: string
+          restant_anterior: number
+          restant_luna: number
+        }[]
+      }
       get_bilete_membru: {
         Args: { p_client: string }
         Returns: {
@@ -9538,6 +9578,19 @@ export type Database = {
           platit: number
           rest: number
           suma_datorata: number
+        }[]
+      }
+      get_datorii_dashboard: {
+        Args: { p_locatie?: string }
+        Returns: {
+          de_incasat: number
+          id_locatie: string
+          incasat: number
+          nr_datornici: number
+          nume_locatie: string
+          rest_net: number
+          rest_oneoff: number
+          rest_prescris: number
         }[]
       }
       get_documente_client: {
@@ -10063,26 +10116,26 @@ export type Database = {
           total: number
         }[]
       }
-      get_restante_totale: {
-        Args: { p_locatie?: string }
-        Returns: {
-          rest_net: number
-          rest_prescris: number
-          rest_total: number
-        }[]
-      }
       get_restante_worklist: {
         Args: { p_locatie?: string; p_luna?: string; p_sezon?: string }
         Returns: {
           client_id: string
+          cursuri: string
+          id_locatie: string
           nr_rate_neachitate: number
           nume: string
           nume_locatie: string
           prenume: string
+          promisiune_data: string
+          promisiune_logata_at: string
+          promisiune_suma: number
           rest_total: number
+          status_client: string
+          suspendat: boolean
           telefon: string
           ultim_apel_at: string
           ultim_apel_rezultat: string
+          ultim_sms_at: string
           ultima_prezenta: string
           zile_depasire: number
         }[]
@@ -10849,6 +10902,10 @@ export type Database = {
           p_document_link: string
         }
         Returns: string
+      }
+      set_suspendare_datorii: {
+        Args: { p_client: string; p_suspendat: boolean }
+        Returns: undefined
       }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }

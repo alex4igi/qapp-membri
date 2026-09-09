@@ -152,16 +152,49 @@ function FisaFamilie() {
         </Field>
       </div>
 
-      <div className="flex flex-col gap-2 border-t border-line pt-3">
-        <label className="flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            className="accent-acc"
-            checked={form.dorestePoze}
-            onChange={(e) => set('dorestePoze', e.target.checked)}
-          />
-          Sunt de acord cu apariția în poze/video
-        </label>
+      <div className="flex flex-col gap-3 border-t border-line pt-3">
+        {/* Întrebare cu răspuns explicit, nu bifă: un „Nu" aprinde iconița „fără
+            poze" pe cardul copilului din rosterul grupei, deci nu se poate deduce
+            dintr-o casetă rămasă nebifată. */}
+        <fieldset>
+          <legend className="text-sm font-medium text-ink">
+            Sunteți de acord cu apariția în poze/video?
+          </legend>
+          <p className="mt-0.5 text-xs text-sub">
+            E vorba de fotografiile și filmările de la cursuri, spectacole și
+            concursuri, publicate pe paginile Quasar Dance.
+          </p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {([
+              { val: true, label: 'Da, sunt de acord' },
+              { val: false, label: 'Nu doresc' },
+            ] as const).map((o) => (
+              <label
+                key={String(o.val)}
+                className={
+                  'flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-2 text-sm ' +
+                  (form.dorestePoze === o.val
+                    ? 'border-acc bg-acc/10 font-semibold text-ink'
+                    : 'border-line text-sub')
+                }
+              >
+                <input
+                  type="radio"
+                  name="doreste-poze"
+                  className="accent-acc"
+                  checked={form.dorestePoze === o.val}
+                  onChange={() => set('dorestePoze', o.val)}
+                />
+                {o.label}
+              </label>
+            ))}
+          </div>
+          {form.dorestePoze === null && (
+            <p className="mt-1.5 text-xs text-sub">
+              Încă nu ați răspuns la această întrebare.
+            </p>
+          )}
+        </fieldset>
         <label className="flex items-center gap-2 text-sm">
           <input
             type="checkbox"

@@ -39,6 +39,241 @@ export type Database = {
   }
   public: {
     Tables: {
+      absente_21z: {
+        Row: {
+          client: string
+          contact_id: string | null
+          contactat_de: string | null
+          contactat_la: string | null
+          created: string
+          curs: string
+          data_intrare: string
+          evaluat_la: string | null
+          id: string
+          locatie: string | null
+          motiv_declarat: string | null
+          motiv_liber: string | null
+          pas_urmator: string | null
+          reactivat: boolean | null
+          reactivat_la: string | null
+          sedinte_fereastra: number
+          ultima_prezenta: string | null
+          updated: string
+          zile_tacere: number
+        }
+        Insert: {
+          client: string
+          contact_id?: string | null
+          contactat_de?: string | null
+          contactat_la?: string | null
+          created?: string
+          curs: string
+          data_intrare?: string
+          evaluat_la?: string | null
+          id?: string
+          locatie?: string | null
+          motiv_declarat?: string | null
+          motiv_liber?: string | null
+          pas_urmator?: string | null
+          reactivat?: boolean | null
+          reactivat_la?: string | null
+          sedinte_fereastra: number
+          ultima_prezenta?: string | null
+          updated?: string
+          zile_tacere: number
+        }
+        Update: {
+          client?: string
+          contact_id?: string | null
+          contactat_de?: string | null
+          contactat_la?: string | null
+          created?: string
+          curs?: string
+          data_intrare?: string
+          evaluat_la?: string | null
+          id?: string
+          locatie?: string | null
+          motiv_declarat?: string | null
+          motiv_liber?: string | null
+          pas_urmator?: string | null
+          reactivat?: boolean | null
+          reactivat_la?: string | null
+          sedinte_fereastra?: number
+          ultima_prezenta?: string | null
+          updated?: string
+          zile_tacere?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "absente_21z_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "clienti"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "absente_21z_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "inrolari_clienti"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "absente_21z_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "lista_clienti"
+            referencedColumns: ["id_client"]
+          },
+          {
+            foreignKeyName: "absente_21z_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "plati_inrolari"
+            referencedColumns: ["id_cursant"]
+          },
+          {
+            foreignKeyName: "absente_21z_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "profil_client"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "absente_21z_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "raport_financiar"
+            referencedColumns: ["id_cursant"]
+          },
+          {
+            foreignKeyName: "absente_21z_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "raport_incasari"
+            referencedColumns: ["id_cursant"]
+          },
+          {
+            foreignKeyName: "absente_21z_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "client_contacte"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "absente_21z_curs_fkey"
+            columns: ["curs"]
+            isOneToOne: false
+            referencedRelation: "cursuri"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "absente_21z_curs_fkey"
+            columns: ["curs"]
+            isOneToOne: false
+            referencedRelation: "incasari_curs_luna"
+            referencedColumns: ["id_curs"]
+          },
+          {
+            foreignKeyName: "absente_21z_curs_fkey"
+            columns: ["curs"]
+            isOneToOne: false
+            referencedRelation: "lista_clienti"
+            referencedColumns: ["id_curs"]
+          },
+          {
+            foreignKeyName: "absente_21z_curs_fkey"
+            columns: ["curs"]
+            isOneToOne: false
+            referencedRelation: "lista_cursuri"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "absente_21z_curs_fkey"
+            columns: ["curs"]
+            isOneToOne: false
+            referencedRelation: "plati_inrolari"
+            referencedColumns: ["id_curs"]
+          },
+          {
+            foreignKeyName: "absente_21z_curs_fkey"
+            columns: ["curs"]
+            isOneToOne: false
+            referencedRelation: "raport_financiar"
+            referencedColumns: ["id_curs"]
+          },
+          {
+            foreignKeyName: "absente_21z_curs_fkey"
+            columns: ["curs"]
+            isOneToOne: false
+            referencedRelation: "raport_incasari"
+            referencedColumns: ["id_curs"]
+          },
+          {
+            foreignKeyName: "absente_21z_curs_fkey"
+            columns: ["curs"]
+            isOneToOne: false
+            referencedRelation: "restante_curs_luna"
+            referencedColumns: ["id_curs"]
+          },
+          {
+            foreignKeyName: "absente_21z_curs_fkey"
+            columns: ["curs"]
+            isOneToOne: false
+            referencedRelation: "teacher_curs_stats"
+            referencedColumns: ["curs_id"]
+          },
+          {
+            foreignKeyName: "absente_21z_locatie_fkey"
+            columns: ["locatie"]
+            isOneToOne: false
+            referencedRelation: "incasari_locatie_luna"
+            referencedColumns: ["id_locatie"]
+          },
+          {
+            foreignKeyName: "absente_21z_locatie_fkey"
+            columns: ["locatie"]
+            isOneToOne: false
+            referencedRelation: "locatii"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "absente_21z_locatie_fkey"
+            columns: ["locatie"]
+            isOneToOne: false
+            referencedRelation: "plati_inrolari"
+            referencedColumns: ["id_locatie"]
+          },
+          {
+            foreignKeyName: "absente_21z_locatie_fkey"
+            columns: ["locatie"]
+            isOneToOne: false
+            referencedRelation: "raport_financiar"
+            referencedColumns: ["id_locatie"]
+          },
+          {
+            foreignKeyName: "absente_21z_locatie_fkey"
+            columns: ["locatie"]
+            isOneToOne: false
+            referencedRelation: "raport_incasari"
+            referencedColumns: ["id_locatie"]
+          },
+          {
+            foreignKeyName: "absente_21z_locatie_fkey"
+            columns: ["locatie"]
+            isOneToOne: false
+            referencedRelation: "restante_locatie_luna"
+            referencedColumns: ["id_locatie"]
+          },
+          {
+            foreignKeyName: "absente_21z_motiv_declarat_fkey"
+            columns: ["motiv_declarat"]
+            isOneToOne: false
+            referencedRelation: "motive_abandon"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       anunturi: {
         Row: {
           audienta: Json | null
@@ -677,6 +912,7 @@ export type Database = {
           facturare_pf_cnp: string | null
           facturare_pf_nume: string | null
           familia: string | null
+          fara_poze: boolean
           foto: string | null
           id: string
           link_contract: string | null
@@ -709,6 +945,7 @@ export type Database = {
           facturare_pf_cnp?: string | null
           facturare_pf_nume?: string | null
           familia?: string | null
+          fara_poze?: boolean
           foto?: string | null
           id?: string
           link_contract?: string | null
@@ -741,6 +978,7 @@ export type Database = {
           facturare_pf_cnp?: string | null
           facturare_pf_nume?: string | null
           familia?: string | null
+          fara_poze?: boolean
           foto?: string | null
           id?: string
           link_contract?: string | null
@@ -906,6 +1144,7 @@ export type Database = {
           error: string | null
           id: string
           lead_id: string
+          programare: string | null
           send_after: string
           status: string
           trimis_la: string | null
@@ -915,6 +1154,7 @@ export type Database = {
           error?: string | null
           id?: string
           lead_id: string
+          programare?: string | null
           send_after?: string
           status?: string
           trimis_la?: string | null
@@ -924,6 +1164,7 @@ export type Database = {
           error?: string | null
           id?: string
           lead_id?: string
+          programare?: string | null
           send_after?: string
           status?: string
           trimis_la?: string | null
@@ -934,6 +1175,13 @@ export type Database = {
             columns: ["lead_id"]
             isOneToOne: false
             referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "confirmari_programare_sms_programare_fkey"
+            columns: ["programare"]
+            isOneToOne: false
+            referencedRelation: "programari_leads"
             referencedColumns: ["id"]
           },
         ]
@@ -1259,6 +1507,56 @@ export type Database = {
             columns: ["template_id"]
             isOneToOne: false
             referencedRelation: "contract_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conversii_ads_trimise: {
+        Row: {
+          created: string
+          eroare: string | null
+          event_id: string
+          event_name: string
+          id: string
+          lead: string
+          moneda: string
+          platforma: string
+          raspuns: Json | null
+          rezultat: string
+          valoare: number | null
+        }
+        Insert: {
+          created?: string
+          eroare?: string | null
+          event_id: string
+          event_name: string
+          id?: string
+          lead: string
+          moneda?: string
+          platforma?: string
+          raspuns?: Json | null
+          rezultat: string
+          valoare?: number | null
+        }
+        Update: {
+          created?: string
+          eroare?: string | null
+          event_id?: string
+          event_name?: string
+          id?: string
+          lead?: string
+          moneda?: string
+          platforma?: string
+          raspuns?: Json | null
+          rezultat?: string
+          valoare?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversii_ads_trimise_lead_fkey"
+            columns: ["lead"]
+            isOneToOne: false
+            referencedRelation: "leads"
             referencedColumns: ["id"]
           },
         ]
@@ -3621,6 +3919,7 @@ export type Database = {
           doreste_sa_apara_in_poze: boolean
           email: string | null
           factura_pe_firma: boolean
+          fara_poze: boolean
           firma_adresa: string | null
           firma_banca: string | null
           firma_cif: string | null
@@ -3647,6 +3946,7 @@ export type Database = {
           doreste_sa_apara_in_poze?: boolean
           email?: string | null
           factura_pe_firma?: boolean
+          fara_poze?: boolean
           firma_adresa?: string | null
           firma_banca?: string | null
           firma_cif?: string | null
@@ -3673,6 +3973,7 @@ export type Database = {
           doreste_sa_apara_in_poze?: boolean
           email?: string | null
           factura_pe_firma?: boolean
+          fara_poze?: boolean
           firma_adresa?: string | null
           firma_banca?: string | null
           firma_cif?: string | null
@@ -4573,6 +4874,489 @@ export type Database = {
           },
         ]
       }
+      kpi_campuri: {
+        Row: {
+          cheie: string
+          eticheta: string
+          id: string
+          kpi_id: string
+          obligatoriu: boolean
+          ordine: number
+          tip: string
+          unitate: string | null
+        }
+        Insert: {
+          cheie: string
+          eticheta: string
+          id?: string
+          kpi_id: string
+          obligatoriu?: boolean
+          ordine?: number
+          tip?: string
+          unitate?: string | null
+        }
+        Update: {
+          cheie?: string
+          eticheta?: string
+          id?: string
+          kpi_id?: string
+          obligatoriu?: boolean
+          ordine?: number
+          tip?: string
+          unitate?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kpi_campuri_kpi_id_fkey"
+            columns: ["kpi_id"]
+            isOneToOne: false
+            referencedRelation: "kpi_definitii"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kpi_definitii: {
+        Row: {
+          activ: boolean
+          cheie: string
+          created: string
+          denumire: string
+          descriere: string | null
+          directie: string
+          id: string
+          ordine: number
+          parametri_schema: Json
+          posturi_sugerate: string[]
+          sursa: string
+          tip_valoare: string
+          unitate: string | null
+        }
+        Insert: {
+          activ?: boolean
+          cheie: string
+          created?: string
+          denumire: string
+          descriere?: string | null
+          directie?: string
+          id?: string
+          ordine?: number
+          parametri_schema?: Json
+          posturi_sugerate?: string[]
+          sursa?: string
+          tip_valoare?: string
+          unitate?: string | null
+        }
+        Update: {
+          activ?: boolean
+          cheie?: string
+          created?: string
+          denumire?: string
+          descriere?: string | null
+          directie?: string
+          id?: string
+          ordine?: number
+          parametri_schema?: Json
+          posturi_sugerate?: string[]
+          sursa?: string
+          tip_valoare?: string
+          unitate?: string | null
+        }
+        Relationships: []
+      }
+      kpi_grila_linii: {
+        Row: {
+          activ: boolean
+          are_poarta: boolean
+          comision_plafon: number | null
+          comision_procent_peste: number | null
+          comision_procent_standard: number | null
+          conditie_peste: string | null
+          conditie_standard: string | null
+          conditie_sub: string | null
+          eliminatoriu: boolean
+          grila_id: string
+          id: string
+          kpi_id: string
+          luni_active: number[] | null
+          mod_calcul: string
+          ordine: number
+          parametri: Json
+          pondere: number
+          prag_peste: number | null
+          prag_standard: number | null
+          suma_peste: number | null
+          suma_standard: number | null
+          tip_prag: string
+        }
+        Insert: {
+          activ?: boolean
+          are_poarta?: boolean
+          comision_plafon?: number | null
+          comision_procent_peste?: number | null
+          comision_procent_standard?: number | null
+          conditie_peste?: string | null
+          conditie_standard?: string | null
+          conditie_sub?: string | null
+          eliminatoriu?: boolean
+          grila_id: string
+          id?: string
+          kpi_id: string
+          luni_active?: number[] | null
+          mod_calcul?: string
+          ordine?: number
+          parametri?: Json
+          pondere?: number
+          prag_peste?: number | null
+          prag_standard?: number | null
+          suma_peste?: number | null
+          suma_standard?: number | null
+          tip_prag?: string
+        }
+        Update: {
+          activ?: boolean
+          are_poarta?: boolean
+          comision_plafon?: number | null
+          comision_procent_peste?: number | null
+          comision_procent_standard?: number | null
+          conditie_peste?: string | null
+          conditie_standard?: string | null
+          conditie_sub?: string | null
+          eliminatoriu?: boolean
+          grila_id?: string
+          id?: string
+          kpi_id?: string
+          luni_active?: number[] | null
+          mod_calcul?: string
+          ordine?: number
+          parametri?: Json
+          pondere?: number
+          prag_peste?: number | null
+          prag_standard?: number | null
+          suma_peste?: number | null
+          suma_standard?: number | null
+          tip_prag?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kpi_grila_linii_grila_id_fkey"
+            columns: ["grila_id"]
+            isOneToOne: false
+            referencedRelation: "kpi_grile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kpi_grila_linii_kpi_id_fkey"
+            columns: ["kpi_id"]
+            isOneToOne: false
+            referencedRelation: "kpi_definitii"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kpi_grila_locatii: {
+        Row: {
+          grila_id: string
+          locatie: string
+        }
+        Insert: {
+          grila_id: string
+          locatie: string
+        }
+        Update: {
+          grila_id?: string
+          locatie?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kpi_grila_locatii_grila_id_fkey"
+            columns: ["grila_id"]
+            isOneToOne: false
+            referencedRelation: "kpi_grile"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kpi_grila_locatii_locatie_fkey"
+            columns: ["locatie"]
+            isOneToOne: false
+            referencedRelation: "incasari_locatie_luna"
+            referencedColumns: ["id_locatie"]
+          },
+          {
+            foreignKeyName: "kpi_grila_locatii_locatie_fkey"
+            columns: ["locatie"]
+            isOneToOne: false
+            referencedRelation: "locatii"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kpi_grila_locatii_locatie_fkey"
+            columns: ["locatie"]
+            isOneToOne: false
+            referencedRelation: "plati_inrolari"
+            referencedColumns: ["id_locatie"]
+          },
+          {
+            foreignKeyName: "kpi_grila_locatii_locatie_fkey"
+            columns: ["locatie"]
+            isOneToOne: false
+            referencedRelation: "raport_financiar"
+            referencedColumns: ["id_locatie"]
+          },
+          {
+            foreignKeyName: "kpi_grila_locatii_locatie_fkey"
+            columns: ["locatie"]
+            isOneToOne: false
+            referencedRelation: "raport_incasari"
+            referencedColumns: ["id_locatie"]
+          },
+          {
+            foreignKeyName: "kpi_grila_locatii_locatie_fkey"
+            columns: ["locatie"]
+            isOneToOne: false
+            referencedRelation: "restante_locatie_luna"
+            referencedColumns: ["id_locatie"]
+          },
+        ]
+      }
+      kpi_grile: {
+        Row: {
+          cota_manager: number
+          creat_de: string | null
+          created: string
+          id: string
+          nota: string | null
+          perioada: string
+          post: string
+          sablon_sursa: string | null
+          stare: string
+          titular_key: string | null
+          titular_nume: string
+          titular_teacher: string | null
+          titular_user: string | null
+          updated: string
+          valabil_de_la: string
+          valabil_pana_la: string | null
+          zile_min_evaluare: number
+        }
+        Insert: {
+          cota_manager?: number
+          creat_de?: string | null
+          created?: string
+          id?: string
+          nota?: string | null
+          perioada?: string
+          post: string
+          sablon_sursa?: string | null
+          stare?: string
+          titular_key?: string | null
+          titular_nume: string
+          titular_teacher?: string | null
+          titular_user?: string | null
+          updated?: string
+          valabil_de_la: string
+          valabil_pana_la?: string | null
+          zile_min_evaluare?: number
+        }
+        Update: {
+          cota_manager?: number
+          creat_de?: string | null
+          created?: string
+          id?: string
+          nota?: string | null
+          perioada?: string
+          post?: string
+          sablon_sursa?: string | null
+          stare?: string
+          titular_key?: string | null
+          titular_nume?: string
+          titular_teacher?: string | null
+          titular_user?: string | null
+          updated?: string
+          valabil_de_la?: string
+          valabil_pana_la?: string | null
+          zile_min_evaluare?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kpi_grile_sablon_sursa_fkey"
+            columns: ["sablon_sursa"]
+            isOneToOne: false
+            referencedRelation: "kpi_sabloane"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kpi_grile_titular_teacher_fkey"
+            columns: ["titular_teacher"]
+            isOneToOne: false
+            referencedRelation: "incasari_teacher_luna"
+            referencedColumns: ["id_teacher"]
+          },
+          {
+            foreignKeyName: "kpi_grile_titular_teacher_fkey"
+            columns: ["titular_teacher"]
+            isOneToOne: false
+            referencedRelation: "lista_cursuri"
+            referencedColumns: ["id_teacher"]
+          },
+          {
+            foreignKeyName: "kpi_grile_titular_teacher_fkey"
+            columns: ["titular_teacher"]
+            isOneToOne: false
+            referencedRelation: "profil_teacher"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kpi_grile_titular_teacher_fkey"
+            columns: ["titular_teacher"]
+            isOneToOne: false
+            referencedRelation: "raport_incasari"
+            referencedColumns: ["id_teacher"]
+          },
+          {
+            foreignKeyName: "kpi_grile_titular_teacher_fkey"
+            columns: ["titular_teacher"]
+            isOneToOne: false
+            referencedRelation: "restante_teacher_luna"
+            referencedColumns: ["id_teacher"]
+          },
+          {
+            foreignKeyName: "kpi_grile_titular_teacher_fkey"
+            columns: ["titular_teacher"]
+            isOneToOne: false
+            referencedRelation: "teacheri"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kpi_sabloane: {
+        Row: {
+          cota_manager: number
+          created: string
+          id: string
+          nota: string | null
+          nume: string
+          perioada: string
+          post: string
+          stare: string
+          updated: string
+          zile_min_evaluare: number
+        }
+        Insert: {
+          cota_manager?: number
+          created?: string
+          id?: string
+          nota?: string | null
+          nume: string
+          perioada?: string
+          post: string
+          stare?: string
+          updated?: string
+          zile_min_evaluare?: number
+        }
+        Update: {
+          cota_manager?: number
+          created?: string
+          id?: string
+          nota?: string | null
+          nume?: string
+          perioada?: string
+          post?: string
+          stare?: string
+          updated?: string
+          zile_min_evaluare?: number
+        }
+        Relationships: []
+      }
+      kpi_sablon_linii: {
+        Row: {
+          activ: boolean
+          are_poarta: boolean
+          comision_plafon: number | null
+          comision_procent_peste: number | null
+          comision_procent_standard: number | null
+          conditie_peste: string | null
+          conditie_standard: string | null
+          conditie_sub: string | null
+          eliminatoriu: boolean
+          id: string
+          kpi_id: string
+          luni_active: number[] | null
+          mod_calcul: string
+          ordine: number
+          parametri: Json
+          pondere: number
+          prag_peste: number | null
+          prag_standard: number | null
+          sablon_id: string
+          suma_peste: number | null
+          suma_standard: number | null
+          tip_prag: string
+        }
+        Insert: {
+          activ?: boolean
+          are_poarta?: boolean
+          comision_plafon?: number | null
+          comision_procent_peste?: number | null
+          comision_procent_standard?: number | null
+          conditie_peste?: string | null
+          conditie_standard?: string | null
+          conditie_sub?: string | null
+          eliminatoriu?: boolean
+          id?: string
+          kpi_id: string
+          luni_active?: number[] | null
+          mod_calcul?: string
+          ordine?: number
+          parametri?: Json
+          pondere?: number
+          prag_peste?: number | null
+          prag_standard?: number | null
+          sablon_id: string
+          suma_peste?: number | null
+          suma_standard?: number | null
+          tip_prag?: string
+        }
+        Update: {
+          activ?: boolean
+          are_poarta?: boolean
+          comision_plafon?: number | null
+          comision_procent_peste?: number | null
+          comision_procent_standard?: number | null
+          conditie_peste?: string | null
+          conditie_standard?: string | null
+          conditie_sub?: string | null
+          eliminatoriu?: boolean
+          id?: string
+          kpi_id?: string
+          luni_active?: number[] | null
+          mod_calcul?: string
+          ordine?: number
+          parametri?: Json
+          pondere?: number
+          prag_peste?: number | null
+          prag_standard?: number | null
+          sablon_id?: string
+          suma_peste?: number | null
+          suma_standard?: number | null
+          tip_prag?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kpi_sablon_linii_kpi_id_fkey"
+            columns: ["kpi_id"]
+            isOneToOne: false
+            referencedRelation: "kpi_definitii"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kpi_sablon_linii_sablon_id_fkey"
+            columns: ["sablon_id"]
+            isOneToOne: false
+            referencedRelation: "kpi_sabloane"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_contacte: {
         Row: {
           canal: Database["public"]["Enums"]["canal_contact"]
@@ -5091,6 +5875,30 @@ export type Database = {
             referencedColumns: ["id_enrollment"]
           },
         ]
+      }
+      motive_abandon: {
+        Row: {
+          activ: boolean
+          created: string
+          eticheta: string
+          id: string
+          ordine: number
+        }
+        Insert: {
+          activ?: boolean
+          created?: string
+          eticheta: string
+          id?: string
+          ordine?: number
+        }
+        Update: {
+          activ?: boolean
+          created?: string
+          eticheta?: string
+          id?: string
+          ordine?: number
+        }
+        Relationships: []
       }
       netopia_orders: {
         Row: {
@@ -7376,6 +8184,7 @@ export type Database = {
           id: string
           lead_id: string | null
           mesaj: string | null
+          programare: string | null
           status: string
           telefon: string | null
           tip: string
@@ -7386,6 +8195,7 @@ export type Database = {
           id?: string
           lead_id?: string | null
           mesaj?: string | null
+          programare?: string | null
           status?: string
           telefon?: string | null
           tip: string
@@ -7396,6 +8206,7 @@ export type Database = {
           id?: string
           lead_id?: string | null
           mesaj?: string | null
+          programare?: string | null
           status?: string
           telefon?: string | null
           tip?: string
@@ -7407,6 +8218,13 @@ export type Database = {
             columns: ["lead_id"]
             isOneToOne: false
             referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sms_logs_programare_fkey"
+            columns: ["programare"]
+            isOneToOne: false
+            referencedRelation: "programari_leads"
             referencedColumns: ["id"]
           },
         ]
@@ -9661,6 +10479,7 @@ export type Database = {
           marcati_exclient: number
           marcati_inactiv: number
           reactivati: number
+          umbre_curatate: number
         }[]
       }
       build_fifo_plan_membru: {
@@ -9753,6 +10572,18 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      conversii_ads_de_trimis: {
+        Args: { p_from?: string; p_limit?: number }
+        Returns: {
+          campanie: string
+          data_conversie: string
+          email: string
+          lead_id: string
+          platforma: string
+          telefon: string
+          valoare: number
+        }[]
+      }
       converteste_abonament_in_sedinte: {
         Args: { p_abonament: string; p_motiv?: string }
         Returns: Json
@@ -9816,6 +10647,34 @@ export type Database = {
         Args: { p_force?: boolean; p_id: string }
         Returns: undefined
       }
+      detecteaza_absente_21z: {
+        Args: { p_min_sedinte?: number; p_ref_date?: string; p_zile?: number }
+        Returns: {
+          client: string
+          curs: string
+          locatie: string
+          sedinte_fereastra: number
+          ultima_prezenta: string
+          zile_tacere: number
+        }[]
+      }
+      detecteaza_absente_21z_interval: {
+        Args: {
+          p_de_la: string
+          p_min_sedinte?: number
+          p_pana_la: string
+          p_zile?: number
+        }
+        Returns: {
+          client: string
+          curs: string
+          data_intrare: string
+          locatie: string
+          sedinte_fereastra: number
+          ultima_prezenta: string
+          zile_tacere: number
+        }[]
+      }
       duplica_program: {
         Args: { p_nume?: string; p_program: string }
         Returns: string
@@ -9825,7 +10684,7 @@ export type Database = {
         Returns: number
       }
       enqueue_confirmare_programare: {
-        Args: { p_lead: string }
+        Args: { p_lead: string; p_programare?: string }
         Returns: undefined
       }
       enqueue_confirmare_review: {
@@ -9851,7 +10710,31 @@ export type Database = {
         Args: { p_enrollment: string; p_suma: number }
         Returns: Json
       }
+      fgo_line_for_eveniment: {
+        Args: { p_bucati?: number; p_eveniment: string; p_suma: number }
+        Returns: Json
+      }
       genereaza_runde_sezon: { Args: { p_sezon: string }; Returns: number }
+      get_absente_21z_worklist: {
+        Args: { p_doar_necontactate?: boolean; p_locatii?: string[] }
+        Returns: {
+          client_id: string
+          client_nume: string
+          contactat_la: string
+          curs_nume: string
+          data_intrare: string
+          id: string
+          locatie_nume: string
+          motiv: string
+          ore_de_la_intrare: number
+          pas_urmator: string
+          reactivat: boolean
+          reactivat_la: string
+          telefon: string
+          ultima_prezenta: string
+          zile_tacere: number
+        }[]
+      }
       get_absente_consecutive: {
         Args: { p_locatie?: string; p_saptamani?: number }
         Returns: {
@@ -10212,6 +11095,23 @@ export type Database = {
           teacher_nume: string
         }[]
       }
+      get_grile_kpi: {
+        Args: never
+        Returns: {
+          id: string
+          locatii: string
+          nr_linii: number
+          perioada: string
+          pondere_totala: number
+          post: string
+          stare: string
+          sume_lipsa: number
+          tip_titular: string
+          titular_nume: string
+          valabil_de_la: string
+          valabil_pana_la: string
+        }[]
+      }
       get_grupe_client: {
         Args: { p_client: string }
         Returns: {
@@ -10488,6 +11388,7 @@ export type Database = {
           email: string
           factura_pe_firma: boolean
           familie_id: string
+          fara_poze: boolean
           firma_adresa: string
           firma_banca: string
           firma_cif: string
@@ -10687,6 +11588,7 @@ export type Database = {
           rest_total: number
           status_client: string
           suspendat: boolean
+          suspendat_automat: boolean
           telefon: string
           ultim_apel_at: string
           ultim_apel_rezultat: string
@@ -10914,6 +11816,18 @@ export type Database = {
           prezenti: number
         }[]
       }
+      get_titulari_kpi: {
+        Args: { p_include_teacheri?: boolean }
+        Returns: {
+          are_grila: boolean
+          email: string
+          locatie_id: string
+          nume_afisat: string
+          rol: string
+          tip: string
+          titular_id: string
+        }[]
+      }
       get_trend_prezente: {
         Args: {
           p_locatie?: string
@@ -11008,6 +11922,52 @@ export type Database = {
       is_owner: { Args: never; Returns: boolean }
       is_parinte: { Args: never; Returns: boolean }
       is_teacher: { Args: never; Returns: boolean }
+      job_absente_21z: {
+        Args: {
+          p_dedup_zile?: number
+          p_fereastra?: number
+          p_ref_date?: string
+        }
+        Returns: Json
+      }
+      kpi_atribuie_grila: {
+        Args: {
+          p_locatii: string[]
+          p_sablon: string
+          p_titular_id: string
+          p_titular_tip: string
+          p_valabil_de_la: string
+        }
+        Returns: string
+      }
+      kpi_grila_activeaza: { Args: { p_grila: string }; Returns: Json }
+      kpi_grila_seteaza_linii: {
+        Args: { p_grila: string; p_linii: Json }
+        Returns: number
+      }
+      kpi_k1: {
+        Args: {
+          p_anul: number
+          p_locatii: string[]
+          p_luna: number
+          p_parametri?: Json
+        }
+        Returns: Json
+      }
+      kpi_k2: {
+        Args: {
+          p_anul: number
+          p_locatii: string[]
+          p_luna: number
+          p_parametri?: Json
+        }
+        Returns: Json
+      }
+      kpi_parametri_forma_valida: { Args: { p: Json }; Returns: boolean }
+      kpi_sablon_seteaza_linii: {
+        Args: { p_linii: Json; p_sablon: string }
+        Returns: number
+      }
       list_bilete_evenimente: {
         Args: never
         Returns: {
@@ -11078,6 +12038,44 @@ export type Database = {
         Args: { p_eveniment: string }
         Returns: number
       }
+      marcheaza_contact_absenta: {
+        Args: {
+          p_absenta_id: string
+          p_canal: Database["public"]["Enums"]["canal_contact"]
+          p_motiv_id?: string
+          p_motiv_liber?: string
+          p_observatii?: string
+          p_pas_urmator?: string
+          p_rezultat: Database["public"]["Enums"]["rezultat_contact"]
+        }
+        Returns: {
+          client: string
+          contact_id: string | null
+          contactat_de: string | null
+          contactat_la: string | null
+          created: string
+          curs: string
+          data_intrare: string
+          evaluat_la: string | null
+          id: string
+          locatie: string | null
+          motiv_declarat: string | null
+          motiv_liber: string | null
+          pas_urmator: string | null
+          reactivat: boolean | null
+          reactivat_la: string | null
+          sedinte_fereastra: number
+          ultima_prezenta: string | null
+          updated: string
+          zile_tacere: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "absente_21z"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       marcheaza_prezenta_client_demo: {
         Args: {
           p_client: string
@@ -11132,7 +12130,21 @@ export type Database = {
           tip: string
         }[]
       }
+      muta_inrolare_curs: {
+        Args: {
+          p_aplica_tarif_nou?: boolean
+          p_curs_nou: string
+          p_enrollment: string
+          p_motiv: string
+          p_simulare?: boolean
+        }
+        Returns: Json
+      }
       my_teacher_id: { Args: never; Returns: string }
+      notifica_demo_class_completa: {
+        Args: { p_eveniment: string }
+        Returns: number
+      }
       notifications_mark_all_read: { Args: never; Returns: number }
       notifications_resolve: {
         Args: { p_id: string; p_raspuns?: string }
@@ -11485,6 +12497,18 @@ export type Database = {
           client_id: string
         }[]
       }
+      salveaza_definitie_kpi: {
+        Args: {
+          p_cheie: string
+          p_denumire: string
+          p_descriere?: string
+          p_directie?: string
+          p_id: string
+          p_tip_valoare?: string
+          p_unitate?: string
+        }
+        Returns: string
+      }
       scadenta_rata: {
         Args: { p_data_incepere: string; p_sezon: string }
         Returns: string
@@ -11541,6 +12565,17 @@ export type Database = {
           p_sesiune?: string
         }
         Returns: undefined
+      }
+      suspenda_datornici_50_zile: {
+        Args: never
+        Returns: {
+          client_id: string
+          cursuri: string
+          nume: string
+          prenume: string
+          rest: number
+          zile_depasire: number
+        }[]
       }
       teacher_can_access_curs: { Args: { p_curs: string }; Returns: boolean }
       trimite_aprobate: { Args: { p_sesiune: string }; Returns: number }
@@ -11767,12 +12802,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -11796,11 +12831,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -11821,11 +12856,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -11846,11 +12881,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -11863,11 +12898,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }

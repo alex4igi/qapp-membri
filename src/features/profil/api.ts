@@ -15,7 +15,10 @@ export type ProfilFamilie = {
   email: string | null
   metodaComunicare: string | null
   optOutMarketing: boolean
-  dorestePoze: boolean
+  // Tri-stare: true = acord, false = refuz, null = părintele n-a răspuns încă.
+  // Bifa veche nu putea distinge „nebifat" de „a refuzat", iar refuzul aprinde
+  // iconița „fără poze" din rosterul grupei — deci trebuie să fie un răspuns dat.
+  dorestePoze: boolean | null
   facturaPeFirma: boolean
   firmaDenumire: string | null
   firmaCif: string | null
@@ -40,7 +43,7 @@ export async function getProfilFamilie(): Promise<ProfilFamilie | null> {
     email: r.email,
     metodaComunicare: r.metoda_comunicare,
     optOutMarketing: r.opt_out_marketing ?? false,
-    dorestePoze: r.doreste_sa_apara_in_poze ?? false,
+    dorestePoze: r.fara_poze ? false : r.doreste_sa_apara_in_poze ? true : null,
     facturaPeFirma: r.factura_pe_firma ?? false,
     firmaDenumire: r.firma_denumire,
     firmaCif: r.firma_cif,
@@ -64,7 +67,8 @@ export async function updateProfilFamilie(p: ProfilFamilie): Promise<void> {
     p_email: u(p.email),
     p_metoda_comunicare: u(p.metodaComunicare),
     p_opt_out_marketing: p.optOutMarketing,
-    p_doreste_poze: p.dorestePoze,
+    // null = neatins → RPC-ul lasă răspunsul anterior neschimbat.
+    p_doreste_poze: p.dorestePoze ?? undefined,
     p_factura_pe_firma: p.facturaPeFirma,
     p_firma_denumire: u(p.firmaDenumire),
     p_firma_cif: u(p.firmaCif),

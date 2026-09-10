@@ -10871,6 +10871,14 @@ export type Database = {
           locatie_nume: string
         }[]
       }
+      get_clienti_inscrisi_sezon: {
+        Args: never
+        Returns: {
+          inscrisi: number
+          locatie_id: string
+          locatie_nume: string
+        }[]
+      }
       get_clienti_pending_incasari: {
         Args: never
         Returns: {
@@ -12029,6 +12037,7 @@ export type Database = {
           client_nume: string
           curs_nume: string
           curs_tinta_id: string
+          email: string
           familie_id: string
           familie_nume: string
           telefon: string
@@ -12386,7 +12395,7 @@ export type Database = {
       }
       proceseaza_cozi_sms: { Args: never; Returns: undefined }
       proceseaza_sesiuni_evaluare: { Args: never; Returns: Json }
-      prune_expired_leads: { Args: never; Returns: number }
+      prune_expired_leads: { Args: never; Returns: Json }
       recalculate_pool_discount: {
         Args: { p_client: string }
         Returns: undefined

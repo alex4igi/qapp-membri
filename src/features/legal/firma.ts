@@ -22,4 +22,4 @@ export const FIRMA = {
 
 // Data ultimei revizuiri a TEXTELOR LEGALE (termeni/confidențialitate/retur etc.) —
 // NU a tarifelor (acelea vin live din DB). Se actualizează manual la modificarea textelor.
-export const ULTIMA_ACTUALIZARE = '17 iunie 2026'
+export const ULTIMA_ACTUALIZARE = '12 septembrie 2026'

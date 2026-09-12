@@ -8,9 +8,17 @@ import { cn } from '@/lib/cn'
 //   color  = culoarea secțiunii unde stă logo-ul (footer alb) -> pachetul alege varianta neagră
 //   secret = punctul de vânzare Quasar
 // Boxul fixat (h-5 w-28) păstrează raportul siglei orizontale (~5.6:1), fără distorsiune.
-export function PaymentBadges({ className }: { className?: string }) {
+// Sigla se folosește NEMODIFICATĂ — pe fundal închis se pune sub ea o plăcuță albă
+// (vezi `onDark`), nu se schimbă culorile siglei.
+export function PaymentBadges({ className, onDark }: { className?: string; onDark?: boolean }) {
   return (
-    <span className={cn('inline-flex items-center', className)}>
+    <span
+      className={cn(
+        'inline-flex items-center',
+        onDark && 'rounded-md bg-white px-2.5 py-1.5',
+        className,
+      )}
+    >
       <span className="block h-5 w-28">
         <NTPLogo color="#ffffff" version="orizontal" secret="166013" />
       </span>

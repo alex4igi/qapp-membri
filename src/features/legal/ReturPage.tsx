@@ -17,8 +17,9 @@ export function ReturPage() {
         Conform OUG nr. 34/2014, consumatorul are dreptul de a se retrage dintr-un contract încheiat
         la distanță în termen de 14 zile, fără justificare. Întrucât oferim servicii, dacă soliciți
         expres începerea prestării serviciului înainte de expirarea celor 14 zile, vei datora
-        contravaloarea ședințelor deja efectuate până la momentul retragerii. Dacă serviciul nu a
-        început, rambursarea este integrală.
+        contravaloarea ședințelor deja efectuate până la momentul retragerii. Dacă prestarea
+        serviciului nu a început, rambursarea este integrală; se consideră că prestarea nu a început
+        atunci când nu este înregistrată nicio prezență a membrului în acea lună.
       </P>
 
       <H2>Anularea unui abonament</H2>

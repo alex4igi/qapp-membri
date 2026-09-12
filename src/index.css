@@ -123,3 +123,9 @@ body {
     margin: 1.5cm;
   }
 }
+
+/* Logo pe două variante — vezi components/Logo.tsx. Implicit (fără data-theme,
+   la primul paint) arată varianta pentru fundal deschis, ca tema light. */
+.logo-on-dark { display: none; }
+[data-theme='dark'] .logo-on-dark { display: block; }
+[data-theme='dark'] .logo-on-light { display: none; }

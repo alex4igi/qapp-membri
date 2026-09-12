@@ -35,7 +35,7 @@ export function LegalLayout() {
         <div className="bg-quasar-black text-white">
           <div className="mx-auto flex h-16 max-w-5xl items-center justify-between gap-3 px-4 sm:h-20">
             <a href={FIRMA.website} aria-label="Quasar Dance">
-              <Logo className="h-9 w-auto sm:h-11" />
+              <Logo className="h-9 w-auto sm:h-11" on="dark" />
             </a>
 
             <div className="flex items-center gap-2 sm:gap-3">
@@ -111,7 +111,7 @@ export function LegalLayout() {
       <footer className="border-t border-line bg-quasar-black text-white/70">
         <div className="mx-auto max-w-5xl space-y-3 px-4 py-8 text-xs">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <Logo className="h-10 w-auto" />
+            <Logo className="h-10 w-auto" on="dark" />
             <Link
               to="/login"
               className="rounded-full border border-white/25 px-4 py-2 text-sm font-semibold text-white transition hover:border-quasar-yellow hover:text-quasar-yellow"

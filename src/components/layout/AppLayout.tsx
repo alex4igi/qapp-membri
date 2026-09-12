@@ -110,11 +110,9 @@ function NavList() {
 function SidebarContent() {
   return (
     <>
-      <div className="flex flex-col items-start gap-2 px-2 pt-1">
-        <span className="inline-flex items-center rounded-[13px] bg-[#15120E] px-3 py-2.5">
-          <Logo className="h-[26px] w-auto" />
-        </span>
-        <div className="pl-0.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-side-sub">
+      <div className="flex flex-col items-start gap-1.5 px-1 pt-1">
+        <Logo className="h-11 w-auto xl:h-12" />
+        <div className="pl-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-side-sub">
           Portal membri
         </div>
       </div>
@@ -211,9 +209,7 @@ function MobileHeader() {
     <header className="flex h-16 flex-none items-center justify-between gap-3 border-b border-line bg-bar px-4 lg:hidden">
       {isTab ? (
         <>
-          <span className="inline-flex items-center rounded-[10px] bg-[#15120E] px-2.5 py-1.5">
-            <Logo className="h-4 w-auto" />
-          </span>
+          <Logo className="h-7 w-auto" />
           <div className="flex items-center gap-2">
             <ThemeToggle />
             <NotificationBell />

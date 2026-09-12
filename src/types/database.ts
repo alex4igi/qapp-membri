@@ -11186,6 +11186,21 @@ export type Database = {
         Args: { p_lead: string }
         Returns: undefined
       }
+      enrollments_sezon_gap_report: {
+        Args: never
+        Returns: {
+          client_nume: string
+          curs_nume: string
+          data_final: string
+          data_incepere: string
+          enrollment_id: string
+          rest: number
+          sezon_final: string
+          sezon_nume: string
+          sezon_start: string
+          suma: number
+        }[]
+      }
       evaluare_in_locatia_mea: { Args: { p_curs: string }; Returns: boolean }
       exclude_cursant_evaluare: {
         Args: {
@@ -13213,6 +13228,7 @@ export type Database = {
         | "Acrobatică"
         | "Zumba"
         | "Nu știu încă"
+        | "Teatru"
       interes_programare: "Dans" | "Gimnastica"
       lead_action_type:
         | "created"
@@ -13480,6 +13496,7 @@ export const Constants = {
         "Acrobatică",
         "Zumba",
         "Nu știu încă",
+        "Teatru",
       ],
       interes_programare: ["Dans", "Gimnastica"],
       lead_action_type: [

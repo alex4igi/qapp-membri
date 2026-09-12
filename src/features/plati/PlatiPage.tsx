@@ -10,6 +10,7 @@ import {
   getSoldFamilie,
   getPlatiClient,
   getDatoriiClient,
+  getPlataIntegrala,
   createNetopiaPayment,
   type PlataRow,
 } from './api/payments'
@@ -74,6 +75,12 @@ export function PlatiPage() {
   const datorii = useQuery({
     queryKey: ['datorii', activeMember?.clientId],
     queryFn: () => getDatoriiClient(activeMember!.clientId),
+    enabled: !!activeMember,
+  })
+  // Oferta „tot sezonul −5%" (contract, Anexa 1). Eligibilitatea o decide DB-ul.
+  const integrala = useQuery({
+    queryKey: ['plata-integrala', activeMember?.clientId],
+    queryFn: () => getPlataIntegrala(activeMember!.clientId),
     enabled: !!activeMember,
   })
   // Datorii one-off selectate (Bilet/Merch/Taxă) — fiecare se plătește INTEGRAL.
@@ -155,6 +162,14 @@ export function PlatiPage() {
     },
   })
 
+  const payIntegral = useMutation({
+    mutationFn: () =>
+      createNetopiaPayment({ clientId: activeMember!.clientId, platesteIntegral: true }),
+    onSuccess: (res) => {
+      window.location.href = res.redirectUrl
+    },
+  })
+
   if (loading) return <Spinner />
 
   const totalFamilie = (sold.data ?? []).reduce((a, r) => a + r.restanta, 0)
@@ -168,11 +183,9 @@ export function PlatiPage() {
     if (!g) { g = { sezon: key, rows: [] }; groups.push(g) }
     g.rows.push(r)
   }
-  // Afișare recent→vechi (grupuri și rânduri). Doar prezentare: `rows`/`unpaid`
-  // rămân vechi→nou — contractul FIFO al selecției de plată.
-  const displayGroups = groups
-    .map((g) => ({ sezon: g.sezon, rows: [...g.rows].reverse() }))
-    .reverse()
+  // Sezoanele se afișează recent→vechi, dar lunile DIN sezon rămân cronologice
+  // (septembrie sus → iunie jos), ca în contract și ca ordinea FIFO de plată.
+  const displayGroups = [...groups].reverse()
   const defaultOpenSezon = displayGroups[0]?.sezon
   const isGroupOpen = (sezon: string) =>
     openSezoane ? openSezoane.has(sezon) : sezon === defaultOpenSezon
@@ -231,6 +244,50 @@ export function PlatiPage() {
           </ul>
         )}
       </section>
+
+      {/* Oferta din contract: tot sezonul dintr-o dată, −5% */}
+      {integrala.data?.eligibil && (
+        <section className="rounded-2xl border border-acc bg-surf2 p-5 shadow-card">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="text-base font-extrabold tracking-tight text-ink">
+                Plătește tot sezonul dintr-o dată
+              </p>
+              <p className="mt-0.5 text-sm text-sub">
+                {integrala.data.luni} rate
+                {integrala.data.sezonNume ? ` · ${integrala.data.sezonNume}` : ''}
+              </p>
+            </div>
+            <span className="rounded-full bg-acc px-3 py-1 text-sm font-extrabold text-acc-ink">−5%</span>
+          </div>
+          <div className="mt-3 flex flex-wrap items-baseline gap-2">
+            <span className="text-sm text-sub line-through">{formatRON(integrala.data.totalCurent)}</span>
+            <span className="text-2xl font-extrabold tracking-tight text-ink">
+              {formatRON(integrala.data.totalPlata)}
+            </span>
+            <span className="text-sm font-semibold text-ok">
+              economisești {formatRON(integrala.data.discount)}
+            </span>
+          </div>
+          <Button
+            onClick={() => payIntegral.mutate()}
+            disabled={payIntegral.isPending}
+            className="mt-3 w-full"
+          >
+            {payIntegral.isPending
+              ? 'Se inițiază…'
+              : `Plătește integral ${formatRON(integrala.data.totalPlata)}`}
+          </Button>
+          {payIntegral.isError && (
+            <p className="mt-1 text-xs text-danger">{(payIntegral.error as Error).message}</p>
+          )}
+          <p className="mt-2 text-xs text-sub">
+            Conform contractului, reducerea de 5% se acordă pentru achitarea integrală a sezonului
+            {integrala.data.scadenta ? `, până la ${formatData(integrala.data.scadenta)}` : ''}.
+            Reducerile nu se cumulează: ratele care au deja reducerea de familie rămân la ea.
+          </p>
+        </section>
+      )}
 
       <ReduceriSection />
 

@@ -95,6 +95,36 @@ export async function getDatoriiClient(clientId: string): Promise<DatorieRow[]> 
   }))
 }
 
+// Oferta de plată integrală a sezonului (−5%, Anexa 1 din contract). Eligibilitatea și
+// prețurile vin din DB (plan_plata_integrala_sezon) — frontendul nu calculează nimic.
+export type PlataIntegrala =
+  | { eligibil: false; motiv: string }
+  | {
+      eligibil: true
+      sezonNume: string | null
+      scadenta: string | null
+      luni: number
+      totalCurent: number
+      totalPlata: number
+      discount: number
+    }
+
+export async function getPlataIntegrala(clientId: string): Promise<PlataIntegrala> {
+  const { data, error } = await supabase.rpc('plan_plata_integrala_sezon', { p_client: clientId })
+  if (error) throw error
+  const r = data as Record<string, unknown> | null
+  if (!r?.eligibil) return { eligibil: false, motiv: String(r?.motiv ?? '') }
+  return {
+    eligibil: true,
+    sezonNume: (r.sezon_nume as string) ?? null,
+    scadenta: (r.scadenta as string) ?? null,
+    luni: Number(r.luni ?? 0),
+    totalCurent: Number(r.total_curent ?? 0),
+    totalPlata: Number(r.total_plata ?? 0),
+    discount: Number(r.discount ?? 0),
+  }
+}
+
 export type CreatePaymentResult = { redirectUrl: string; orderId: string }
 
 // Inițiază plata online. Suma e recalculată server-side (FIFO) — trimitem clientId și,
@@ -106,6 +136,8 @@ export async function createNetopiaPayment(params: {
   // datorii one-off selectate (plată integrală); includeInrolari=false => doar datorii.
   datorii?: string[]
   includeInrolari?: boolean
+  // plata integrală a sezonului cu −5%: ignoră selecția de luni, suma vine din DB.
+  platesteIntegral?: boolean
 }): Promise<CreatePaymentResult> {
   const { data, error } = await supabase.functions.invoke('netopia-create-payment', {
     body: {
@@ -113,6 +145,7 @@ export async function createNetopiaPayment(params: {
       panaLa: params.panaLa,
       datorii: params.datorii,
       includeInrolari: params.includeInrolari,
+      platesteIntegral: params.platesteIntegral,
     },
   })
   if (error) throw await edgeFunctionError(error)

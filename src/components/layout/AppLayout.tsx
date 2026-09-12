@@ -109,13 +109,12 @@ function NavList() {
 function SidebarContent() {
   return (
     <>
-      <div className="flex items-center gap-3 px-2 pt-1">
-        <span className="inline-flex items-center rounded-[11px] bg-[#15120E] px-2.5 py-2">
-          <Logo className="h-[18px] w-auto" />
+      <div className="flex flex-col items-start gap-2 px-2 pt-1">
+        <span className="inline-flex items-center rounded-[13px] bg-[#15120E] px-3 py-2.5">
+          <Logo className="h-[26px] w-auto" />
         </span>
-        <div>
-          <div className="text-sm font-extrabold tracking-tight text-side-ink">Quasar Dance</div>
-          <div className="text-[11px] font-semibold text-side-sub">Portal membri</div>
+        <div className="pl-0.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-side-sub">
+          Portal membri
         </div>
       </div>
       <div className="mt-6">

@@ -6,6 +6,7 @@ import { useTheme } from '@/hooks/useTheme'
 import { ActiveMemberProvider, useActiveMember } from '@/hooks/useActiveMember'
 import { PaymentBadges } from '@/components/PaymentBadges'
 import { NotificationBell } from '@/features/notificari/NotificationBell'
+import { FeedbackFab } from '@/features/feedback/FeedbackFab'
 import { Logo } from '@/components/Logo'
 import { FIRMA } from '@/features/legal/firma'
 import { getSoldFamilie } from '@/features/plati/api/payments'
@@ -296,6 +297,8 @@ export function AppLayout() {
           {/* Bottom-nav — doar pe mobil <1024px */}
           <BottomNav />
         </div>
+        {/* Feedback despre portal — disponibil pe toate ecranele */}
+        <FeedbackFab />
       </div>
     </ActiveMemberProvider>
   )

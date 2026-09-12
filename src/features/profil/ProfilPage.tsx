@@ -5,6 +5,7 @@ import { useActiveMember } from '@/hooks/useActiveMember'
 import { Button, Spinner } from '@/components/ui'
 import { formatData } from '@/lib/format'
 import { DocumenteSection } from '@/features/documente/DocumenteSection'
+import { FeedbackModal } from '@/features/feedback/FeedbackModal'
 import {
   MARIMI_TRICOU,
   getProfilFamilie,
@@ -369,6 +370,23 @@ function FisaMembru() {
   )
 }
 
+function SpuneNePararea() {
+  const [open, setOpen] = useState(false)
+  return (
+    <div className="rounded-2xl border border-line bg-surf p-4 shadow-card">
+      <h2 className="text-base font-extrabold text-ink">Ai găsit o problemă?</h2>
+      <p className="mt-1 text-sm text-sub">
+        Portalul e nou. Scrie-ne ce nu merge sau ce ți-ar plăcea să găsești aici — ajunge
+        direct la echipa care se ocupă de el.
+      </p>
+      <Button className="mt-3" variant="secondary" onClick={() => setOpen(true)}>
+        Trimite-ne o părere
+      </Button>
+      <FeedbackModal open={open} onClose={() => setOpen(false)} />
+    </div>
+  )
+}
+
 function Logout() {
   const { signOut } = useAuth()
   return (
@@ -388,6 +406,7 @@ export function ProfilPage() {
       <FisaMembru />
       <DocumenteSection />
       <SchimbaParola />
+      <SpuneNePararea />
       <Logout />
     </div>
   )

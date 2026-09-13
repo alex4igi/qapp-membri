@@ -7918,6 +7918,99 @@ export type Database = {
           },
         ]
       }
+      reinscrieri_semnate: {
+        Row: {
+          client: string | null
+          created: string
+          dublura_nume: string | null
+          grupe_excel: string[]
+          id: string
+          locatie_excel: string
+          nume_excel: string
+          potrivire: string
+          sezon_id: string
+        }
+        Insert: {
+          client?: string | null
+          created?: string
+          dublura_nume?: string | null
+          grupe_excel?: string[]
+          id?: string
+          locatie_excel: string
+          nume_excel: string
+          potrivire?: string
+          sezon_id: string
+        }
+        Update: {
+          client?: string | null
+          created?: string
+          dublura_nume?: string | null
+          grupe_excel?: string[]
+          id?: string
+          locatie_excel?: string
+          nume_excel?: string
+          potrivire?: string
+          sezon_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reinscrieri_semnate_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "clienti"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reinscrieri_semnate_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "inrolari_clienti"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reinscrieri_semnate_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "lista_clienti"
+            referencedColumns: ["id_client"]
+          },
+          {
+            foreignKeyName: "reinscrieri_semnate_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "plati_inrolari"
+            referencedColumns: ["id_cursant"]
+          },
+          {
+            foreignKeyName: "reinscrieri_semnate_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "profil_client"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reinscrieri_semnate_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "raport_financiar"
+            referencedColumns: ["id_cursant"]
+          },
+          {
+            foreignKeyName: "reinscrieri_semnate_client_fkey"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "raport_incasari"
+            referencedColumns: ["id_cursant"]
+          },
+          {
+            foreignKeyName: "reinscrieri_semnate_sezon_id_fkey"
+            columns: ["sezon_id"]
+            isOneToOne: false
+            referencedRelation: "sezoane"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       salarii_teacher: {
         Row: {
           anul: number
@@ -10914,6 +11007,7 @@ export type Database = {
         Args: { p_curs: string; p_data: string }
         Returns: number
       }
+      _plan_plata_integrala: { Args: { p_client: string }; Returns: Json }
       _sezon_curs_inchis: { Args: { p_curs: string }; Returns: boolean }
       _try_activate_gate: { Args: { p_gate_id: string }; Returns: undefined }
       activate_eligible_sezoane: { Args: never; Returns: number }
@@ -11170,6 +11264,7 @@ export type Database = {
         }
         Returns: Json
       }
+      cron_call_headers: { Args: never; Returns: Json }
       current_client: { Args: never; Returns: string }
       current_familie: { Args: never; Returns: string }
       current_teacher_id: { Args: never; Returns: string }
@@ -12355,6 +12450,87 @@ export type Database = {
           restanta: number
         }[]
       }
+      get_start_sezon_nerevenit: {
+        Args: { p_sezon: string }
+        Returns: {
+          client_id: string
+          grupe: string
+          locatii: string
+          nume: string
+          prenume: string
+          semnase: boolean
+          status: string
+          suma_sezon: number
+          telefon: string
+          ultima_luna: string
+        }[]
+      }
+      get_start_sezon_noi: {
+        Args: { p_sezon: string }
+        Returns: {
+          client_id: string
+          cursuri: string
+          fisa_creata: string
+          nume: string
+          prenume: string
+          telefon: string
+        }[]
+      }
+      get_start_sezon_reinscrieri: {
+        Args: { p_sezon: string }
+        Returns: {
+          client_id: string
+          cursuri_noi: string
+          dublura_nume: string
+          grupe_excel: string
+          inrolat: boolean
+          locatie_excel: string
+          nume: string
+          nume_excel: string
+          potrivire: string
+          status: string
+        }[]
+      }
+      get_start_sezon_retentie: {
+        Args: { p_sezon: string }
+        Returns: {
+          curs_id: string
+          curs_nume: string
+          locatie_nume: string
+          reveniti: number
+          total: number
+        }[]
+      }
+      get_start_sezon_roster: {
+        Args: { p_sezon: string }
+        Returns: {
+          capacitate: number
+          cat_n: number
+          cat_r: number
+          cat_s: number
+          cat_v: number
+          curs_id: string
+          curs_nume: string
+          facultativ: boolean
+          inscrisi: number
+          locatie_nume: string
+          teacher_nume: string
+        }[]
+      }
+      get_start_sezon_sumar: {
+        Args: { p_sezon: string }
+        Returns: {
+          clienti_noi: number
+          grupe_active: number
+          grupe_total: number
+          inrolari: number
+          pool_revenit: number
+          pool_total: number
+          reinscrieri: number
+          semnate_lipsa: number
+          semnate_total: number
+        }[]
+      }
       get_statistica_prezente_achitare: {
         Args: {
           p_curs?: string
@@ -12451,6 +12627,15 @@ export type Database = {
       }
       hold_loc_open: {
         Args: { p_client: string; p_sesiune: string }
+        Returns: Json
+      }
+      incaseaza_plata_integrala_sezon: {
+        Args: {
+          p_client: string
+          p_data?: string
+          p_locatie?: string
+          p_tenders: Json
+        }
         Returns: Json
       }
       inchide_sesiune: { Args: { p_sesiune: string }; Returns: Json }
@@ -12745,6 +12930,7 @@ export type Database = {
       }
       ore_pe_zi_valid: { Args: { m: Json }; Returns: boolean }
       plan_plata_integrala_sezon: { Args: { p_client: string }; Returns: Json }
+      plan_plata_integrala_staff: { Args: { p_client: string }; Returns: Json }
       poate_evalua_cursul: { Args: { p_curs: string }; Returns: boolean }
       pontaj_aproba_luna: {
         Args: { p_luna: string; p_nota?: string; p_user_id: string }

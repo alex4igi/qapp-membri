@@ -1011,6 +1011,7 @@ export type Database = {
           opt_out_motiv: string | null
           participari_concurs: string[]
           prenume: string | null
+          reprezinta_familia: boolean
           sexul: Database["public"]["Enums"]["sex"] | null
           status: Database["public"]["Enums"]["status_client"] | null
           suspendat_datorii: boolean
@@ -1045,6 +1046,7 @@ export type Database = {
           opt_out_motiv?: string | null
           participari_concurs?: string[]
           prenume?: string | null
+          reprezinta_familia?: boolean
           sexul?: Database["public"]["Enums"]["sex"] | null
           status?: Database["public"]["Enums"]["status_client"] | null
           suspendat_datorii?: boolean
@@ -1079,6 +1081,7 @@ export type Database = {
           opt_out_motiv?: string | null
           participari_concurs?: string[]
           prenume?: string | null
+          reprezinta_familia?: boolean
           sexul?: Database["public"]["Enums"]["sex"] | null
           status?: Database["public"]["Enums"]["status_client"] | null
           suspendat_datorii?: boolean
@@ -1419,6 +1422,35 @@ export type Database = {
             columns: ["sezon"]
             isOneToOne: false
             referencedRelation: "sezoane"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contract_tokens: {
+        Row: {
+          contract_id: string
+          created: string
+          token: string | null
+          token_hash: string
+        }
+        Insert: {
+          contract_id: string
+          created?: string
+          token?: string | null
+          token_hash: string
+        }
+        Update: {
+          contract_id?: string
+          created?: string
+          token?: string | null
+          token_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contract_tokens_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracte"
             referencedColumns: ["id"]
           },
         ]
@@ -2122,6 +2154,116 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "teacheri"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      cursuri_suspendari: {
+        Row: {
+          curs: string
+          din_luna: string
+          id: string
+          motiv: string
+          motiv_reactivare: string | null
+          pana_luna: string | null
+          reactivat_de: string | null
+          reactivat_la: string | null
+          suspendat_de: string | null
+          suspendat_la: string
+        }
+        Insert: {
+          curs: string
+          din_luna: string
+          id?: string
+          motiv: string
+          motiv_reactivare?: string | null
+          pana_luna?: string | null
+          reactivat_de?: string | null
+          reactivat_la?: string | null
+          suspendat_de?: string | null
+          suspendat_la?: string
+        }
+        Update: {
+          curs?: string
+          din_luna?: string
+          id?: string
+          motiv?: string
+          motiv_reactivare?: string | null
+          pana_luna?: string | null
+          reactivat_de?: string | null
+          reactivat_la?: string | null
+          suspendat_de?: string | null
+          suspendat_la?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cursuri_suspendari_curs_fkey"
+            columns: ["curs"]
+            isOneToOne: false
+            referencedRelation: "cursuri"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cursuri_suspendari_curs_fkey"
+            columns: ["curs"]
+            isOneToOne: false
+            referencedRelation: "incasari_curs_luna"
+            referencedColumns: ["id_curs"]
+          },
+          {
+            foreignKeyName: "cursuri_suspendari_curs_fkey"
+            columns: ["curs"]
+            isOneToOne: false
+            referencedRelation: "lista_clienti"
+            referencedColumns: ["id_curs"]
+          },
+          {
+            foreignKeyName: "cursuri_suspendari_curs_fkey"
+            columns: ["curs"]
+            isOneToOne: false
+            referencedRelation: "lista_cursuri"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cursuri_suspendari_curs_fkey"
+            columns: ["curs"]
+            isOneToOne: false
+            referencedRelation: "plati_inrolari"
+            referencedColumns: ["id_curs"]
+          },
+          {
+            foreignKeyName: "cursuri_suspendari_curs_fkey"
+            columns: ["curs"]
+            isOneToOne: false
+            referencedRelation: "plati_inrolari_toate"
+            referencedColumns: ["id_curs"]
+          },
+          {
+            foreignKeyName: "cursuri_suspendari_curs_fkey"
+            columns: ["curs"]
+            isOneToOne: false
+            referencedRelation: "raport_financiar"
+            referencedColumns: ["id_curs"]
+          },
+          {
+            foreignKeyName: "cursuri_suspendari_curs_fkey"
+            columns: ["curs"]
+            isOneToOne: false
+            referencedRelation: "raport_incasari"
+            referencedColumns: ["id_curs"]
+          },
+          {
+            foreignKeyName: "cursuri_suspendari_curs_fkey"
+            columns: ["curs"]
+            isOneToOne: false
+            referencedRelation: "restante_curs_luna"
+            referencedColumns: ["id_curs"]
+          },
+          {
+            foreignKeyName: "cursuri_suspendari_curs_fkey"
+            columns: ["curs"]
+            isOneToOne: false
+            referencedRelation: "teacher_curs_stats"
+            referencedColumns: ["curs_id"]
           },
         ]
       }
@@ -4092,6 +4234,13 @@ export type Database = {
             columns: ["incasare_id"]
             isOneToOne: false
             referencedRelation: "incasari"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "facturi_fgo_incasare_id_fkey"
+            columns: ["incasare_id"]
+            isOneToOne: false
+            referencedRelation: "incasari_lista"
             referencedColumns: ["id"]
           },
           {
@@ -6473,6 +6622,13 @@ export type Database = {
             foreignKeyName: "open_rezervari_incasare_fkey"
             columns: ["incasare"]
             isOneToOne: false
+            referencedRelation: "incasari_lista"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "open_rezervari_incasare_fkey"
+            columns: ["incasare"]
+            isOneToOne: false
             referencedRelation: "lista_incasari"
             referencedColumns: ["id"]
           },
@@ -7923,6 +8079,13 @@ export type Database = {
             foreignKeyName: "reinscrieri_gate_taxa_incasare_id_fkey"
             columns: ["taxa_incasare_id"]
             isOneToOne: false
+            referencedRelation: "incasari_lista"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reinscrieri_gate_taxa_incasare_id_fkey"
+            columns: ["taxa_incasare_id"]
+            isOneToOne: false
             referencedRelation: "lista_incasari"
             referencedColumns: ["id"]
           },
@@ -8109,6 +8272,7 @@ export type Database = {
           created: string
           id: string
           locatie: string | null
+          minim_cursanti: number
           nume: string
           old_loc_id: number | null
           updated: string
@@ -8118,6 +8282,7 @@ export type Database = {
           created?: string
           id?: string
           locatie?: string | null
+          minim_cursanti?: number
           nume: string
           old_loc_id?: number | null
           updated?: string
@@ -8127,6 +8292,7 @@ export type Database = {
           created?: string
           id?: string
           locatie?: string | null
+          minim_cursanti?: number
           nume?: string
           old_loc_id?: number | null
           updated?: string
@@ -9247,6 +9413,7 @@ export type Database = {
       }
       unitati_invatamant: {
         Row: {
+          alias: string[]
           created_at: string
           de_verificat: boolean
           id: string
@@ -9255,6 +9422,7 @@ export type Database = {
           tip: string | null
         }
         Insert: {
+          alias?: string[]
           created_at?: string
           de_verificat?: boolean
           id?: string
@@ -9263,6 +9431,7 @@ export type Database = {
           tip?: string | null
         }
         Update: {
+          alias?: string[]
           created_at?: string
           de_verificat?: boolean
           id?: string
@@ -9431,6 +9600,13 @@ export type Database = {
             foreignKeyName: "voucher_redemptions_incasare_fkey"
             columns: ["incasare"]
             isOneToOne: false
+            referencedRelation: "incasari_lista"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "voucher_redemptions_incasare_fkey"
+            columns: ["incasare"]
+            isOneToOne: false
             referencedRelation: "lista_incasari"
             referencedColumns: ["id"]
           },
@@ -9445,6 +9621,7 @@ export type Database = {
       }
       vouchere: {
         Row: {
+          activ: boolean
           cerinta_eligibilitate: string | null
           client: string | null
           cod_voucher: string
@@ -9462,6 +9639,7 @@ export type Database = {
           valoare: number | null
         }
         Insert: {
+          activ?: boolean
           cerinta_eligibilitate?: string | null
           client?: string | null
           cod_voucher: string
@@ -9479,6 +9657,7 @@ export type Database = {
           valoare?: number | null
         }
         Update: {
+          activ?: boolean
           cerinta_eligibilitate?: string | null
           client?: string | null
           cod_voucher?: string
@@ -10029,6 +10208,279 @@ export type Database = {
           total: number | null
         }
         Relationships: []
+      }
+      incasari_lista: {
+        Row: {
+          bilet: string | null
+          bucati: number | null
+          categorie: Database["public"]["Enums"]["categorie_incasare"] | null
+          client: string | null
+          client_nume: string | null
+          created: string | null
+          curs_id: string | null
+          curs_nume: string | null
+          data: string | null
+          datorie: string | null
+          detalii: string | null
+          id: string | null
+          inchiriere: string | null
+          inregistrare: string | null
+          locatie: string | null
+          locatie_nume: string | null
+          luna: string | null
+          metoda: Database["public"]["Enums"]["metoda_plata"] | null
+          observatii: string | null
+          suma: number | null
+          tip_plata: Database["public"]["Enums"]["tip_plata"] | null
+          voucher: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_enrollments_cursul"
+            columns: ["curs_id"]
+            isOneToOne: false
+            referencedRelation: "cursuri"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_enrollments_cursul"
+            columns: ["curs_id"]
+            isOneToOne: false
+            referencedRelation: "incasari_curs_luna"
+            referencedColumns: ["id_curs"]
+          },
+          {
+            foreignKeyName: "fk_enrollments_cursul"
+            columns: ["curs_id"]
+            isOneToOne: false
+            referencedRelation: "lista_clienti"
+            referencedColumns: ["id_curs"]
+          },
+          {
+            foreignKeyName: "fk_enrollments_cursul"
+            columns: ["curs_id"]
+            isOneToOne: false
+            referencedRelation: "lista_cursuri"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_enrollments_cursul"
+            columns: ["curs_id"]
+            isOneToOne: false
+            referencedRelation: "plati_inrolari"
+            referencedColumns: ["id_curs"]
+          },
+          {
+            foreignKeyName: "fk_enrollments_cursul"
+            columns: ["curs_id"]
+            isOneToOne: false
+            referencedRelation: "plati_inrolari_toate"
+            referencedColumns: ["id_curs"]
+          },
+          {
+            foreignKeyName: "fk_enrollments_cursul"
+            columns: ["curs_id"]
+            isOneToOne: false
+            referencedRelation: "raport_financiar"
+            referencedColumns: ["id_curs"]
+          },
+          {
+            foreignKeyName: "fk_enrollments_cursul"
+            columns: ["curs_id"]
+            isOneToOne: false
+            referencedRelation: "raport_incasari"
+            referencedColumns: ["id_curs"]
+          },
+          {
+            foreignKeyName: "fk_enrollments_cursul"
+            columns: ["curs_id"]
+            isOneToOne: false
+            referencedRelation: "restante_curs_luna"
+            referencedColumns: ["id_curs"]
+          },
+          {
+            foreignKeyName: "fk_enrollments_cursul"
+            columns: ["curs_id"]
+            isOneToOne: false
+            referencedRelation: "teacher_curs_stats"
+            referencedColumns: ["curs_id"]
+          },
+          {
+            foreignKeyName: "fk_incasari_bilet"
+            columns: ["bilet"]
+            isOneToOne: false
+            referencedRelation: "bilete_publice"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_incasari_bilet"
+            columns: ["bilet"]
+            isOneToOne: false
+            referencedRelation: "evenimente"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_incasari_client"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "clienti"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_incasari_client"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "inrolari_clienti"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_incasari_client"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "lista_clienti"
+            referencedColumns: ["id_client"]
+          },
+          {
+            foreignKeyName: "fk_incasari_client"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "plati_inrolari"
+            referencedColumns: ["id_cursant"]
+          },
+          {
+            foreignKeyName: "fk_incasari_client"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "profil_client"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_incasari_client"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "raport_financiar"
+            referencedColumns: ["id_cursant"]
+          },
+          {
+            foreignKeyName: "fk_incasari_client"
+            columns: ["client"]
+            isOneToOne: false
+            referencedRelation: "raport_incasari"
+            referencedColumns: ["id_cursant"]
+          },
+          {
+            foreignKeyName: "fk_incasari_inregistrare"
+            columns: ["inregistrare"]
+            isOneToOne: false
+            referencedRelation: "enrollments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_incasari_inregistrare"
+            columns: ["inregistrare"]
+            isOneToOne: false
+            referencedRelation: "lista_clienti"
+            referencedColumns: ["id_inrolare"]
+          },
+          {
+            foreignKeyName: "fk_incasari_inregistrare"
+            columns: ["inregistrare"]
+            isOneToOne: false
+            referencedRelation: "plati_inrolari"
+            referencedColumns: ["id_enrollment"]
+          },
+          {
+            foreignKeyName: "fk_incasari_inregistrare"
+            columns: ["inregistrare"]
+            isOneToOne: false
+            referencedRelation: "plati_inrolari"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_incasari_inregistrare"
+            columns: ["inregistrare"]
+            isOneToOne: false
+            referencedRelation: "plati_inrolari_toate"
+            referencedColumns: ["id_enrollment"]
+          },
+          {
+            foreignKeyName: "fk_incasari_locatie"
+            columns: ["locatie"]
+            isOneToOne: false
+            referencedRelation: "incasari_locatie_luna"
+            referencedColumns: ["id_locatie"]
+          },
+          {
+            foreignKeyName: "fk_incasari_locatie"
+            columns: ["locatie"]
+            isOneToOne: false
+            referencedRelation: "locatii"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_incasari_locatie"
+            columns: ["locatie"]
+            isOneToOne: false
+            referencedRelation: "plati_inrolari"
+            referencedColumns: ["id_locatie"]
+          },
+          {
+            foreignKeyName: "fk_incasari_locatie"
+            columns: ["locatie"]
+            isOneToOne: false
+            referencedRelation: "plati_inrolari_toate"
+            referencedColumns: ["id_locatie"]
+          },
+          {
+            foreignKeyName: "fk_incasari_locatie"
+            columns: ["locatie"]
+            isOneToOne: false
+            referencedRelation: "raport_financiar"
+            referencedColumns: ["id_locatie"]
+          },
+          {
+            foreignKeyName: "fk_incasari_locatie"
+            columns: ["locatie"]
+            isOneToOne: false
+            referencedRelation: "raport_incasari"
+            referencedColumns: ["id_locatie"]
+          },
+          {
+            foreignKeyName: "fk_incasari_locatie"
+            columns: ["locatie"]
+            isOneToOne: false
+            referencedRelation: "restante_locatie_luna"
+            referencedColumns: ["id_locatie"]
+          },
+          {
+            foreignKeyName: "fk_incasari_voucher"
+            columns: ["voucher"]
+            isOneToOne: false
+            referencedRelation: "vouchere"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incasari_datorie_fkey"
+            columns: ["datorie"]
+            isOneToOne: false
+            referencedRelation: "datorii"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incasari_datorie_fkey"
+            columns: ["datorie"]
+            isOneToOne: false
+            referencedRelation: "datorii_rest"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incasari_inchiriere_fkey"
+            columns: ["inchiriere"]
+            isOneToOne: false
+            referencedRelation: "inchirieri"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       incasari_locatie_luna: {
         Row: {
@@ -11034,6 +11486,22 @@ export type Database = {
         Args: { p_target_locatie_ids: string[]; p_target_roles: string[] }
         Returns: string[]
       }
+      _grupe_sub_minim: {
+        Args: { p_curs?: string; p_la?: string; p_sezon?: string }
+        Returns: {
+          curs_id: string
+          curs_nume: string
+          cursanti_luna_curenta: number
+          luna_lansare: string
+          luni: Json
+          luni_sub_consecutive: number
+          minim: number
+          sala_nume: string
+          sezon_in_curs: boolean
+          stare: string
+          teacher_nume: string
+        }[]
+      }
       _is_anunt_expeditor: { Args: { p_anunt: string }; Returns: boolean }
       _is_anunt_recipient: { Args: { p_anunt: string }; Returns: boolean }
       _luni_achitate_curs: {
@@ -11047,6 +11515,15 @@ export type Database = {
       _plan_plata_integrala: { Args: { p_client: string }; Returns: Json }
       _sezon_curs_inchis: { Args: { p_curs: string }; Returns: boolean }
       _try_activate_gate: { Args: { p_gate_id: string }; Returns: undefined }
+      _voucher_motiv_invalid: {
+        Args: {
+          p_client: string
+          p_curs?: string
+          p_tip?: Database["public"]["Enums"]["tip_plata"]
+          p_voucher: string
+        }
+        Returns: string
+      }
       activate_eligible_sezoane: { Args: never; Returns: number }
       activate_reinscriere: {
         Args: { p_client_id: string; p_curs_id: string }
@@ -11287,6 +11764,13 @@ export type Database = {
         }
         Returns: string
       }
+      creeaza_familie_proprie: {
+        Args: { p_client_id: string }
+        Returns: {
+          familie_id: string
+          familie_nume: string
+        }[]
+      }
       creeaza_lead_si_inscrie_la_demo: {
         Args: {
           p_adus_de?: string
@@ -11305,6 +11789,14 @@ export type Database = {
       current_client: { Args: never; Returns: string }
       current_familie: { Args: never; Returns: string }
       current_teacher_id: { Args: never; Returns: string }
+      curs_activ_in_luna: {
+        Args: { p_curs: string; p_luna: string }
+        Returns: boolean
+      }
+      cursanti_platitori_luna: {
+        Args: { p_curs: string; p_luna: string }
+        Returns: number
+      }
       datorii_luna: {
         Args: { p_luna: string }
         Returns: {
@@ -11849,6 +12341,22 @@ export type Database = {
           zile: Database["public"]["Enums"]["zi_saptamana"][]
         }[]
       }
+      get_grupe_sub_minim: {
+        Args: { p_curs?: string; p_sezon?: string }
+        Returns: {
+          curs_id: string
+          curs_nume: string
+          cursanti_luna_curenta: number
+          luna_lansare: string
+          luni: Json
+          luni_sub_consecutive: number
+          minim: number
+          sala_nume: string
+          sezon_in_curs: boolean
+          stare: string
+          teacher_nume: string
+        }[]
+      }
       get_incasare_invoice_lines: {
         Args: { p_incasare_id: string }
         Returns: Json
@@ -12272,7 +12780,13 @@ export type Database = {
         }[]
       }
       get_restante_worklist: {
-        Args: { p_locatie?: string; p_luna?: string; p_sezon?: string }
+        Args: {
+          p_curs?: string
+          p_doar_depasite?: boolean
+          p_locatie?: string
+          p_luna?: string
+          p_sezon?: string
+        }
         Returns: {
           client_id: string
           cursuri: string
@@ -12293,6 +12807,34 @@ export type Database = {
           ultim_apel_rezultat: string
           ultim_sms_at: string
           ultima_prezenta: string
+          zile_depasire: number
+        }[]
+      }
+      get_restante_worklist_rate: {
+        Args: {
+          p_curs?: string
+          p_doar_depasite?: boolean
+          p_locatie?: string
+          p_luna?: string
+          p_sezon?: string
+        }
+        Returns: {
+          client_id: string
+          data_incepere: string
+          id_curs: string
+          id_enrollment: string
+          id_locatie: string
+          nume: string
+          nume_curs: string
+          nume_locatie: string
+          platit: number
+          prenume: string
+          rest: number
+          scadenta: string
+          status_client: string
+          suspendat: boolean
+          telefon: string
+          total_de_plata: number
           zile_depasire: number
         }[]
       }
@@ -12676,6 +13218,10 @@ export type Database = {
         Returns: Json
       }
       inchide_sesiune: { Args: { p_sesiune: string }; Returns: Json }
+      inlocuieste_programari_lead: {
+        Args: { p_lead: string; p_pastreaza: string }
+        Returns: number
+      }
       inrolari_active_la: {
         Args: { p_data?: string }
         Returns: {
@@ -12824,6 +13370,35 @@ export type Database = {
           telefon: string
         }[]
       }
+      list_targets_contracte: {
+        Args: { p_curs?: string; p_locatie?: string; p_sezon?: string }
+        Returns: {
+          client_id: string
+          client_nume: string
+          cursuri: string[]
+          email: string
+          familie_id: string
+          familie_nume: string
+          locatie_nume: string
+          telefon: string
+        }[]
+      }
+      list_vouchere_aplicabile: {
+        Args: {
+          p_client: string
+          p_curs?: string
+          p_tip?: Database["public"]["Enums"]["tip_plata"]
+        }
+        Returns: {
+          cod_voucher: string
+          descriere: string
+          id: string
+          motiv: string
+          tip: Database["public"]["Enums"]["tip_voucher"]
+          valid: boolean
+          valoare: number
+        }[]
+      }
       locuri_ocupate_eveniment: {
         Args: { p_eveniment: string }
         Returns: number
@@ -12920,6 +13495,17 @@ export type Database = {
           tip: string
         }[]
       }
+      match_unitate: { Args: { p_text: string }; Returns: string }
+      muta_incasare_la_alt_client: {
+        Args: {
+          p_doar_verificare?: boolean
+          p_enrollment_sursa: string
+          p_enrollment_tinta: string
+          p_incasare: string
+          p_motiv?: string
+        }
+        Returns: Json
+      }
       muta_inrolare_curs: {
         Args: {
           p_aplica_tarif_nou?: boolean
@@ -12934,6 +13520,10 @@ export type Database = {
       norm_unitate: { Args: { p_text: string }; Returns: string }
       notifica_demo_class_completa: {
         Args: { p_eveniment: string }
+        Returns: number
+      }
+      notifica_grupe_sub_minim: {
+        Args: { p_la?: string; p_sezon?: string }
         Returns: number
       }
       notifications_mark_all_read: { Args: never; Returns: number }
@@ -13268,6 +13858,7 @@ export type Database = {
           p_sesiune?: string
           p_suma: number
           p_suma2?: number
+          p_voucher?: string
         }
         Returns: string
       }
@@ -13330,6 +13921,15 @@ export type Database = {
         }
         Returns: string
       }
+      set_curs_suspendare: {
+        Args: {
+          p_curs: string
+          p_din_luna: string
+          p_motiv?: string
+          p_suspenda: boolean
+        }
+        Returns: undefined
+      }
       set_suspendare_datorii: {
         Args: { p_client: string; p_suspendat: boolean }
         Returns: undefined
@@ -13371,6 +13971,17 @@ export type Database = {
         }
         Returns: undefined
       }
+      sumar_incasari: {
+        Args: {
+          p_categorie?: string
+          p_from?: string
+          p_locatie?: string
+          p_metoda?: string
+          p_search?: string
+          p_to?: string
+        }
+        Returns: Json
+      }
       suspenda_datornici_50_zile: {
         Args: never
         Returns: {
@@ -13382,6 +13993,7 @@ export type Database = {
           zile_depasire: number
         }[]
       }
+      sync_cursuri_suspendat: { Args: never; Returns: number }
       teacher_can_access_curs: { Args: { p_curs: string }; Returns: boolean }
       trimite_aprobate: { Args: { p_sesiune: string }; Returns: number }
       update_profil_client: {

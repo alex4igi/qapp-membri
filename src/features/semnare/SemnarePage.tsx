@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Spinner } from '@/components/ui'
-import { loadContract, submitContract, type LoadResult } from './api'
+import { contractReady, downloadContract, loadContract, submitContract, type LoadResult } from './api'
 import { SignatureCanvas } from './SignatureCanvas'
 
 // Un checkbox nebifat (`false`) e o valoare validă, nu o „lipsă" — nu-l tratăm
@@ -24,6 +24,9 @@ export function SemnarePage() {
   const [submitting, setSubmitting] = useState(false)
   const [submitErr, setSubmitErr] = useState('')
   const [doneMsg, setDoneMsg] = useState('')
+  const [gata, setGata] = useState(false)
+  const [descarcare, setDescarcare] = useState(false)
+  const [descarcareErr, setDescarcareErr] = useState('')
 
   useEffect(() => {
     let cancelled = false
@@ -31,6 +34,7 @@ export function SemnarePage() {
       if (cancelled) return
       if (res.alreadySigned) {
         setDoneMsg(res.message ?? 'Documentul a fost deja semnat.')
+        setGata(res.canDownload === true)
         setState('done')
       } else if (res.error) {
         setErrMsg(res.error)
@@ -60,6 +64,53 @@ export function SemnarePage() {
       cancelled = true
     }
   }, [token])
+
+  // După semnare, contract-finalize generează și arhivează PDF-ul în fundal:
+  // întrebăm din 2 în 2 secunde până e gata (max ~1 minut).
+  useEffect(() => {
+    if (state !== 'done' || gata || !token) return
+    let cancelled = false
+    let incercari = 0
+    const id = setInterval(async () => {
+      incercari += 1
+      const ready = await contractReady(token)
+      if (cancelled) return
+      if (ready) {
+        setGata(true)
+        clearInterval(id)
+      } else if (incercari >= 30) {
+        clearInterval(id)
+      }
+    }, 2000)
+    return () => {
+      cancelled = true
+      clearInterval(id)
+    }
+  }, [state, gata, token])
+
+  async function descarca() {
+    setDescarcareErr('')
+    setDescarcare(true)
+    try {
+      const res = await downloadContract(token)
+      if (res.url) {
+        const a = document.createElement('a')
+        a.href = res.url
+        a.rel = 'noopener'
+        document.body.appendChild(a)
+        a.click()
+        a.remove()
+      } else if (res.pending) {
+        setDescarcareErr('Documentul încă se pregătește. Mai încearcă în câteva secunde.')
+      } else {
+        setDescarcareErr(res.error ?? 'Documentul nu poate fi descărcat acum.')
+      }
+    } catch {
+      setDescarcareErr('Nu am putut descărca documentul. Verifică conexiunea.')
+    } finally {
+      setDescarcare(false)
+    }
+  }
 
   // câmpurile de completat de părinte: editabile sau goale
   const inputFields = useMemo(
@@ -163,8 +214,22 @@ export function SemnarePage() {
           <div className="rounded-2xl border border-line bg-surf p-6 text-center">
             <p className="text-3xl">✅</p>
             <p className="mt-2 text-lg font-semibold text-ink">{doneMsg}</p>
-            <p className="mt-2 text-sm text-sub">
-              Documentul semnat va apărea în contul tău de membru, la secțiunea Documente.
+            {gata ? (
+              <button
+                type="button"
+                onClick={descarca}
+                disabled={descarcare}
+                className="mt-4 w-full rounded-xl bg-acc px-4 py-3 text-sm font-extrabold text-acc-ink disabled:opacity-60"
+              >
+                {descarcare ? 'Se pregătește…' : 'Descarcă documentul semnat (PDF)'}
+              </button>
+            ) : (
+              <p className="mt-4 text-sm text-sub">Pregătim documentul pentru descărcare…</p>
+            )}
+            {descarcareErr && <p className="mt-2 text-sm text-danger">{descarcareErr}</p>}
+            <p className="mt-3 text-sm text-sub">
+              Îl găsești oricând în contul tău de membru, la secțiunea Documente, sau redeschizând
+              acest link.
             </p>
           </div>
         )}

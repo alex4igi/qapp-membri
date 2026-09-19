@@ -19,6 +19,7 @@ export type LoadResult = {
   copii?: Array<{ id: string; nume: string; dataNasterii: string | null }>
   pdfUrl?: string | null
   alreadySigned?: boolean
+  canDownload?: boolean
   message?: string
   error?: string
 }
@@ -44,5 +45,26 @@ export async function submitContract(params: {
   const res = await call({ action: 'submit', ...params })
   const data = await res.json()
   if (!res.ok && !data.error) data.error = 'Eroare la trimitere.'
+  return data
+}
+
+// Documentul semnat: finalizarea (PDF + arhivare) rulează după submit, deci
+// pagina întâi întreabă dacă e gata, apoi cere linkul la click.
+export async function contractReady(token: string): Promise<boolean> {
+  try {
+    const res = await call({ action: 'status', token })
+    const data = (await res.json()) as { ready?: boolean }
+    return data.ready === true
+  } catch {
+    return false
+  }
+}
+
+export async function downloadContract(
+  token: string,
+): Promise<{ url?: string; pending?: boolean; error?: string }> {
+  const res = await call({ action: 'download', token })
+  const data = (await res.json()) as { url?: string; pending?: boolean; error?: string }
+  if (!res.ok && !data.error) data.error = 'Documentul nu poate fi descărcat acum.'
   return data
 }

@@ -2571,6 +2571,7 @@ export type Database = {
           id: string
           link: string
           observatii: string | null
+          storage_path: string | null
           tip: Database["public"]["Enums"]["tip_document"]
           titlu: string | null
         }
@@ -2582,6 +2583,7 @@ export type Database = {
           id?: string
           link: string
           observatii?: string | null
+          storage_path?: string | null
           tip?: Database["public"]["Enums"]["tip_document"]
           titlu?: string | null
         }
@@ -2593,6 +2595,7 @@ export type Database = {
           id?: string
           link?: string
           observatii?: string | null
+          storage_path?: string | null
           tip?: Database["public"]["Enums"]["tip_document"]
           titlu?: string | null
         }
@@ -5687,6 +5690,7 @@ export type Database = {
         Row: {
           canal: Database["public"]["Enums"]["canal_contact"]
           created: string
+          dedus: boolean
           id: string
           lead_id: string
           observatii: string | null
@@ -5696,6 +5700,7 @@ export type Database = {
         Insert: {
           canal: Database["public"]["Enums"]["canal_contact"]
           created?: string
+          dedus?: boolean
           id?: string
           lead_id: string
           observatii?: string | null
@@ -5705,6 +5710,7 @@ export type Database = {
         Update: {
           canal?: Database["public"]["Enums"]["canal_contact"]
           created?: string
+          dedus?: boolean
           id?: string
           lead_id?: string
           observatii?: string | null
@@ -5791,6 +5797,7 @@ export type Database = {
           interes: Database["public"]["Enums"]["interes_lead"] | null
           locatia: string | null
           locatie_id: string | null
+          motiv_categorie: string | null
           motiv_pierdut: string | null
           nr_contactari: number
           nr_neprezentari: number
@@ -5843,6 +5850,7 @@ export type Database = {
           interes?: Database["public"]["Enums"]["interes_lead"] | null
           locatia?: string | null
           locatie_id?: string | null
+          motiv_categorie?: string | null
           motiv_pierdut?: string | null
           nr_contactari?: number
           nr_neprezentari?: number
@@ -5895,6 +5903,7 @@ export type Database = {
           interes?: Database["public"]["Enums"]["interes_lead"] | null
           locatia?: string | null
           locatie_id?: string | null
+          motiv_categorie?: string | null
           motiv_pierdut?: string | null
           nr_contactari?: number
           nr_neprezentari?: number
@@ -11883,6 +11892,10 @@ export type Database = {
           rest_oneoff: number
         }[]
       }
+      deduce_motiv_categorie: {
+        Args: { p_lead: string; p_status_vechi: string }
+        Returns: string
+      }
       delete_curs_safe: {
         Args: { p_force?: boolean; p_id: string }
         Returns: undefined
@@ -12310,6 +12323,10 @@ export type Database = {
           sala_nume: string
         }[]
       }
+      get_document_storage_path: {
+        Args: { p_document: string }
+        Returns: string
+      }
       get_documente_client: {
         Args: { p_client: string }
         Returns: {
@@ -12317,6 +12334,7 @@ export type Database = {
           id: string
           link: string
           observatii: string
+          storage_path: string
           tip: Database["public"]["Enums"]["tip_document"]
           titlu: string
         }[]
@@ -12524,6 +12542,15 @@ export type Database = {
           retentie_eligibili: number
           sursa_id: string
           sursa_nume: string
+        }[]
+      }
+      get_lead_motive: {
+        Args: { p_from: string; p_to: string }
+        Returns: {
+          categorie: string
+          in_palnie: boolean
+          nr: number
+          status: string
         }[]
       }
       get_leads_pe_luna: {
@@ -13056,8 +13083,10 @@ export type Database = {
         Args: { p_from: string; p_locatie?: string; p_to: string }
         Returns: {
           clasa_generala: string
+          contacte_deduse: number
           contacte_dm: number
           contacte_email: number
+          contacte_logate: number
           contacte_sms: number
           contacte_telefon: number
           contacte_total: number
@@ -13499,6 +13528,26 @@ export type Database = {
           p_user: string
         }
         Returns: Json
+      }
+      lead_data_neprezentarii: { Args: { p_lead: string }; Returns: string }
+      lead_intra_in_palnie: {
+        Args: { p_motiv_categorie: string }
+        Returns: boolean
+      }
+      lead_termen_primul_apel: { Args: { p_created: string }; Returns: string }
+      leads_de_flagat_seara: {
+        Args: never
+        Returns: {
+          actiune: string
+          bucket: string
+          categorie: string
+          flag_reminder: boolean
+          flag_reminder_at: string
+          flag_streak: number
+          id_client: string
+          lead_id: string
+          referinta: string
+        }[]
       }
       list_bilete_evenimente: {
         Args: never
@@ -14305,7 +14354,7 @@ export type Database = {
       app_feedback_sursa: "staff" | "portal"
       app_feedback_tip: "Bug" | "Idee" | "Intrebare"
       canal_comunicare: "Online" | "Offline"
-      canal_contact: "telefon" | "sms" | "email" | "dm"
+      canal_contact: "telefon" | "sms" | "email" | "dm" | "necunoscut"
       canale_online: "Meta ADS" | "Google ADS" | "TikTok Ads" | "Organic"
       categorie_cheltuiala: "Administrativa" | "Salariala" | "Alta"
       categorie_incasare:
@@ -14576,7 +14625,7 @@ export const Constants = {
       app_feedback_sursa: ["staff", "portal"],
       app_feedback_tip: ["Bug", "Idee", "Intrebare"],
       canal_comunicare: ["Online", "Offline"],
-      canal_contact: ["telefon", "sms", "email", "dm"],
+      canal_contact: ["telefon", "sms", "email", "dm", "necunoscut"],
       canale_online: ["Meta ADS", "Google ADS", "TikTok Ads", "Organic"],
       categorie_cheltuiala: ["Administrativa", "Salariala", "Alta"],
       categorie_incasare: [

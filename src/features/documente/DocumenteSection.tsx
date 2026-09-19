@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useActiveMember } from '@/hooks/useActiveMember'
 import { Spinner } from '@/components/ui'
 import { formatData } from '@/lib/format'
-import { getDocumenteClient } from './api'
+import { getDocumenteClient, getDocumentDownloadUrl, type DocumentRow } from './api'
 import { AdeverintaDocument } from './AdeverintaDocument'
 
 function DownloadIcon() {
@@ -11,6 +11,75 @@ function DownloadIcon() {
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M12 4v12M7 11l5 5 5-5M5 20h14" />
     </svg>
+  )
+}
+
+const cardClass =
+  'flex w-full min-w-0 items-center gap-3.5 rounded-2xl border border-line bg-surf p-4 text-left shadow-card transition-colors hover:border-acc'
+
+function subtitle(d: DocumentRow): string {
+  return [
+    d.tip ?? '',
+    d.dataExpirarii ? `expiră ${formatData(d.dataExpirarii)}` : '',
+    d.observatii ?? '',
+  ].filter(Boolean).join(' · ')
+}
+
+function DocumentCard({ doc }: { doc: DocumentRow }) {
+  const [loading, setLoading] = useState(false)
+  const [err, setErr] = useState('')
+
+  // Documentele arhivate de aplicație se cer la click (signed URL de 5 minute);
+  // cele atașate manual de recepție au doar linkul.
+  async function descarca() {
+    setErr('')
+    setLoading(true)
+    try {
+      const url = await getDocumentDownloadUrl(doc.id)
+      const a = document.createElement('a')
+      a.href = url
+      a.rel = 'noopener'
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : 'Nu am putut descărca documentul.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const inner = (
+    <>
+      <span className="flex h-11 w-11 flex-none items-center justify-center rounded-[13px] bg-surf2 text-xl">
+        📄
+      </span>
+      <div className="min-w-0 flex-1">
+        <div className="truncate text-[14.5px] font-extrabold text-ink">
+          {doc.titlu || doc.tip || 'Document'}
+        </div>
+        <div className="truncate text-[11.5px] font-medium text-sub">{subtitle(doc)}</div>
+        {err && <div className="mt-1 text-[11.5px] font-semibold text-danger">{err}</div>}
+      </div>
+      <span className="flex h-9 w-9 flex-none items-center justify-center rounded-xl bg-acc text-acc-ink">
+        {loading
+          ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-acc-ink/30 border-t-acc-ink" />
+          : <DownloadIcon />}
+      </span>
+    </>
+  )
+
+  if (doc.storagePath) {
+    return (
+      <button type="button" onClick={descarca} disabled={loading} className={cardClass}>
+        {inner}
+      </button>
+    )
+  }
+  return (
+    <a href={doc.link} target="_blank" rel="noopener noreferrer" className={cardClass}>
+      {inner}
+    </a>
   )
 }
 
@@ -33,34 +102,11 @@ export function DocumenteSection() {
 
       <div className="grid gap-3.5 sm:grid-cols-2">
         {(data ?? []).map((d) => (
-          <a
-            key={d.id}
-            href={d.link}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-3.5 rounded-2xl border border-line bg-surf p-4 shadow-card transition-colors hover:border-acc"
-          >
-            <span className="flex h-11 w-11 flex-none items-center justify-center rounded-[13px] bg-surf2 text-xl">
-              📄
-            </span>
-            <div className="min-w-0 flex-1">
-              <div className="truncate text-[14.5px] font-extrabold text-ink">
-                {d.titlu || d.tip || 'Document'}
-              </div>
-              <div className="truncate text-[11.5px] font-medium text-sub">
-                {d.tip ?? ''}
-                {d.dataExpirarii ? ` · expiră ${formatData(d.dataExpirarii)}` : ''}
-                {d.observatii ? ` · ${d.observatii}` : ''}
-              </div>
-            </div>
-            <span className="flex h-9 w-9 flex-none items-center justify-center rounded-xl bg-acc text-acc-ink">
-              <DownloadIcon />
-            </span>
-          </a>
+          <DocumentCard key={d.id} doc={d} />
         ))}
 
         {/* Adeverință de participare — generată la cerere */}
-        <div className="flex items-center gap-3.5 rounded-2xl border border-line bg-surf p-4 shadow-card">
+        <div className="flex min-w-0 items-center gap-3.5 rounded-2xl border border-line bg-surf p-4 shadow-card">
           <span className="flex h-11 w-11 flex-none items-center justify-center rounded-[13px] bg-surf2 text-xl">
             📜
           </span>

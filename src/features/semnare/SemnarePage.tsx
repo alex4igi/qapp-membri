@@ -27,6 +27,8 @@ export function SemnarePage() {
   const [gata, setGata] = useState(false)
   const [descarcare, setDescarcare] = useState(false)
   const [descarcareErr, setDescarcareErr] = useState('')
+  // Linkul public dă documentul semnat doar o vreme; după aceea rămâne portalul.
+  const [descExpirata, setDescExpirata] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -35,6 +37,7 @@ export function SemnarePage() {
       if (res.alreadySigned) {
         setDoneMsg(res.message ?? 'Documentul a fost deja semnat.')
         setGata(res.canDownload === true)
+        setDescExpirata(res.descarcareExpirata === true)
         setState('done')
       } else if (res.error) {
         setErrMsg(res.error)
@@ -68,14 +71,17 @@ export function SemnarePage() {
   // După semnare, contract-finalize generează și arhivează PDF-ul în fundal:
   // întrebăm din 2 în 2 secunde până e gata (max ~1 minut).
   useEffect(() => {
-    if (state !== 'done' || gata || !token) return
+    if (state !== 'done' || gata || descExpirata || !token) return
     let cancelled = false
     let incercari = 0
     const id = setInterval(async () => {
       incercari += 1
-      const ready = await contractReady(token)
+      const stare = await contractReady(token)
       if (cancelled) return
-      if (ready) {
+      if (stare.descarcareExpirata) {
+        setDescExpirata(true)
+        clearInterval(id)
+      } else if (stare.ready) {
         setGata(true)
         clearInterval(id)
       } else if (incercari >= 30) {
@@ -86,7 +92,7 @@ export function SemnarePage() {
       cancelled = true
       clearInterval(id)
     }
-  }, [state, gata, token])
+  }, [state, gata, descExpirata, token])
 
   async function descarca() {
     setDescarcareErr('')
@@ -102,6 +108,10 @@ export function SemnarePage() {
         a.remove()
       } else if (res.pending) {
         setDescarcareErr('Documentul încă se pregătește. Mai încearcă în câteva secunde.')
+      } else if (res.descarcareExpirata) {
+        setDescExpirata(true)
+        setGata(false)
+        setDescarcareErr(res.error ?? '')
       } else {
         setDescarcareErr(res.error ?? 'Documentul nu poate fi descărcat acum.')
       }
@@ -111,6 +121,10 @@ export function SemnarePage() {
       setDescarcare(false)
     }
   }
+
+  // Cheile venite mascate de la server (CNP, CI). Un astfel de câmp lăsat gol nu e
+  // o lipsă: serverul pune valoarea din fișă înainte să valideze și să semneze.
+  const mascate = useMemo(() => data?.mascate ?? {}, [data])
 
   // câmpurile de completat de părinte: editabile sau goale
   const inputFields = useMemo(
@@ -156,7 +170,7 @@ export function SemnarePage() {
           setSubmitErr(`Bifează „${f.label}".`)
           return
         }
-      } else if (!hasValue(valori[f.key])) {
+      } else if (!hasValue(valori[f.key]) && !(f.key in mascate)) {
         setSubmitErr(`Completează câmpul „${f.label}".`)
         return
       }
@@ -214,7 +228,12 @@ export function SemnarePage() {
           <div className="rounded-2xl border border-line bg-surf p-6 text-center">
             <p className="text-3xl">✅</p>
             <p className="mt-2 text-lg font-semibold text-ink">{doneMsg}</p>
-            {gata ? (
+            {descExpirata ? (
+              <p className="mt-4 text-sm text-sub">
+                Documentul nu se mai descarcă de pe acest link. Îl găsești în contul tău de
+                membru, la secțiunea Documente.
+              </p>
+            ) : gata ? (
               <button
                 type="button"
                 onClick={descarca}
@@ -226,11 +245,15 @@ export function SemnarePage() {
             ) : (
               <p className="mt-4 text-sm text-sub">Pregătim documentul pentru descărcare…</p>
             )}
-            {descarcareErr && <p className="mt-2 text-sm text-danger">{descarcareErr}</p>}
-            <p className="mt-3 text-sm text-sub">
-              Îl găsești oricând în contul tău de membru, la secțiunea Documente, sau redeschizând
-              acest link.
-            </p>
+            {descarcareErr && !descExpirata && (
+              <p className="mt-2 text-sm text-danger">{descarcareErr}</p>
+            )}
+            {!descExpirata && (
+              <p className="mt-3 text-sm text-sub">
+                Îl găsești oricând în contul tău de membru, la secțiunea Documente. Linkul acesta
+                rămâne bun pentru descărcare 90 de zile.
+              </p>
+            )}
           </div>
         )}
 
@@ -260,6 +283,12 @@ export function SemnarePage() {
                 <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-sub">
                   Datele tale (verifică-le)
                 </h2>
+                {readonlyFields.some((f) => f.key in mascate) && (
+                  <p className="mb-3 text-xs text-sub">
+                    CNP-ul și actul de identitate le afișăm parțial — le avem în fișa ta și intră
+                    întregi în contract la semnare.
+                  </p>
+                )}
                 <dl className="space-y-1.5">
                   {readonlyFields.map((f) => (
                     <div key={f.key} className="flex justify-between gap-4 text-sm">
@@ -307,11 +336,18 @@ export function SemnarePage() {
                             <input
                               type={f.type === 'date' ? 'date' : 'text'}
                               value={typeof val === 'string' ? val : ''}
+                              placeholder={mascate[f.key] ? 'Lasă gol ca să folosim datele din fișă' : undefined}
                               onChange={(e) =>
                                 setValori((v) => ({ ...v, [f.key]: e.target.value }))
                               }
                               className="w-full rounded-xl border border-line bg-white px-3 py-2.5 text-sm text-ink outline-none focus:border-acc focus:ring-2 focus:ring-acc/30"
                             />
+                            {mascate[f.key] && (
+                              <span className="mt-1 block text-xs text-sub">
+                                Avem în fișă: {mascate[f.key]} — lasă câmpul gol ca să-l folosim,
+                                sau scrie altă valoare.
+                              </span>
+                            )}
                           </label>
                         )
                       })()

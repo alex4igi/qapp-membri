@@ -15,11 +15,15 @@ export type LoadResult = {
   contract?: { nume: string; tip: string }
   fields?: SemnareField[]
   prefill?: Record<string, string>
+  /** Cheie → mască de afișat (CNP, CI): valoarea reală rămâne la noi, în fișă. */
+  mascate?: Record<string, string>
   profilExistent?: boolean
-  copii?: Array<{ id: string; nume: string; dataNasterii: string | null }>
+  copii?: Array<{ id: string; nume: string }>
   pdfUrl?: string | null
   alreadySigned?: boolean
   canDownload?: boolean
+  /** Fereastra de descărcare de pe linkul public s-a închis — rămâne portalul. */
+  descarcareExpirata?: boolean
   message?: string
   error?: string
 }
@@ -50,21 +54,28 @@ export async function submitContract(params: {
 
 // Documentul semnat: finalizarea (PDF + arhivare) rulează după submit, deci
 // pagina întâi întreabă dacă e gata, apoi cere linkul la click.
-export async function contractReady(token: string): Promise<boolean> {
+export async function contractReady(
+  token: string,
+): Promise<{ ready: boolean; descarcareExpirata: boolean }> {
   try {
     const res = await call({ action: 'status', token })
-    const data = (await res.json()) as { ready?: boolean }
-    return data.ready === true
+    const data = (await res.json()) as { ready?: boolean; descarcareExpirata?: boolean }
+    return { ready: data.ready === true, descarcareExpirata: data.descarcareExpirata === true }
   } catch {
-    return false
+    return { ready: false, descarcareExpirata: false }
   }
 }
 
 export async function downloadContract(
   token: string,
-): Promise<{ url?: string; pending?: boolean; error?: string }> {
+): Promise<{ url?: string; pending?: boolean; descarcareExpirata?: boolean; error?: string }> {
   const res = await call({ action: 'download', token })
-  const data = (await res.json()) as { url?: string; pending?: boolean; error?: string }
+  const data = (await res.json()) as {
+    url?: string
+    pending?: boolean
+    descarcareExpirata?: boolean
+    error?: string
+  }
   if (!res.ok && !data.error) data.error = 'Documentul nu poate fi descărcat acum.'
   return data
 }

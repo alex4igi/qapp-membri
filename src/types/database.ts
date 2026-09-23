@@ -6307,6 +6307,7 @@ export type Database = {
           id: string
           netopia_transaction_id: string | null
           nr_bilete: number | null
+          ntp_id: string | null
           order_ref: string
           order_type: string
           plata_integrala: boolean
@@ -6327,6 +6328,7 @@ export type Database = {
           id?: string
           netopia_transaction_id?: string | null
           nr_bilete?: number | null
+          ntp_id?: string | null
           order_ref: string
           order_type?: string
           plata_integrala?: boolean
@@ -6347,6 +6349,7 @@ export type Database = {
           id?: string
           netopia_transaction_id?: string | null
           nr_bilete?: number | null
+          ntp_id?: string | null
           order_ref?: string
           order_type?: string
           plata_integrala?: boolean
@@ -7813,6 +7816,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      rate_limit_hits: {
+        Row: {
+          cheie: string
+          fereastra: string
+          n: number
+        }
+        Insert: {
+          cheie: string
+          fereastra: string
+          n?: number
+        }
+        Update: {
+          cheie?: string
+          fereastra?: string
+          n?: number
+        }
+        Relationships: []
       }
       reconcilieri_cash: {
         Row: {
@@ -11671,6 +11692,7 @@ export type Database = {
           sursa_reprezentant: string
         }[]
       }
+      audit_bani_report: { Args: never; Returns: Json }
       audit_digest_dispatch_weekly: { Args: never; Returns: number }
       audit_log_record: {
         Args: {
@@ -11715,6 +11737,7 @@ export type Database = {
           umbre_curatate: number
         }[]
       }
+      backup_list_views: { Args: never; Returns: string[] }
       build_fifo_plan_membru: {
         Args: {
           p_client: string
@@ -11838,6 +11861,10 @@ export type Database = {
         Args: { p_data_noua: string; p_enrollment: string; p_motiv: string }
         Returns: Json
       }
+      corecteaza_metoda_incasare: {
+        Args: { p_id: string; p_metoda?: string; p_motiv: string }
+        Returns: undefined
+      }
       create_campanie_reinscriere: {
         Args: {
           p_data_final: string
@@ -11896,8 +11923,21 @@ export type Database = {
         Args: { p_lead: string; p_status_vechi: string }
         Returns: string
       }
+      definer_views_report: {
+        Args: never
+        Returns: {
+          anon_select: boolean
+          authenticated_select: boolean
+          updatable: boolean
+          view_name: string
+        }[]
+      }
       delete_curs_safe: {
         Args: { p_force?: boolean; p_id: string }
+        Returns: undefined
+      }
+      delete_incasare: {
+        Args: { p_id: string; p_motiv: string }
         Returns: undefined
       }
       delete_sms_queue_entry: { Args: { p_id: string }; Returns: boolean }
@@ -11937,6 +11977,7 @@ export type Database = {
           zile_tacere: number
         }[]
       }
+      drepturi_tabele_report: { Args: never; Returns: Json }
       duplica_program: {
         Args: { p_nume?: string; p_program: string }
         Returns: string
@@ -11944,6 +11985,17 @@ export type Database = {
       duplica_structura_sezon: {
         Args: { p_sursa: string; p_tinta: string }
         Returns: number
+      }
+      edit_incasare: {
+        Args: {
+          p_data?: string
+          p_id: string
+          p_metoda?: string
+          p_motiv: string
+          p_observatii?: string
+          p_suma?: number
+        }
+        Returns: undefined
       }
       enqueue_confirmare_programare: {
         Args: { p_lead: string; p_programare?: string }
@@ -13535,6 +13587,10 @@ export type Database = {
         Returns: boolean
       }
       lead_termen_primul_apel: { Args: { p_created: string }; Returns: string }
+      lead_zi_apel_dupa_neprezentare: {
+        Args: { p_zi: string }
+        Returns: string
+      }
       leads_de_flagat_seara: {
         Args: never
         Returns: {
@@ -13791,6 +13847,10 @@ export type Database = {
         Args: { p_la?: string; p_sezon?: string }
         Returns: number
       }
+      notifica_plata_online_problema: {
+        Args: { p_motiv: string; p_order_ref: string }
+        Returns: number
+      }
       notifications_mark_all_read: { Args: never; Returns: number }
       notifications_resolve: {
         Args: { p_id: string; p_raspuns?: string }
@@ -13822,9 +13882,18 @@ export type Database = {
         Returns: number
       }
       ore_pe_zi_valid: { Args: { m: Json }; Returns: boolean }
+      penalizare_activa: { Args: { p_enrollment: string }; Returns: boolean }
       plan_plata_integrala_sezon: { Args: { p_client: string }; Returns: Json }
       plan_plata_integrala_staff: { Args: { p_client: string }; Returns: Json }
       poate_evalua_cursul: { Args: { p_curs: string }; Returns: boolean }
+      politici_publice_report: {
+        Args: never
+        Returns: {
+          cmd: string
+          policyname: string
+          tablename: string
+        }[]
+      }
       pontaj_aproba_luna: {
         Args: { p_luna: string; p_nota?: string; p_user_id: string }
         Returns: {
@@ -14045,6 +14114,14 @@ export type Database = {
       proceseaza_cozi_sms: { Args: never; Returns: undefined }
       proceseaza_sesiuni_evaluare: { Args: never; Returns: Json }
       prune_expired_leads: { Args: never; Returns: Json }
+      rate_limit_hit: {
+        Args: { p_cheie: string; p_fereastra_sec: number; p_limita: number }
+        Returns: {
+          n: number
+          permis: boolean
+          reseteaza_la: string
+        }[]
+      }
       recalculate_pool_discount: {
         Args: { p_client: string }
         Returns: undefined

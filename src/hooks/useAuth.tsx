@@ -19,7 +19,15 @@ type AuthContextValue = {
   session: PortalUser | null // truthy = autentificat (compat cu ProtectedRoute/LoginPage)
   user: PortalUser | null
   loading: boolean
-  signIn: (email: string, password: string) => Promise<{ error: string | null }>
+  signIn: (
+    email: string,
+    password: string,
+  ) => Promise<{ error: string | null; mustChangePassword?: boolean }>
+  completeTemporaryPassword: (
+    email: string,
+    password: string,
+    newPassword: string,
+  ) => Promise<{ error: string | null }>
   signOut: () => Promise<void>
   updatePassword: (newPassword: string) => Promise<{ error: string | null }>
 }
@@ -104,8 +112,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn: AuthContextValue['signIn'] = async (email, password) => {
     const { ok, data } = await callPortalAuth({ action: 'login', email, password })
+    if (ok && data.must_change_password) return { error: null, mustChangePassword: true }
     if (!ok || !data.access_token) {
       return { error: (data.error as string) ?? 'Email sau parolă greșite.' }
+    }
+    apply({
+      access_token: data.access_token as string,
+      refresh_token: data.refresh_token as string,
+      expires_at: data.expires_at as number,
+      account_id: data.account_id as string,
+      email: (data.email as string) ?? email,
+    })
+    return { error: null }
+  }
+
+  const completeTemporaryPassword: AuthContextValue['completeTemporaryPassword'] = async (
+    email,
+    password,
+    newPassword,
+  ) => {
+    const { ok, data } = await callPortalAuth({
+      action: 'change_temporary_password',
+      email,
+      password,
+      new_password: newPassword,
+    })
+    if (!ok || !data.access_token) {
+      return { error: (data.error as string) ?? 'Salvarea parolei a eșuat.' }
     }
     apply({
       access_token: data.access_token as string,
@@ -138,6 +171,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     user,
     loading,
     signIn,
+    completeTemporaryPassword,
     signOut,
     updatePassword,
   }

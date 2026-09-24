@@ -53,7 +53,45 @@ export async function listOpenSesiuniClient(locatieId?: string | null): Promise<
   })
 }
 
-export type ReserveResult = { redirectUrl: string; orderId: string }
+export type VoucherPreview =
+  | { valid: true; cod: string; pretFinal: number; reducere: number }
+  | { valid: false; motiv: string }
+
+// Același verdict ca în `netopia-create-payment` (validate_voucher_code pe 'Per sedinta'),
+// ca sumarul să arate exact suma care se va încasa.
+export async function previewVoucherRezervare(params: {
+  cod: string
+  clientId: string
+  cursId: string
+  pret: number
+}): Promise<VoucherPreview> {
+  const { data, error } = await supabase.rpc('validate_voucher_code', {
+    p_cod: params.cod.trim(),
+    p_client: params.clientId,
+    p_curs: params.cursId,
+    p_tip: 'Per sedinta',
+  })
+  if (error) throw error
+  const v = data?.[0]
+  if (!v?.valid) return { valid: false, motiv: v?.reason ?? 'Voucher invalid.' }
+  const pretFinal = applyVoucherAmount(params.pret, v.tip, v.valoare)
+  return {
+    valid: true,
+    cod: v.cod ?? params.cod.trim().toUpperCase(),
+    pretFinal,
+    reducere: params.pret - pretFinal,
+  }
+}
+
+// Oglindă a applyVoucherAmount() din edge function-ul `netopia-create-payment`.
+function applyVoucherAmount(base: number, tip: string | null, valoare: number | null): number {
+  if (tip == null || valoare == null) return base
+  if (tip === 'Procent') return Math.max(0, Math.round(base * (100 - valoare)) / 100)
+  if (tip === 'Valoare') return Math.max(0, base - valoare)
+  return base
+}
+
+export type ReserveResult ={ redirectUrl: string; orderId: string }
 
 // Rezervă un loc + plătește cu cardul, în 2 pași (server-side):
 //   1. edge function `netopia-create-payment` cu kind='rezervare' → cheamă hold_loc_open()

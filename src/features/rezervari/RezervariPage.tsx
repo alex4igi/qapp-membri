@@ -5,7 +5,12 @@ import { useActiveMember } from '@/hooks/useActiveMember'
 import { Button, Modal, Spinner } from '@/components/ui'
 import { PaymentBadges } from '@/components/PaymentBadges'
 import { formatRON, formatData } from '@/lib/format'
-import { listOpenSesiuniClient, reserveOpenAndPay, type OpenSesiuneRow } from './api'
+import {
+  listOpenSesiuniClient,
+  previewVoucherRezervare,
+  reserveOpenAndPay,
+  type OpenSesiuneRow,
+} from './api'
 
 function SummaryRow({ label, value }: { label: string; value: ReactNode }) {
   return (
@@ -37,6 +42,27 @@ export function RezervariPage() {
     searchParams.delete('order')
     setSearchParams(searchParams, { replace: true })
   }, [searchParams, queryClient, setSearchParams])
+
+  const codVoucher = voucherCod.trim()
+  const voucherQ = useQuery({
+    queryKey: ['voucher-rezervare', codVoucher.toUpperCase(), activeMember?.clientId, selected?.sesiuneId],
+    queryFn: () =>
+      previewVoucherRezervare({
+        cod: codVoucher,
+        clientId: activeMember!.clientId,
+        cursId: selected!.cursId,
+        pret: selected!.pret ?? 0,
+      }),
+    enabled: !!selected && !!activeMember && codVoucher !== '',
+  })
+  const voucher = codVoucher ? voucherQ.data : undefined
+  const pretBaza = selected?.pret ?? 0
+  const totalDePlata = voucher?.valid ? voucher.pretFinal : pretBaza
+  // Ședința gratuită nu trece prin Netopia — edge function-ul o refuză.
+  const voucherIntegral = voucher?.valid === true && voucher.pretFinal <= 0
+  const voucherBlocheaza =
+    codVoucher !== '' &&
+    (voucherQ.isFetching || voucherQ.isError || voucher?.valid === false || voucherIntegral)
 
   const reserve = useMutation({
     mutationFn: (sesiuneId: string) =>
@@ -76,7 +102,7 @@ export function RezervariPage() {
           className="w-full rounded-xl border border-line bg-surf px-3 py-2 text-sm uppercase text-ink"
         />
         <span className="mt-1 block text-xs text-sub">
-          Se aplică la ședința pe care o rezervi; reducerea apare la plată.
+          Se aplică la ședința pe care o rezervi; reducerea apare în rezumat.
         </span>
       </label>
 
@@ -132,7 +158,7 @@ export function RezervariPage() {
             </Button>
             <Button
               onClick={() => selected && reserve.mutate(selected.sesiuneId)}
-              disabled={reserve.isPending || !activeMember}
+              disabled={reserve.isPending || !activeMember || voucherBlocheaza}
             >
               {reserve.isPending ? 'Se inițiază…' : 'Continuă la plată'}
             </Button>
@@ -146,13 +172,35 @@ export function RezervariPage() {
             {selected.instructorNume && (
               <SummaryRow label="Instructor" value={selected.instructorNume} />
             )}
-            <SummaryRow label="Voucher" value={voucherCod.trim() ? voucherCod.trim().toUpperCase() : '—'} />
+            <SummaryRow label="Preț ședință" value={formatRON(pretBaza)} />
+            {codVoucher && (
+              <SummaryRow
+                label={`Voucher ${codVoucher.toUpperCase()}`}
+                value={
+                  voucherQ.isFetching
+                    ? 'se verifică…'
+                    : voucher?.valid
+                      ? `−${formatRON(voucher.reducere)}`
+                      : '—'
+                }
+              />
+            )}
             <div className="border-t border-line pt-3">
-              <SummaryRow label="Total de plată" value={formatRON(selected.pret ?? 0)} />
+              <SummaryRow label="Total de plată" value={formatRON(totalDePlata)} />
             </div>
-            <p className="text-xs text-sub">
-              Reducerea aferentă voucherului (dacă e valid) se calculează la plată.
-            </p>
+            {voucher?.valid === false && (
+              <p className="text-sm text-danger">
+                {voucher.motiv} Șterge codul ca să plătești prețul întreg.
+              </p>
+            )}
+            {voucherIntegral && (
+              <p className="text-sm text-danger">
+                Voucherul acoperă integral ședința — rezervarea gratuită se face la recepție.
+              </p>
+            )}
+            {voucherQ.isError && (
+              <p className="text-sm text-danger">Nu am putut verifica voucherul. Încearcă din nou.</p>
+            )}
             {reserve.isError && (
               <p className="text-sm text-danger">{(reserve.error as Error).message}</p>
             )}

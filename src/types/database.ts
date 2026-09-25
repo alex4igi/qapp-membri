@@ -981,9 +981,6 @@ export type Database = {
           email: string | null
           factura_lunara: boolean
           factura_lunara_de_la: string | null
-          facturare_pf_adresa: string | null
-          facturare_pf_cnp: string | null
-          facturare_pf_nume: string | null
           familia: string | null
           fara_poze: boolean
           foto: string | null
@@ -1016,9 +1013,6 @@ export type Database = {
           email?: string | null
           factura_lunara?: boolean
           factura_lunara_de_la?: string | null
-          facturare_pf_adresa?: string | null
-          facturare_pf_cnp?: string | null
-          facturare_pf_nume?: string | null
           familia?: string | null
           fara_poze?: boolean
           foto?: string | null
@@ -1051,9 +1045,6 @@ export type Database = {
           email?: string | null
           factura_lunara?: boolean
           factura_lunara_de_la?: string | null
-          facturare_pf_adresa?: string | null
-          facturare_pf_cnp?: string | null
-          facturare_pf_nume?: string | null
           familia?: string | null
           fara_poze?: boolean
           foto?: string | null
@@ -1121,6 +1112,80 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "raport_financiar"
             referencedColumns: ["id_familie"]
+          },
+        ]
+      }
+      clienti_facturare: {
+        Row: {
+          client_id: string
+          facturare_pf_adresa: string | null
+          facturare_pf_cnp: string | null
+          facturare_pf_nume: string | null
+          updated: string
+        }
+        Insert: {
+          client_id: string
+          facturare_pf_adresa?: string | null
+          facturare_pf_cnp?: string | null
+          facturare_pf_nume?: string | null
+          updated?: string
+        }
+        Update: {
+          client_id?: string
+          facturare_pf_adresa?: string | null
+          facturare_pf_cnp?: string | null
+          facturare_pf_nume?: string | null
+          updated?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clienti_facturare_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: true
+            referencedRelation: "clienti"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clienti_facturare_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: true
+            referencedRelation: "inrolari_clienti"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clienti_facturare_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: true
+            referencedRelation: "lista_clienti"
+            referencedColumns: ["id_client"]
+          },
+          {
+            foreignKeyName: "clienti_facturare_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: true
+            referencedRelation: "plati_inrolari"
+            referencedColumns: ["id_cursant"]
+          },
+          {
+            foreignKeyName: "clienti_facturare_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: true
+            referencedRelation: "profil_client"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clienti_facturare_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: true
+            referencedRelation: "raport_financiar"
+            referencedColumns: ["id_cursant"]
+          },
+          {
+            foreignKeyName: "clienti_facturare_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: true
+            referencedRelation: "raport_incasari"
+            referencedColumns: ["id_cursant"]
           },
         ]
       }
@@ -4228,18 +4293,11 @@ export type Database = {
           email: string | null
           factura_pe_firma: boolean
           fara_poze: boolean
-          firma_adresa: string | null
-          firma_banca: string | null
-          firma_cif: string | null
-          firma_denumire: string | null
-          firma_iban: string | null
-          firma_reg_com: string | null
           id: string
           metoda_comunicare: string | null
           metoda_plata: string | null
           nume_familie: string
           nume_reprezentant: string | null
-          observatii: string | null
           opt_out_la: string | null
           opt_out_marketing: boolean
           opt_out_motiv: string | null
@@ -4255,18 +4313,11 @@ export type Database = {
           email?: string | null
           factura_pe_firma?: boolean
           fara_poze?: boolean
-          firma_adresa?: string | null
-          firma_banca?: string | null
-          firma_cif?: string | null
-          firma_denumire?: string | null
-          firma_iban?: string | null
-          firma_reg_com?: string | null
           id?: string
           metoda_comunicare?: string | null
           metoda_plata?: string | null
           nume_familie: string
           nume_reprezentant?: string | null
-          observatii?: string | null
           opt_out_la?: string | null
           opt_out_marketing?: boolean
           opt_out_motiv?: string | null
@@ -4282,18 +4333,11 @@ export type Database = {
           email?: string | null
           factura_pe_firma?: boolean
           fara_poze?: boolean
-          firma_adresa?: string | null
-          firma_banca?: string | null
-          firma_cif?: string | null
-          firma_denumire?: string | null
-          firma_iban?: string | null
-          firma_reg_com?: string | null
           id?: string
           metoda_comunicare?: string | null
           metoda_plata?: string | null
           nume_familie?: string
           nume_reprezentant?: string | null
-          observatii?: string | null
           opt_out_la?: string | null
           opt_out_marketing?: boolean
           opt_out_motiv?: string | null
@@ -4370,6 +4414,71 @@ export type Database = {
           },
           {
             foreignKeyName: "familii_date_semnatar_familie_id_fkey"
+            columns: ["familie_id"]
+            isOneToOne: true
+            referencedRelation: "raport_financiar"
+            referencedColumns: ["id_familie"]
+          },
+        ]
+      }
+      familii_facturare: {
+        Row: {
+          familie_id: string
+          firma_adresa: string | null
+          firma_banca: string | null
+          firma_cif: string | null
+          firma_denumire: string | null
+          firma_iban: string | null
+          firma_reg_com: string | null
+          observatii: string | null
+          updated: string
+        }
+        Insert: {
+          familie_id: string
+          firma_adresa?: string | null
+          firma_banca?: string | null
+          firma_cif?: string | null
+          firma_denumire?: string | null
+          firma_iban?: string | null
+          firma_reg_com?: string | null
+          observatii?: string | null
+          updated?: string
+        }
+        Update: {
+          familie_id?: string
+          firma_adresa?: string | null
+          firma_banca?: string | null
+          firma_cif?: string | null
+          firma_denumire?: string | null
+          firma_iban?: string | null
+          firma_reg_com?: string | null
+          observatii?: string | null
+          updated?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "familii_facturare_familie_id_fkey"
+            columns: ["familie_id"]
+            isOneToOne: true
+            referencedRelation: "familii"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "familii_facturare_familie_id_fkey"
+            columns: ["familie_id"]
+            isOneToOne: true
+            referencedRelation: "lista_familii"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "familii_facturare_familie_id_fkey"
+            columns: ["familie_id"]
+            isOneToOne: true
+            referencedRelation: "profil_client"
+            referencedColumns: ["id_familie"]
+          },
+          {
+            foreignKeyName: "familii_facturare_familie_id_fkey"
             columns: ["familie_id"]
             isOneToOne: true
             referencedRelation: "raport_financiar"
@@ -9416,60 +9525,118 @@ export type Database = {
           arhivat: boolean
           auth_user_id: string | null
           created: string
-          data_nasterii: string | null
-          email: string | null
           id: string
-          link_contract: string | null
-          marime_tricou: Database["public"]["Enums"]["marime_tricou"] | null
-          model_salariu: string | null
           nivelul: Database["public"]["Enums"]["nivel_teacher"] | null
           nume: string
-          observatii: string | null
           old_teacher_id: number | null
           poza: string | null
           prenume: string | null
-          telefon: string | null
           updated: string
         }
         Insert: {
           arhivat?: boolean
           auth_user_id?: string | null
           created?: string
-          data_nasterii?: string | null
-          email?: string | null
           id?: string
-          link_contract?: string | null
-          marime_tricou?: Database["public"]["Enums"]["marime_tricou"] | null
-          model_salariu?: string | null
           nivelul?: Database["public"]["Enums"]["nivel_teacher"] | null
           nume: string
-          observatii?: string | null
           old_teacher_id?: number | null
           poza?: string | null
           prenume?: string | null
-          telefon?: string | null
           updated?: string
         }
         Update: {
           arhivat?: boolean
           auth_user_id?: string | null
           created?: string
-          data_nasterii?: string | null
-          email?: string | null
           id?: string
-          link_contract?: string | null
-          marime_tricou?: Database["public"]["Enums"]["marime_tricou"] | null
-          model_salariu?: string | null
           nivelul?: Database["public"]["Enums"]["nivel_teacher"] | null
           nume?: string
-          observatii?: string | null
           old_teacher_id?: number | null
           poza?: string | null
           prenume?: string | null
-          telefon?: string | null
           updated?: string
         }
         Relationships: []
+      }
+      teacheri_detalii: {
+        Row: {
+          data_nasterii: string | null
+          email: string | null
+          link_contract: string | null
+          marime_tricou: Database["public"]["Enums"]["marime_tricou"] | null
+          model_salariu: string | null
+          observatii: string | null
+          teacher_id: string
+          telefon: string | null
+          updated: string
+        }
+        Insert: {
+          data_nasterii?: string | null
+          email?: string | null
+          link_contract?: string | null
+          marime_tricou?: Database["public"]["Enums"]["marime_tricou"] | null
+          model_salariu?: string | null
+          observatii?: string | null
+          teacher_id: string
+          telefon?: string | null
+          updated?: string
+        }
+        Update: {
+          data_nasterii?: string | null
+          email?: string | null
+          link_contract?: string | null
+          marime_tricou?: Database["public"]["Enums"]["marime_tricou"] | null
+          model_salariu?: string | null
+          observatii?: string | null
+          teacher_id?: string
+          telefon?: string | null
+          updated?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teacheri_detalii_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: true
+            referencedRelation: "incasari_teacher_luna"
+            referencedColumns: ["id_teacher"]
+          },
+          {
+            foreignKeyName: "teacheri_detalii_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: true
+            referencedRelation: "lista_cursuri"
+            referencedColumns: ["id_teacher"]
+          },
+          {
+            foreignKeyName: "teacheri_detalii_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: true
+            referencedRelation: "profil_teacher"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teacheri_detalii_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: true
+            referencedRelation: "raport_incasari"
+            referencedColumns: ["id_teacher"]
+          },
+          {
+            foreignKeyName: "teacheri_detalii_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: true
+            referencedRelation: "restante_teacher_luna"
+            referencedColumns: ["id_teacher"]
+          },
+          {
+            foreignKeyName: "teacheri_detalii_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: true
+            referencedRelation: "teacheri"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       unitati_invatamant: {
         Row: {

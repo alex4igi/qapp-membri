@@ -6472,6 +6472,7 @@ export type Database = {
           utm_medium: string | null
           utm_source: string | null
           varsta: number | null
+          wa_click_id: string | null
         }
         Insert: {
           ad_id?: string | null
@@ -6525,6 +6526,7 @@ export type Database = {
           utm_medium?: string | null
           utm_source?: string | null
           varsta?: number | null
+          wa_click_id?: string | null
         }
         Update: {
           ad_id?: string | null
@@ -6578,6 +6580,7 @@ export type Database = {
           utm_medium?: string | null
           utm_source?: string | null
           varsta?: number | null
+          wa_click_id?: string | null
         }
         Relationships: [
           {
@@ -6677,6 +6680,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "restante_locatie_luna"
             referencedColumns: ["id_locatie"]
+          },
+          {
+            foreignKeyName: "leads_wa_click_id_fkey"
+            columns: ["wa_click_id"]
+            isOneToOne: false
+            referencedRelation: "whatsapp_clickuri"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -11003,6 +11013,90 @@ export type Database = {
         }
         Relationships: []
       }
+      utilizare_config: {
+        Row: {
+          activ_pana_la: string
+          exclusi: string[]
+          id: boolean
+          updated: string
+        }
+        Insert: {
+          activ_pana_la: string
+          exclusi?: string[]
+          id?: boolean
+          updated?: string
+        }
+        Update: {
+          activ_pana_la?: string
+          exclusi?: string[]
+          id?: boolean
+          updated?: string
+        }
+        Relationships: []
+      }
+      utilizare_luna: {
+        Row: {
+          luna: string
+          n: number
+          rol: string
+          ruta: string
+          tinta: string
+          tip: string
+          varianta: string
+          zile: number
+        }
+        Insert: {
+          luna: string
+          n: number
+          rol: string
+          ruta: string
+          tinta?: string
+          tip: string
+          varianta: string
+          zile: number
+        }
+        Update: {
+          luna?: string
+          n?: number
+          rol?: string
+          ruta?: string
+          tinta?: string
+          tip?: string
+          varianta?: string
+          zile?: number
+        }
+        Relationships: []
+      }
+      utilizare_zi: {
+        Row: {
+          n: number
+          rol: string
+          ruta: string
+          tinta: string
+          tip: string
+          varianta: string
+          zi: string
+        }
+        Insert: {
+          n: number
+          rol: string
+          ruta: string
+          tinta?: string
+          tip: string
+          varianta: string
+          zi: string
+        }
+        Update: {
+          n?: number
+          rol?: string
+          ruta?: string
+          tinta?: string
+          tip?: string
+          varianta?: string
+          zi?: string
+        }
+        Relationships: []
+      }
       vacante: {
         Row: {
           created: string
@@ -11357,6 +11451,45 @@ export type Database = {
             referencedColumns: ["curs_id"]
           },
         ]
+      }
+      whatsapp_clickuri: {
+        Row: {
+          cod: string
+          created: string
+          gclid: string | null
+          id: string
+          pagina: string | null
+          referrer_host: string | null
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+        }
+        Insert: {
+          cod: string
+          created?: string
+          gclid?: string | null
+          id?: string
+          pagina?: string | null
+          referrer_host?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Update: {
+          cod?: string
+          created?: string
+          gclid?: string | null
+          id?: string
+          pagina?: string | null
+          referrer_host?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Relationships: []
       }
     }
     Views: {
@@ -15268,6 +15401,7 @@ export type Database = {
         Args: { p_lead: string; p_pastreaza: string }
         Returns: number
       }
+      inregistreaza_utilizare: { Args: { p_lot: Json }; Returns: boolean }
       inrolari_active_la: {
         Args: { p_data?: string }
         Returns: {
@@ -15452,6 +15586,10 @@ export type Database = {
           lead_id: string
           referinta: string
         }[]
+      }
+      leaga_click_whatsapp: {
+        Args: { p_lead?: string; p_text: string }
+        Returns: Json
       }
       list_bilete_evenimente: {
         Args: never
@@ -15996,6 +16134,10 @@ export type Database = {
           status: string
         }[]
       }
+      raport_utilizare: {
+        Args: { p_de_la: string; p_pana_la: string }
+        Returns: Json
+      }
       rate_limit_hit: {
         Args: { p_cheie: string; p_fereastra_sec: number; p_limita: number }
         Returns: {
@@ -16313,6 +16455,8 @@ export type Database = {
         Returns: Json
       }
       user_locatie_id: { Args: never; Returns: string }
+      utilizare_perioade: { Args: never; Returns: Json }
+      utilizare_rezumat_lunar: { Args: never; Returns: number }
       validate_voucher_code: {
         Args: {
           p_client: string

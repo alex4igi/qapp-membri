@@ -13,9 +13,16 @@ import {
   getPlataIntegrala,
   createNetopiaPayment,
   type PlataRow,
+  type TipCurs,
 } from './api/payments'
 import { ReduceriSection } from '@/features/reduceri/ReduceriSection'
 import { mesajEroare } from '@/lib/errorMessage'
+
+const TIP_CURS_LABEL: Record<TipCurs, string> = {
+  grupa: 'Grupe',
+  trupa: 'Trupe',
+  facultativ: 'Facultative',
+}
 
 // Rând plătibil (înrolare sau datorie one-off): checkbox + titlu/subtitlu + partea dreaptă.
 function PayableRow({
@@ -88,9 +95,12 @@ export function PlatiPage() {
   const [selectedDatorii, setSelectedDatorii] = useState<Set<string>>(new Set())
   // Acordeon pe sezon: null = starea implicită (doar sezonul cel mai recent deschis).
   const [openSezoane, setOpenSezoane] = useState<Set<string> | null>(null)
+  // Filtrul doar ascunde rânduri: plata rămâne FIFO pe toate înrolările.
+  const [tipFiltru, setTipFiltru] = useState<TipCurs | null>(null)
   useEffect(() => {
     setSelectedDatorii(new Set())
     setOpenSezoane(null)
+    setTipFiltru(null)
   }, [activeMember?.clientId])
 
   useEffect(() => {
@@ -116,9 +126,15 @@ export function PlatiPage() {
     setCutoff(maxDate)
   }, [activeMember?.clientId, unpaid.length]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  const tipuriPrezente = (['grupa', 'trupa', 'facultativ'] as const).filter((t) =>
+    rows.some((r) => r.tipCurs === t),
+  )
+  const vizibil = (r: PlataRow) => tipFiltru == null || r.tipCurs === tipFiltru
+
   const isSelected = (r: PlataRow) => cutoff != null && r.dataIncepere != null && r.dataIncepere <= cutoff
   const selectedRows = unpaid.filter(isSelected)
   const selectedSum = selectedRows.reduce((a, r) => a + r.rest, 0)
+  const selectateAscunse = selectedRows.filter((r) => !vizibil(r)).length
   // Înrolarea-limită trimisă la server (null dacă plătim tot → RPC plătește toată restanța).
   const cutoffEnrollmentId =
     selectedRows.length > 0 && selectedRows.length < unpaid.length
@@ -180,7 +196,7 @@ export function PlatiPage() {
 
   // Grupare pe sezon, păstrând ordinea cronologică a rândurilor.
   const groups: { sezon: string; rows: PlataRow[] }[] = []
-  for (const r of rows) {
+  for (const r of rows.filter(vizibil)) {
     const key = r.sezonNume ?? 'Fără sezon'
     let g = groups.find((x) => x.sezon === key)
     if (!g) { g = { sezon: key, rows: [] }; groups.push(g) }
@@ -301,6 +317,27 @@ export function PlatiPage() {
         {plati.data && rows.length === 0 && (
           <p className="text-sm text-sub">Nicio înrolare.</p>
         )}
+        {tipuriPrezente.length > 1 && (
+          <div className="flex flex-wrap gap-2" role="group" aria-label="Filtrează după tipul cursului">
+            {([null, ...tipuriPrezente] as (TipCurs | null)[]).map((t) => {
+              const activ = tipFiltru === t
+              return (
+                <button
+                  key={t ?? 'toate'}
+                  type="button"
+                  onClick={() => setTipFiltru(t)}
+                  aria-pressed={activ}
+                  className={cn(
+                    'rounded-full border px-3 py-1 text-sm font-semibold',
+                    activ ? 'border-acc bg-acc text-acc-ink' : 'border-line bg-surf text-sub',
+                  )}
+                >
+                  {t ? TIP_CURS_LABEL[t] : 'Toate'}
+                </button>
+              )
+            })}
+          </div>
+        )}
 
         {displayGroups.map((g) => {
           const open = isGroupOpen(g.sezon)
@@ -415,6 +452,13 @@ export function PlatiPage() {
             </span>
             <span className="font-extrabold text-ink">{formatRON(grandTotal)}</span>
           </div>
+          {selectateAscunse > 0 && (
+            <p className="text-xs text-sub">
+              Include și {selectateAscunse}{' '}
+              {selectateAscunse === 1 ? 'rată ascunsă' : 'rate ascunse'} de filtru — lunile se
+              achită în ordine, de la cea mai veche.
+            </p>
+          )}
           <p className="text-xs text-sub">
             Moneda: RON. Vei fi redirecționat către NETOPIA Payments pentru plata securizată cu cardul.
           </p>

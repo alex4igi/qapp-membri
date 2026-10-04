@@ -51,7 +51,10 @@ export type PlataRow = {
   codVoucher: string | null
   sezonId: string | null
   sezonNume: string | null
+  tipCurs: TipCurs
 }
+
+export type TipCurs = 'grupa' | 'trupa' | 'facultativ'
 
 export async function getPlatiClient(clientId: string): Promise<PlataRow[]> {
   const { data, error } = await supabase.rpc('get_plati_client', { p_client: clientId })
@@ -67,6 +70,7 @@ export async function getPlatiClient(clientId: string): Promise<PlataRow[]> {
     codVoucher: r.cod_voucher,
     sezonId: r.sezon_id ?? null,
     sezonNume: r.sezon_nume ?? null,
+    tipCurs: (r.tip_curs ?? 'grupa') as TipCurs,
   }))
 }
 

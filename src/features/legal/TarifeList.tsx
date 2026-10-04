@@ -7,6 +7,7 @@ import { P, UL } from './ui'
 // vechi hard-codate (evităm desincronizarea) — punem un fallback neutru.
 export function TarifeList() {
   const { data, isLoading, isError } = useQuery({
+    meta: { erroareAfisata: true },
     queryKey: ['tarife_publice'],
     queryFn: listTarifePublice,
   })

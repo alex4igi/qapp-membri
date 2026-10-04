@@ -1,3 +1,4 @@
+import { mesajEroare } from '@/lib/errorMessage'
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '@/hooks/useAuth'
@@ -70,7 +71,7 @@ function SchimbaParola() {
     setMsg(null)
     const { error } = await updatePassword(pwd)
     setBusy(false)
-    setMsg(error ? `Eroare: ${error}` : 'Parola a fost schimbată.')
+    setMsg(error ? `Parola nu s-a schimbat. ${error}` : 'Parola a fost schimbată.')
     if (!error) setPwd('')
   }
 
@@ -106,6 +107,7 @@ function FisaFamilie() {
   useEffect(() => setForm(data ?? null), [data])
 
   const mut = useMutation({
+    meta: { erroareAfisata: true },
     mutationFn: updateProfilFamilie,
     onSuccess: () => {
       setSaved(true)
@@ -241,7 +243,11 @@ function FisaFamilie() {
         )}
       </div>
 
-      {mut.isError && <p className="text-sm text-danger">Eroare la salvare.</p>}
+      {mut.isError && (
+        <p className="text-sm text-danger">
+          Datele familiei nu s-au salvat. {mesajEroare(mut.error)}
+        </p>
+      )}
       <Button type="submit" disabled={mut.isPending}>
         {mut.isPending ? 'Se salvează…' : 'Salvează datele'}
       </Button>
@@ -263,6 +269,7 @@ function FisaMembru() {
   useEffect(() => setForm(data ?? null), [data])
 
   const mut = useMutation({
+    meta: { erroareAfisata: true },
     mutationFn: updateProfilClient,
     onSuccess: () => {
       setSaved(true)
@@ -362,7 +369,11 @@ function FisaMembru() {
       </div>
       )}
 
-      {mut.isError && <p className="text-sm text-danger">Eroare la salvare.</p>}
+      {mut.isError && (
+        <p className="text-sm text-danger">
+          Datele cursantului nu s-au salvat. {mesajEroare(mut.error)}
+        </p>
+      )}
       <Button type="submit" disabled={mut.isPending || cnpInvalid}>
         {mut.isPending ? 'Se salvează…' : 'Salvează'}
       </Button>

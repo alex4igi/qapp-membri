@@ -35,7 +35,7 @@ async function call(body: Record<string, unknown>): Promise<Response> {
 export async function loadContract(token: string): Promise<LoadResult> {
   const res = await call({ action: 'load', token })
   const data = (await res.json()) as LoadResult
-  if (!res.ok && !data.error) data.error = 'Eroare la încărcare.'
+  if (!res.ok && !data.error) data.error = 'Documentul nu s-a putut încărca. Reîncarcă pagina peste câteva minute; dacă tot nu merge, cere recepției un link nou.'
   return data
 }
 
@@ -48,7 +48,7 @@ export async function submitContract(params: {
 }): Promise<{ ok?: boolean; message?: string; error?: string }> {
   const res = await call({ action: 'submit', ...params })
   const data = await res.json()
-  if (!res.ok && !data.error) data.error = 'Eroare la trimitere.'
+  if (!res.ok && !data.error) data.error = 'Documentul nu s-a trimis. Apasă din nou „Semnează documentul”; ce ai completat rămâne pe pagină.'
   return data
 }
 
@@ -76,6 +76,6 @@ export async function downloadContract(
     descarcareExpirata?: boolean
     error?: string
   }
-  if (!res.ok && !data.error) data.error = 'Documentul nu poate fi descărcat acum.'
+  if (!res.ok && !data.error) data.error = 'Documentul nu s-a putut descărca acum. Încearcă din nou peste câteva minute.'
   return data
 }

@@ -1,3 +1,4 @@
+import { mesajEroare } from '@/lib/errorMessage'
 import { useState, type ReactNode } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useActiveMember } from '@/hooks/useActiveMember'
@@ -166,6 +167,7 @@ function ActivityRow({ activity }: { activity: RatableActivity }) {
   const [detalii, setDetalii] = useState(activity.detalii ?? '')
 
   const mut = useMutation({
+    meta: { erroareAfisata: true },
     mutationFn: () =>
       submitRating({ clientId: activeMember!.clientId, activity, rating, detalii }),
     onSuccess: () =>
@@ -236,7 +238,7 @@ function ActivityRow({ activity }: { activity: RatableActivity }) {
       )}
       {mut.isError && (
         <p className="text-xs text-danger">
-          {(mut.error as { message?: string })?.message ?? 'Eroare la trimitere.'}
+          {mesajEroare(mut.error)}
         </p>
       )}
       <div className="flex items-center gap-3">

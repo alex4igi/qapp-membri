@@ -5,6 +5,7 @@ import { Spinner } from '@/components/ui'
 import { formatData } from '@/lib/format'
 import { getDocumenteClient, getDocumentDownloadUrl, type DocumentRow } from './api'
 import { AdeverintaDocument } from './AdeverintaDocument'
+import { CONTACT_RECEPTIE, mesajEroare } from '@/lib/errorMessage'
 
 function DownloadIcon() {
   return (
@@ -43,7 +44,7 @@ function DocumentCard({ doc }: { doc: DocumentRow }) {
       a.click()
       a.remove()
     } catch (e) {
-      setErr(e instanceof Error ? e.message : 'Nu am putut descărca documentul.')
+      setErr(mesajEroare(e, `Documentul nu s-a putut descărca acum. Încearcă din nou peste câteva minute; dacă nu merge, ${CONTACT_RECEPTIE} și îți trimitem documentul pe email.`))
     } finally {
       setLoading(false)
     }
@@ -87,6 +88,7 @@ export function DocumenteSection() {
   const { activeMember } = useActiveMember()
   const [showAdeverinta, setShowAdeverinta] = useState(false)
   const { data, isLoading, error } = useQuery({
+    meta: { erroareAfisata: true },
     queryKey: ['documente', activeMember?.clientId],
     queryFn: () => getDocumenteClient(activeMember!.clientId),
     enabled: !!activeMember,
@@ -98,7 +100,11 @@ export function DocumenteSection() {
     <section className="space-y-3">
       <h2 className="text-base font-extrabold text-ink">Documente</h2>
       {isLoading && <Spinner />}
-      {error && <p className="text-sm text-danger">Eroare la încărcare.</p>}
+      {error && (
+        <p className="text-sm text-danger">
+          Nu am putut încărca documentele. {mesajEroare(error)}
+        </p>
+      )}
 
       <div className="grid gap-3.5 sm:grid-cols-2">
         {(data ?? []).map((d) => (

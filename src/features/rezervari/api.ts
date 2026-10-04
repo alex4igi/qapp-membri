@@ -1,4 +1,5 @@
 import { supabase, edgeFunctionError } from '@/lib/supabase'
+import { mesajEroare } from '@/lib/errorMessage'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // REZERVĂRI OPEN CLASS (cursuri facultative: OPEN + K-pop Covers).
@@ -73,7 +74,7 @@ export async function previewVoucherRezervare(params: {
   })
   if (error) throw error
   const v = data?.[0]
-  if (!v?.valid) return { valid: false, motiv: v?.reason ?? 'Voucher invalid.' }
+  if (!v?.valid) return { valid: false, motiv: mesajEroare(v?.reason ?? 'Cod inexistent.') }
   const pretFinal = applyVoucherAmount(params.pret, v.tip, v.valoare)
   return {
     valid: true,

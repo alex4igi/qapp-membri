@@ -59,7 +59,20 @@ export async function callPortalAuth(
   body: Record<string, unknown>,
   accessToken?: string,
 ): Promise<{ ok: boolean; status: number; data: Record<string, unknown> }> {
-  const res = await postEdgeFunction('portal-auth', body, accessToken)
+  let res: Response
+  try {
+    res = await postEdgeFunction('portal-auth', body, accessToken)
+  } catch {
+    // Fără răspuns de la server: altfel butonul rămâne blocat pe „Se conectează…".
+    return {
+      ok: false,
+      status: 0,
+      data: { error: 'Nu ne-am putut conecta la server. Verifică internetul (Wi-Fi sau date mobile) și încearcă din nou.' },
+    }
+  }
   const data = await res.json().catch(() => ({}))
+  if (!res.ok && !data.error) {
+    data.error = 'Serverul nu a răspuns cum trebuie. Încearcă din nou peste câteva minute; dacă se repetă, scrie-ne la office@quasardance.ro.'
+  }
   return { ok: res.ok, status: res.status, data }
 }

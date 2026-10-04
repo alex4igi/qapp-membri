@@ -15,6 +15,7 @@ import {
   type PlataRow,
 } from './api/payments'
 import { ReduceriSection } from '@/features/reduceri/ReduceriSection'
+import { mesajEroare } from '@/lib/errorMessage'
 
 // Rând plătibil (înrolare sau datorie one-off): checkbox + titlu/subtitlu + partea dreaptă.
 function PayableRow({
@@ -150,6 +151,7 @@ export function PlatiPage() {
   }
 
   const pay = useMutation({
+    meta: { erroareAfisata: true },
     mutationFn: () =>
       createNetopiaPayment({
         clientId: activeMember!.clientId,
@@ -163,6 +165,7 @@ export function PlatiPage() {
   })
 
   const payIntegral = useMutation({
+    meta: { erroareAfisata: true },
     mutationFn: () =>
       createNetopiaPayment({ clientId: activeMember!.clientId, platesteIntegral: true }),
     onSuccess: (res) => {
@@ -279,7 +282,7 @@ export function PlatiPage() {
               : `Plătește integral ${formatRON(integrala.data.totalPlata)}`}
           </Button>
           {payIntegral.isError && (
-            <p className="mt-1 text-xs text-danger">{(payIntegral.error as Error).message}</p>
+            <p className="mt-1 text-xs text-danger">{mesajEroare(payIntegral.error)}</p>
           )}
           <p className="mt-2 text-xs text-sub">
             Conform contractului, reducerea de 5% se acordă pentru achitarea integrală a sezonului
@@ -423,7 +426,7 @@ export function PlatiPage() {
           >
             {pay.isPending ? 'Se inițiază…' : `Plătește ${formatRON(grandTotal)}`}
           </Button>
-          {pay.isError && <p className="mt-1 text-xs text-danger">{(pay.error as Error).message}</p>}
+          {pay.isError && <p className="mt-1 text-xs text-danger">{mesajEroare(pay.error)}</p>}
         </section>
       )}
     </div>

@@ -7,6 +7,7 @@ import { H2, UL } from './ui'
 // există produse active, secțiunea NU se afișează deloc (e opțională).
 export function ProduseList() {
   const { data, isLoading, isError } = useQuery({
+    meta: { erroareAfisata: true },
     queryKey: ['produse_publice'],
     queryFn: listProdusePublice,
   })

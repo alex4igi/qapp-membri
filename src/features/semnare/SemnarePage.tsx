@@ -113,10 +113,10 @@ export function SemnarePage() {
         setGata(false)
         setDescarcareErr(res.error ?? '')
       } else {
-        setDescarcareErr(res.error ?? 'Documentul nu poate fi descărcat acum.')
+        setDescarcareErr(res.error ?? 'Documentul nu s-a putut descărca acum. Încearcă din nou peste câteva minute.')
       }
     } catch {
-      setDescarcareErr('Nu am putut descărca documentul. Verifică conexiunea.')
+      setDescarcareErr('Nu am putut descărca documentul. Verifică internetul și apasă din nou; documentul semnat rămâne oricum în contul tău de membru, la Documente.')
     } finally {
       setDescarcare(false)
     }
@@ -188,8 +188,13 @@ export function SemnarePage() {
         setDoneMsg(res.message ?? 'Documentul a fost semnat. Mulțumim!')
         setState('done')
       } else {
-        setSubmitErr(res.error ?? 'Eroare la trimitere. Reîncearcă.')
+        setSubmitErr(res.error ?? 'Documentul nu s-a trimis. Apasă din nou „Semnează documentul”.')
       }
+    } catch {
+      // Semnătura și câmpurile rămân completate: omul doar reapasă butonul.
+      setSubmitErr(
+        'Nu am primit confirmarea semnării. Verifică internetul și apasă din nou „Semnează documentul” — ce ai completat rămâne pe pagină, iar dacă semnarea a apucat să treacă, pagina îți spune.',
+      )
     } finally {
       setSubmitting(false)
     }

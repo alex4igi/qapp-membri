@@ -24,7 +24,7 @@ export function LoginPage() {
     const { error, mustChangePassword } = await signIn(email, password)
     setBusy(false)
     if (mustChangePassword) setMustChange(true)
-    else if (error) setError('Email sau parolă incorecte.')
+    else if (error) setError(error)
   }
 
   async function onSetPassword(e: FormEvent) {

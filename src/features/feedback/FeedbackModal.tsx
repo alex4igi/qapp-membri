@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Button, Modal } from '@/components/ui'
 import { useActiveMember } from '@/hooks/useActiveMember'
 import { submitFeedback, TIP_OPTIONS, type FeedbackTip } from './api'
+import { CONTACT_RECEPTIE, mesajEroare } from '@/lib/errorMessage'
 
 type Props = { open: boolean; onClose: () => void }
 
@@ -26,7 +27,7 @@ export function FeedbackModal({ open, onClose }: Props) {
       await submitFeedback({ tip, titlu, detalii, clientId: activeClientId })
       setTrimis(true)
     } catch (e) {
-      setEroare(e instanceof Error ? e.message : 'Nu am putut trimite mesajul.')
+      setEroare(mesajEroare(e, `Mesajul nu s-a trimis. Încearcă din nou peste câteva minute sau ${CONTACT_RECEPTIE}.`))
     } finally {
       setSaving(false)
     }

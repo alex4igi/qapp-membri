@@ -83,7 +83,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function doRefresh() {
     const cur = load()
     if (!cur?.refresh_token) return clearSession()
-    const { ok, data } = await callPortalAuth({ action: 'refresh', refresh_token: cur.refresh_token })
+    const { ok, status, data } = await callPortalAuth({ action: 'refresh', refresh_token: cur.refresh_token })
+    // Fără internet sesiunea rămâne: tokenul se reîncearcă, nu scoatem omul din cont.
+    if (status === 0) {
+      timer.current = window.setTimeout(doRefresh, 30_000)
+      return
+    }
     if (!ok || !data.access_token) return clearSession()
     apply({
       access_token: data.access_token as string,
@@ -114,7 +119,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { ok, data } = await callPortalAuth({ action: 'login', email, password })
     if (ok && data.must_change_password) return { error: null, mustChangePassword: true }
     if (!ok || !data.access_token) {
-      return { error: (data.error as string) ?? 'Email sau parolă greșite.' }
+      return { error: (data.error as string) ?? 'Nu te-am putut autentifica. Încearcă din nou.' }
     }
     apply({
       access_token: data.access_token as string,
@@ -138,7 +143,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       new_password: newPassword,
     })
     if (!ok || !data.access_token) {
-      return { error: (data.error as string) ?? 'Salvarea parolei a eșuat.' }
+      return { error: (data.error as string) ?? 'Parola nouă nu s-a salvat. Încearcă din nou.' }
     }
     apply({
       access_token: data.access_token as string,
@@ -158,12 +163,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const updatePassword: AuthContextValue['updatePassword'] = async (newPassword) => {
     const cur = load()
-    if (!cur) return { error: 'Sesiune expirată. Autentifică-te din nou.' }
+    if (!cur) return { error: 'Sesiunea ta a expirat. Ieși din cont și intră din nou, apoi schimbă parola.' }
     const { ok, data } = await callPortalAuth(
       { action: 'change_password', new_password: newPassword },
       cur.access_token,
     )
-    return { error: ok ? null : ((data.error as string) ?? 'Schimbarea parolei a eșuat.') }
+    return { error: ok ? null : ((data.error as string) ?? 'Încearcă din nou peste câteva minute.') }
   }
 
   const value: AuthContextValue = {

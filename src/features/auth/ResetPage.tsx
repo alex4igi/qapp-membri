@@ -26,8 +26,8 @@ export function ResetPage() {
     setBusy(false)
     setMsg(
       ok
-        ? 'Dacă adresa există, ți-am trimis un link de resetare pe email.'
-        : `Eroare: ${(data.error as string) ?? 'încearcă din nou'}`,
+        ? 'Dacă adresa are cont, ți-am trimis un link de resetare (valabil o oră). Nu-l găsești în câteva minute? Uită-te și în Spam sau Promoții, ori încearcă emailul pe care l-ai dat la înscriere.'
+        : `Linkul nu s-a trimis. ${data.error as string}`,
     )
   }
 
@@ -38,7 +38,7 @@ export function ResetPage() {
     const { ok, data } = await callPortalAuth({ action: 'reset', token, password: pwd })
     setBusy(false)
     if (!ok) {
-      setMsg(`Eroare: ${(data.error as string) ?? 'link invalid sau expirat'}`)
+      setMsg(`Parola nu s-a schimbat. ${data.error as string}`)
       return
     }
     setMsg('Parola a fost schimbată. Te redirecționăm la autentificare…')

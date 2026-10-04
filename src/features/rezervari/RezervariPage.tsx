@@ -1,3 +1,4 @@
+import { mesajEroare } from '@/lib/errorMessage'
 import { useEffect, useState, type ReactNode } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -30,6 +31,7 @@ export function RezervariPage() {
   const [voucherCod, setVoucherCod] = useState('')
 
   const { data, isLoading, error } = useQuery({
+    meta: { erroareAfisata: true },
     queryKey: ['open-sesiuni'],
     queryFn: () => listOpenSesiuniClient(),
   })
@@ -45,6 +47,7 @@ export function RezervariPage() {
 
   const codVoucher = voucherCod.trim()
   const voucherQ = useQuery({
+    meta: { erroareAfisata: true },
     queryKey: ['voucher-rezervare', codVoucher.toUpperCase(), activeMember?.clientId, selected?.sesiuneId],
     queryFn: () =>
       previewVoucherRezervare({
@@ -65,6 +68,7 @@ export function RezervariPage() {
     (voucherQ.isFetching || voucherQ.isError || voucher?.valid === false || voucherIntegral)
 
   const reserve = useMutation({
+    meta: { erroareAfisata: true },
     mutationFn: (sesiuneId: string) =>
       reserveOpenAndPay({ clientId: activeMember!.clientId, sesiuneId, voucherCod }),
     onSuccess: (res) => {
@@ -107,7 +111,11 @@ export function RezervariPage() {
       </label>
 
       {isLoading && <Spinner />}
-      {error && <p className="text-sm text-danger">Eroare la încărcare.</p>}
+      {error && (
+        <p className="text-sm text-danger">
+          Nu am putut încărca ședințele disponibile. {mesajEroare(error)}
+        </p>
+      )}
       {data && data.length === 0 && (
         <p className="text-sm text-sub">Nicio sesiune disponibilă momentan.</p>
       )}
@@ -199,10 +207,13 @@ export function RezervariPage() {
               </p>
             )}
             {voucherQ.isError && (
-              <p className="text-sm text-danger">Nu am putut verifica voucherul. Încearcă din nou.</p>
+              <p className="text-sm text-danger">
+                Nu am putut verifica codul. {mesajEroare(voucherQ.error)} Dacă vrei să plătești acum
+                fără reducere, șterge codul.
+              </p>
             )}
             {reserve.isError && (
-              <p className="text-sm text-danger">{(reserve.error as Error).message}</p>
+              <p className="text-sm text-danger">{mesajEroare(reserve.error)}</p>
             )}
             <div className="flex flex-wrap items-center gap-2 pt-1 text-xs text-sub">
               <span>Plată securizată cu cardul (RON) prin:</span>

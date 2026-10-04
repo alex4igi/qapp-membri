@@ -8,6 +8,7 @@ import { getSezonCurentClient } from '@/features/calendar/api'
 import { EvaluariSection } from '@/features/evaluari/EvaluariSection'
 import { PrezenteSection } from '@/features/prezente/PrezenteSection'
 import { ActivitateSection } from '@/features/activitate/ActivitateSection'
+import { mesajEroare } from '@/lib/errorMessage'
 
 type GrupaTab = 'cursuri' | 'prezente' | 'activitate'
 
@@ -129,6 +130,7 @@ export function GrupaPage() {
   const sezonKey = sezonAles ?? sezonImplicit
 
   const { data, isLoading, error } = useQuery({
+    meta: { erroareAfisata: true },
     queryKey: ['grupe-sezon', clientId, sezonKey],
     queryFn: () => getGrupeSezon(clientId!, sezonKey === FARA_SEZON ? null : sezonKey),
     enabled: !!clientId && tab === 'cursuri' && sezonKey !== null,
@@ -198,7 +200,11 @@ export function GrupaPage() {
             />
           )}
           {isLoading && <Spinner />}
-          {error && <p className="text-sm text-danger">Eroare la încărcare.</p>}
+          {error && (
+            <p className="text-sm text-danger">
+              Nu am putut încărca grupele. {mesajEroare(error)}
+            </p>
+          )}
           {!sezoane.isLoading && optiuni.length === 0 && (
             <p className="text-sm text-sub">Nicio înrolare înregistrată.</p>
           )}

@@ -19,6 +19,7 @@ function formatData(d: string | null): string | null {
 // NU se afișează deloc (e opțională).
 export function BileteList() {
   const { data, isLoading, isError } = useQuery({
+    meta: { erroareAfisata: true },
     queryKey: ['bilete_publice'],
     queryFn: listBiletePublice,
   })

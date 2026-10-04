@@ -41,6 +41,6 @@ export async function getDocumentDownloadUrl(documentId: string): Promise<string
   })
   if (error) throw await edgeFunctionError(error)
   const url = (data as { url?: string }).url
-  if (!url) throw new Error('Documentul nu poate fi descărcat acum.')
+  if (!url) throw new Error('Documentul nu s-a putut pregăti pentru descărcare. Încearcă din nou peste câteva minute; dacă nu merge, scrie-ne la office@quasardance.ro și ți-l trimitem pe email.')
   return url
 }

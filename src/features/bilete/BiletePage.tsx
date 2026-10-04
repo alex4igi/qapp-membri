@@ -1,3 +1,4 @@
+import { mesajEroare } from '@/lib/errorMessage'
 import { useEffect, useState, type ReactNode } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -32,6 +33,7 @@ export function BiletePage() {
   const [qty, setQty] = useState(1)
 
   const evenimenteQ = useQuery({
+    meta: { erroareAfisata: true },
     queryKey: ['bilete-evenimente'],
     queryFn: listBileteEvenimente,
   })
@@ -53,6 +55,7 @@ export function BiletePage() {
   }, [searchParams, queryClient, setSearchParams])
 
   const buy = useMutation({
+    meta: { erroareAfisata: true },
     mutationFn: () =>
       buyBileteAndPay({
         clientId: activeMember!.clientId,
@@ -97,7 +100,11 @@ export function BiletePage() {
 
       <section className="space-y-4">
         {evenimenteQ.isLoading && <Spinner />}
-        {evenimenteQ.error && <p className="text-sm text-danger">Eroare la încărcare.</p>}
+        {evenimenteQ.error && (
+          <p className="text-sm text-danger">
+            Nu am putut încărca evenimentele cu bilete. {mesajEroare(evenimenteQ.error)}
+          </p>
+        )}
         {evenimenteQ.data && evenimenteQ.data.length === 0 && (
           <p className="text-sm text-sub">Niciun eveniment cu bilete disponibil momentan.</p>
         )}
@@ -217,7 +224,7 @@ export function BiletePage() {
             <div className="border-t border-line pt-3">
               <SummaryRow label="Total de plată" value={formatRON(total)} />
             </div>
-            {buy.isError && <p className="text-sm text-danger">{(buy.error as Error).message}</p>}
+            {buy.isError && <p className="text-sm text-danger">{mesajEroare(buy.error)}</p>}
             <div className="flex flex-wrap items-center gap-2 pt-1 text-xs text-sub">
               <span>Plată securizată cu cardul (RON) prin:</span>
               <PaymentBadges />

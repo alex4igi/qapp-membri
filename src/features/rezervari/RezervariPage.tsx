@@ -1,18 +1,16 @@
 import { mesajEroare } from '@/lib/errorMessage'
-import { useEffect, useState, type ReactNode } from 'react'
-import { useSearchParams } from 'react-router-dom'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useState, type ReactNode } from 'react'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { useActiveMember } from '@/hooks/useActiveMember'
 import { Button, Modal, Spinner } from '@/components/ui'
 import { PaymentBadges } from '@/components/PaymentBadges'
 import { formatRON, formatData } from '@/lib/format'
+import { RezultatComanda } from '@/features/plati/RezultatComanda'
 import {
-  getStatusComanda,
   listOpenSesiuniClient,
   previewVoucherRezervare,
   reserveOpenAndPay,
   type OpenSesiuneRow,
-  type StatusComanda,
 } from './api'
 
 function SummaryRow({ label, value }: { label: string; value: ReactNode }) {
@@ -26,10 +24,6 @@ function SummaryRow({ label, value }: { label: string; value: ReactNode }) {
 
 export function RezervariPage() {
   const { activeMember } = useActiveMember()
-  const queryClient = useQueryClient()
-  const [searchParams, setSearchParams] = useSearchParams()
-  const [orderRef, setOrderRef] = useState<string | null>(null)
-  const [astept, setAstept] = useState(false)
   const [selected, setSelected] = useState<OpenSesiuneRow | null>(null)
   const [voucherCod, setVoucherCod] = useState('')
 
@@ -38,41 +32,6 @@ export function RezervariPage() {
     queryKey: ['open-sesiuni', activeMember?.clientId ?? null],
     queryFn: () => listOpenSesiuniClient(activeMember?.clientId),
   })
-
-  // Revenire din Netopia (?order=...): confirmarea vine din IPN, deci întrebăm comanda
-  // câteva secunde până iese din 'pending'.
-  useEffect(() => {
-    const ref = searchParams.get('order')
-    if (!ref) return
-    setOrderRef(ref)
-    setAstept(true)
-    searchParams.delete('order')
-    setSearchParams(searchParams, { replace: true })
-  }, [searchParams, setSearchParams])
-
-  useEffect(() => {
-    if (!astept) return
-    const t = setTimeout(() => setAstept(false), 30_000)
-    return () => clearTimeout(t)
-  }, [astept])
-
-  const comanda = useQuery({
-    meta: { erroareAfisata: true },
-    queryKey: ['status-comanda', orderRef],
-    queryFn: () => getStatusComanda(orderRef!),
-    enabled: !!orderRef,
-    refetchInterval: (q) => (astept && q.state.data?.status === 'pending' ? 2000 : false),
-  })
-  const statusComanda = comanda.data?.status
-
-  useEffect(() => {
-    if (!statusComanda) return
-    queryClient.invalidateQueries({ queryKey: ['open-sesiuni'] })
-    if (statusComanda === 'confirmed') {
-      queryClient.invalidateQueries({ queryKey: ['plati'] })
-      queryClient.invalidateQueries({ queryKey: ['sold-familie'] })
-    }
-  }, [statusComanda, queryClient])
 
   const codVoucher = voucherCod.trim()
   const voucherQ = useQuery({
@@ -118,7 +77,7 @@ export function RezervariPage() {
         plătești cu cardul; locul se confirmă după plată.
       </p>
 
-      {orderRef && <RezultatPlata comanda={comanda.data} seIncarca={comanda.isLoading} astept={astept} />}
+      <RezultatComanda />
 
       <label className="block max-w-xs">
         <span className="mb-1 block text-xs font-medium text-sub">
@@ -264,65 +223,6 @@ export function RezervariPage() {
           </div>
         )}
       </Modal>
-    </div>
-  )
-}
-
-function RezultatPlata({
-  comanda,
-  seIncarca,
-  astept,
-}: {
-  comanda: StatusComanda | null | undefined
-  seIncarca: boolean
-  astept: boolean
-}) {
-  const box = 'rounded-2xl border px-4 py-3 text-sm'
-  const ce = comanda?.cursNume
-    ? ` — ${comanda.cursNume}${comanda.data ? `, ${formatData(comanda.data)}` : ''}`
-    : ''
-
-  if (comanda?.status === 'confirmed') {
-    return (
-      <div className={`${box} border-ok bg-surf text-ink`}>
-        <p className="font-bold text-ok">✓ Rezervare confirmată{ce}</p>
-        <p className="mt-1 text-sub">Plata a trecut. Ședința e marcată mai jos și apare în Plăți.</p>
-      </div>
-    )
-  }
-  if (comanda?.status === 'failed' || comanda?.status === 'canceled') {
-    return (
-      <div className={`${box} border-danger bg-surf text-ink`}>
-        <p className="font-bold text-danger">Plata nu a trecut, deci locul nu e rezervat{ce}</p>
-        <p className="mt-1 text-sub">
-          Poți încerca din nou de pe cardul ședinței. Dacă banca ți-a retras totuși suma, scrie-ne
-          la office@quasardance.ro și o verificăm.
-        </p>
-      </div>
-    )
-  }
-  if (seIncarca || (comanda?.status === 'pending' && astept)) {
-    return (
-      <div className={`${box} border-line bg-surf2 text-ink`}>
-        <Spinner label="Verificăm plata la bancă…" />
-      </div>
-    )
-  }
-  if (comanda?.status === 'pending') {
-    return (
-      <div className={`${box} border-acc bg-surf2 text-ink`}>
-        <p className="font-bold">⏳ Banca încă procesează plata{ce}</p>
-        <p className="mt-1 text-sub">
-          Locul îți e ținut până la confirmare. Reîncarcă pagina peste câteva minute: când plata
-          trece, ședința apare marcată cu „Ai loc rezervat”. Dacă suma ți-a fost retrasă și
-          rezervarea nu apare confirmată, scrie-ne la office@quasardance.ro.
-        </p>
-      </div>
-    )
-  }
-  return (
-    <div className={`${box} border-acc bg-surf2 text-ink`}>
-      Plata a fost inițiată. Rezervarea se confirmă automat după validarea plății de către bancă.
     </div>
   )
 }

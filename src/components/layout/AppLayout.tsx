@@ -9,7 +9,7 @@ import { NotificationBell } from '@/features/notificari/NotificationBell'
 import { FeedbackFab } from '@/features/feedback/FeedbackFab'
 import { Logo } from '@/components/Logo'
 import { FIRMA } from '@/features/legal/firma'
-import { getSoldFamilie } from '@/features/plati/api/payments'
+import { getRezumatPlati, sumarPlati } from '@/features/plati/api/payments'
 import { cn } from '@/lib/cn'
 
 // ===== Iconițe (line icons, 24x24) =====
@@ -61,9 +61,10 @@ const PAGE_META: Record<string, [string, string]> = {
   '/profil': ['Profil', 'Date personale, documente și setări'],
 }
 
+// Badge-ul roșu din meniu = doar restanța (termen trecut), nu rata care urmează.
 function useSoldTotal(): number {
-  const sold = useQuery({ queryKey: ['sold-familie'], queryFn: getSoldFamilie })
-  return (sold.data ?? []).reduce((a, r) => a + r.restanta, 0)
+  const rezumat = useQuery({ queryKey: ['rezumat-plati'], queryFn: getRezumatPlati })
+  return sumarPlati(rezumat.data ?? []).restant
 }
 
 function ThemeToggle() {

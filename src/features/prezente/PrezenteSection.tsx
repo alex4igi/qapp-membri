@@ -109,9 +109,6 @@ export function PrezenteSection() {
   }, [prezente.data])
 
   const prezentCount = grupuri.reduce((a, g) => a + g.prezent, 0)
-  const absentCount = grupuri.reduce((a, g) => a + g.absent, 0)
-  const totalRated = prezentCount + absentCount
-  const rate = totalRated > 0 ? Math.round((prezentCount / totalRated) * 100) + '%' : '—'
 
   const toggleLuna = (id: string) =>
     setOpenLuni((prev) => {
@@ -138,19 +135,12 @@ export function PrezenteSection() {
         }}
       />
 
-      <div className="grid grid-cols-3 gap-4">
-        <div className="rounded-2xl border border-line bg-surf p-5 shadow-card">
-          <p className="text-sm text-sub">Prezent</p>
-          <p className="text-3xl font-extrabold tracking-tight text-ink">{prezentCount}</p>
-        </div>
-        <div className="rounded-2xl border border-line bg-surf p-5 shadow-card">
-          <p className="text-sm text-sub">Absent</p>
-          <p className="text-3xl font-extrabold tracking-tight text-danger">{absentCount}</p>
-        </div>
-        <div className="rounded-2xl bg-acc p-5 text-acc-ink shadow-card">
-          <p className="text-sm opacity-80">Rată prezență</p>
-          <p className="text-3xl font-extrabold tracking-tight">{rate}</p>
-        </div>
+      {/* Fără procent: instructorii bifează de regulă doar prezenții, deci o „rată" ar ieși
+          aproape mereu 100% și n-ar spune nimic (reguli-domeniu §5). */}
+      <div className="rounded-2xl border border-line bg-surf p-5 shadow-card">
+        <p className="text-sm text-sub">Ședințe la care a fost prezent</p>
+        <p className="text-3xl font-extrabold tracking-tight text-ink">{prezentCount}</p>
+        <p className="mt-1 text-xs text-sub">Din prezențele bifate de instructor în sezonul ales.</p>
       </div>
 
       {prezente.isLoading && <Spinner />}

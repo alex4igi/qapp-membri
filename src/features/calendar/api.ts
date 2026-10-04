@@ -1,24 +1,44 @@
 import { supabase } from '@/lib/supabase'
 import { formatLocatie } from '@/lib/format'
-import type { Enums } from '@/types/db'
-import { getGrupeClient, type GrupaRow } from '@/features/grupa/api'
 import { getEvenimenteClient, type EvenimentRow } from '@/features/activitate/api'
 
-export { getGrupeClient, getEvenimenteClient }
-export type { GrupaRow, EvenimentRow }
+export { getEvenimenteClient }
+export type { EvenimentRow }
 
-// Calendarul membrului = proiecția pe zile a trei surse existente (fără tabele noi):
-//   1. ședințele recurente săptămânale din înrolările active (zile[] + ora)
-//   2. evenimentele studioului (studio-wide) + evenimentele grupelor membrului
-//      (exclusive — vizibile doar cu înrolare activă pe grupă)
-//   3. rezervările OPEN class plătite ale membrului (RPC get_rezervari_client)
+// Calendarul membrului = ședințele (RPC get_sedinte_membru: recurența, vacanțele, lunile
+// suspendate, ora pe zi și OPEN-urile confirmate sunt calculate în DB) + evenimentele
+// studioului și ale grupelor membrului.
 
-export type RezervareRow = {
-  id: string
+export type SedintaRow = {
+  clientId: string
+  prenume: string | null
+  cursId: string
   cursNume: string | null
-  data: string | null
+  data: string
+  ora: string | null
+  sala: string | null
   locatie: string | null
-  instructorNume: string | null
+  instructori: string[]
+  sursa: 'abonament' | 'sedinta'
+  rezervareId: string | null
+}
+
+export async function getSedinteMembru(de: string, pana: string): Promise<SedintaRow[]> {
+  const { data, error } = await supabase.rpc('get_sedinte_membru', { p_de: de, p_pana: pana })
+  if (error) throw error
+  return (data ?? []).map((r) => ({
+    clientId: r.client_id,
+    prenume: r.prenume,
+    cursId: r.curs_id,
+    cursNume: r.curs_nume,
+    data: r.data,
+    ora: r.ora ? r.ora.slice(0, 5) : null,
+    sala: r.sala,
+    locatie: formatLocatie(r.locatie),
+    instructori: r.instructori ?? [],
+    sursa: r.sursa === 'sedinta' ? 'sedinta' : 'abonament',
+    rezervareId: r.rezervare_id,
+  }))
 }
 
 // Sezonul activ (interval an școlar) + vacanțele lui — surse studio-wide expuse
@@ -56,18 +76,6 @@ export async function getVacanteClient(): Promise<VacantaInfo[]> {
   }))
 }
 
-export async function getRezervariClient(clientId: string): Promise<RezervareRow[]> {
-  const { data, error } = await supabase.rpc('get_rezervari_client', { p_client: clientId })
-  if (error) throw error
-  return (data ?? []).map((r) => ({
-    id: r.rezervare_id,
-    cursNume: r.curs_nume,
-    data: r.data,
-    locatie: formatLocatie(r.locatie),
-    instructorNume: r.instructor_nume,
-  }))
-}
-
 export type CalKind = 'curs' | 'eveniment' | 'eveniment-grupa' | 'rezervare'
 
 export type CalItem = {
@@ -77,17 +85,6 @@ export type CalItem = {
   time: string | null // HH:MM
   title: string
   subtitle: string | null
-}
-
-// zi_saptamana (Luni..Duminica) → index JS getDay() (0=Duminica..6=Sambata)
-const ZI_TO_JS: Record<Enums<'zi_saptamana'>, number> = {
-  Luni: 1,
-  Marti: 2,
-  Miercuri: 3,
-  Joi: 4,
-  Vineri: 5,
-  Sambata: 6,
-  Duminica: 0,
 }
 
 export function dateKey(d: Date): string {
@@ -111,46 +108,21 @@ function isoToKey(iso: string | null): string | null {
   return dateKey(new Date(iso))
 }
 
-// Generează item-ele de calendar dintre [start, end] inclusiv.
 export function buildItems(
-  grupe: GrupaRow[],
+  sedinte: SedintaRow[],
   evenimente: EvenimentRow[],
-  rezervari: RezervareRow[],
-  start: Date,
-  end: Date,
+  startKey: string,
+  endKey: string,
 ): CalItem[] {
-  const items: CalItem[] = []
+  const items: CalItem[] = sedinte.map((s) => ({
+    id: `sedinta:${s.clientId}:${s.cursId}:${s.data}`,
+    kind: s.sursa === 'sedinta' ? 'rezervare' : 'curs',
+    dateKey: s.data,
+    time: s.ora,
+    title: s.cursNume ?? 'Curs',
+    subtitle: [s.sala, s.locatie].filter(Boolean).join(' · ') || null,
+  }))
 
-  // Ședințe recurente: pentru fiecare zi din interval, dacă ziua săptămânii e în
-  // grupa.zile și data e în [data_incepere, data_final], adaugă o ocurență.
-  for (const g of grupe) {
-    if (!g.zile.length) continue
-    const jsDays = new Set(g.zile.map((z) => ZI_TO_JS[z]))
-    const fromKey = isoToKey(g.dataIncepere)
-    const toKey = isoToKey(g.dataFinal)
-    const cursor = new Date(start)
-    while (cursor <= end) {
-      if (jsDays.has(cursor.getDay())) {
-        const k = dateKey(cursor)
-        const afterStart = !fromKey || k >= fromKey
-        const beforeEnd = !toKey || k <= toKey
-        if (afterStart && beforeEnd) {
-          items.push({
-            id: `curs:${g.enrollmentId}:${k}`,
-            kind: 'curs',
-            dateKey: k,
-            time: toTime(g.ora),
-            title: g.cursNume ?? 'Curs',
-            subtitle: [g.sala, g.locatie].filter(Boolean).join(' · ') || null,
-          })
-        }
-      }
-      cursor.setDate(cursor.getDate() + 1)
-    }
-  }
-
-  const startKey = dateKey(start)
-  const endKey = dateKey(end)
   for (const e of evenimente) {
     const k = isoToKey(e.data)
     if (!k || k < startKey || k > endKey) continue
@@ -165,19 +137,6 @@ export function buildItems(
         [isGrupa ? e.cursNume : null, e.locatie, e.tip]
           .filter(Boolean)
           .join(' · ') || null,
-    })
-  }
-
-  for (const r of rezervari) {
-    const k = isoToKey(r.data)
-    if (!k || k < startKey || k > endKey) continue
-    items.push({
-      id: `rezervare:${r.id}`,
-      kind: 'rezervare',
-      dateKey: k,
-      time: null, // open_sesiuni.data e `date` (fără oră)
-      title: r.cursNume ?? 'Rezervare',
-      subtitle: [r.instructorNume, r.locatie].filter(Boolean).join(' · ') || null,
     })
   }
 

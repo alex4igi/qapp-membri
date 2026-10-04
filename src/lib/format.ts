@@ -22,3 +22,20 @@ export function formatData(iso: string | null | undefined): string {
     year: 'numeric',
   })
 }
+
+// Data și ora curente la studio (Europe/Bucharest), independent de fusul telefonului.
+export function acumBucuresti(): { zi: string; ora: string } {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Europe/Bucharest',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
+  }).formatToParts(new Date())
+  const v = (t: string) => parts.find((p) => p.type === t)?.value ?? ''
+  return { zi: `${v('year')}-${v('month')}-${v('day')}`, ora: `${v('hour')}:${v('minute')}` }
+}
+
+export function adaugaZile(zi: string, n: number): string {
+  const [y, m, d] = zi.split('-').map(Number)
+  const dt = new Date(Date.UTC(y, m - 1, d + n))
+  return dt.toISOString().slice(0, 10)
+}

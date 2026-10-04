@@ -7,8 +7,7 @@ import {
   buildItems,
   dateKey,
   getEvenimenteClient,
-  getGrupeClient,
-  getRezervariClient,
+  getSedinteMembru,
   getSezonCurentClient,
   getVacanteClient,
   type CalItem,
@@ -82,19 +81,17 @@ export function CalendarPage() {
 
   const sezon = useQuery({ queryKey: ['sezon-curent'], queryFn: getSezonCurentClient })
   const vacante = useQuery({ queryKey: ['vacante'], queryFn: getVacanteClient })
-  const grupe = useQuery({
-    queryKey: ['grupe', activeMember?.clientId],
-    queryFn: () => getGrupeClient(activeMember!.clientId),
-    enabled: !!activeMember,
-  })
   const evenimente = useQuery({
     queryKey: ['evenimente', activeMember?.clientId],
     queryFn: () => getEvenimenteClient(activeMember?.clientId),
   })
-  const rezervari = useQuery({
-    queryKey: ['rezervari-cal', activeMember?.clientId],
-    queryFn: () => getRezervariClient(activeMember!.clientId),
-    enabled: !!activeMember,
+  const sezonStart = sezon.data?.dataIncepere ?? null
+  const sezonFinal = sezon.data?.dataFinal ?? null
+  // Un singur apel pe tot sezonul; aceeași cheie ca Acasă, ca invalidarea după plată să le prindă pe amândouă.
+  const sedinte = useQuery({
+    queryKey: ['sedinte-membru', sezonStart, sezonFinal],
+    queryFn: () => getSedinteMembru(sezonStart!, sezonFinal!),
+    enabled: !!sezonStart && !!sezonFinal,
   })
 
   const months = useMemo(() => {
@@ -104,13 +101,14 @@ export function CalendarPage() {
   }, [sezon.data])
 
   const items = useMemo(() => {
-    if (!grupe.data || !evenimente.data || months.length === 0) return [] as CalItem[]
+    if (!sedinte.data || !evenimente.data || months.length === 0 || !activeMember) return [] as CalItem[]
     const first = months[0]
     const last = months[months.length - 1]
-    const start = new Date(first.y, first.m, 1)
-    const end = new Date(last.y, last.m + 1, 0) // ultima zi a ultimei luni
-    return buildItems(grupe.data, evenimente.data, rezervari.data ?? [], start, end)
-  }, [grupe.data, evenimente.data, rezervari.data, months])
+    const startKey = dateKey(new Date(first.y, first.m, 1))
+    const endKey = dateKey(new Date(last.y, last.m + 1, 0))
+    const aleMembrului = sedinte.data.filter((x) => x.clientId === activeMember.clientId)
+    return buildItems(aleMembrului, evenimente.data, startKey, endKey)
+  }, [sedinte.data, evenimente.data, months, activeMember])
 
   const byDay = useMemo(() => {
     const map = new Map<string, CalItem[]>()
@@ -124,12 +122,34 @@ export function CalendarPage() {
 
   const vacanteMap = useMemo(() => buildVacanteMap(vacante.data ?? []), [vacante.data])
 
-  const loading = sezon.isLoading || grupe.isLoading || evenimente.isLoading
+  const loading = sezon.isLoading || sedinte.isLoading || evenimente.isLoading
+  const eroare = sezon.isError || sedinte.isError || evenimente.isError
   const todayKey = dateKey(today)
   const selectedItems = byDay.get(selectedKey) ?? []
   const selectedVacanta = vacanteMap.get(selectedKey)
 
   if (loading) return <Spinner />
+
+  // Fără date nu desenăm grila: o lună goală ar spune „nicio ședință" când de fapt n-am putut citi.
+  if (eroare) {
+    return (
+      <div className="max-w-2xl space-y-3 rounded-2xl border border-line bg-surf p-6 text-sm shadow-card">
+        <p className="font-semibold text-ink">Nu am putut încărca programul.</p>
+        <p className="text-sub">Verifică conexiunea și încearcă din nou.</p>
+        <button
+          type="button"
+          onClick={() => {
+            void sezon.refetch()
+            void sedinte.refetch()
+            void evenimente.refetch()
+          }}
+          className="rounded-full bg-acc px-4 py-2 text-sm font-semibold text-acc-ink"
+        >
+          Reîncearcă
+        </button>
+      </div>
+    )
+  }
 
   if (!sezon.data) {
     return (
@@ -153,7 +173,7 @@ export function CalendarPage() {
           <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-dot-curs" /> Ședință</span>
           <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-ink" /> Eveniment</span>
           <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-evgrupa" /> Eveniment grupă</span>
-          <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-ok" /> Rezervare</span>
+          <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-ok" /> Ședință rezervată</span>
           <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded bg-surf2 ring-1 ring-line" /> Vacanță</span>
         </div>
       </div>

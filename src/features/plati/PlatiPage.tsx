@@ -1,13 +1,17 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
-import { useSearchParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useActiveMember } from '@/hooks/useActiveMember'
 import { Button, Spinner } from '@/components/ui'
 import { PaymentBadges } from '@/components/PaymentBadges'
-import { formatRON, formatData } from '@/lib/format'
+import { formatRON, formatData, acumBucuresti } from '@/lib/format'
 import { cn } from '@/lib/cn'
+import { RezultatComanda } from './RezultatComanda'
+import { SezonulMeu } from './SezonulMeu'
+import { getSezonCurentClient } from '@/features/calendar/api'
 import {
-  getSoldFamilie,
+  getRezumatPlati,
+  sumarPlati,
+  CHEI_DUPA_PLATA,
   getPlatiClient,
   getDatoriiClient,
   getPlataIntegrala,
@@ -17,6 +21,17 @@ import {
 } from './api/payments'
 import { ReduceriSection } from '@/features/reduceri/ReduceriSection'
 import { mesajEroare } from '@/lib/errorMessage'
+
+const LUNI_SCURT = ['ian.', 'feb.', 'mar.', 'apr.', 'mai', 'iun.', 'iul.', 'aug.', 'sept.', 'oct.', 'nov.', 'dec.']
+
+// Ce s-a cumpărat pe rând: luna abonamentului (cu ziua, dacă începe în mijlocul lunii) sau ziua ședinței.
+function perioada(r: PlataRow): string {
+  if (!r.dataIncepere) return '—'
+  if (r.tipPlata === 'Per sedinta') return `ședința din ${formatData(r.dataIncepere)}`
+  if (r.tipPlata !== 'Per luna') return `de la ${formatData(r.dataIncepere)}`
+  const [y, m, d] = r.dataIncepere.split('-').map(Number)
+  return `${LUNI_SCURT[m - 1]} ${y}${d !== 1 ? ` (de la ${d})` : ''}`
+}
 
 const TIP_CURS_LABEL: Record<TipCurs, string> = {
   grupa: 'Grupe',
@@ -69,12 +84,11 @@ function PayableRow({
 export function PlatiPage() {
   const { members, activeMember, loading } = useActiveMember()
   const queryClient = useQueryClient()
-  const [searchParams, setSearchParams] = useSearchParams()
-  const [returnNotice, setReturnNotice] = useState(false)
   // Data-limită până la care plătim (inclusiv). null = nimic selectat.
   const [cutoff, setCutoff] = useState<string | null>(null)
 
-  const sold = useQuery({ queryKey: ['sold-familie'], queryFn: getSoldFamilie })
+  const rezumat = useQuery({ queryKey: ['rezumat-plati'], queryFn: getRezumatPlati })
+  const sezonCurent = useQuery({ queryKey: ['sezon-curent'], queryFn: getSezonCurentClient })
   const plati = useQuery({
     queryKey: ['plati', activeMember?.clientId],
     queryFn: () => getPlatiClient(activeMember!.clientId),
@@ -103,16 +117,6 @@ export function PlatiPage() {
     setTipFiltru(null)
   }, [activeMember?.clientId])
 
-  useEffect(() => {
-    if (!searchParams.get('order')) return
-    setReturnNotice(true)
-    queryClient.invalidateQueries({ queryKey: ['sold-familie'] })
-    queryClient.invalidateQueries({ queryKey: ['plati'] })
-    queryClient.invalidateQueries({ queryKey: ['datorii'] })
-    searchParams.delete('order')
-    setSearchParams(searchParams, { replace: true })
-  }, [searchParams, queryClient, setSearchParams])
-
   const rows = useMemo(() => plati.data ?? [], [plati.data])
   // Înrolări neachitate, ordonate vechi→nou (RPC le dă deja așa). Acesta e ordinea FIFO.
   const unpaid = useMemo(
@@ -120,10 +124,16 @@ export function PlatiPage() {
     [rows],
   )
 
-  // Implicit: selectează TOT ce e de plată (cea mai nouă lună). Resetare la schimbarea membrului.
+  // Implicit: restanțele + următorul termen, nu tot sezonul. Lunile în avans se bifează manual.
   useEffect(() => {
-    const maxDate = unpaid.length ? unpaid[unpaid.length - 1].dataIncepere : null
-    setCutoff(maxDate)
+    const azi = acumBucuresti().zi
+    const urmator = unpaid
+      .map((r) => r.scadenta)
+      .filter((d): d is string => !!d && d >= azi)
+      .sort()[0]
+    const deBifat = unpaid.filter((r) => !r.scadenta || r.scadenta < azi || r.scadenta === urmator)
+    const limita = deBifat.length ? deBifat[deBifat.length - 1] : unpaid[0]
+    setCutoff(limita?.dataIncepere ?? null)
   }, [activeMember?.clientId, unpaid.length]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const tipuriPrezente = (['grupa', 'trupa', 'facultativ'] as const).filter((t) =>
@@ -191,8 +201,11 @@ export function PlatiPage() {
 
   if (loading) return <Spinner />
 
-  const totalFamilie = (sold.data ?? []).reduce((a, r) => a + r.restanta, 0)
-  const numeById = new Map(members.map((m) => [m.clientId, m.displayName]))
+  const sumar = sumarPlati(rezumat.data ?? [])
+  const azi = acumBucuresti().zi
+  const membriCuDePlata = members
+    .map((m) => ({ m, s: sumarPlati(rezumat.data ?? [], m.clientId) }))
+    .filter((x) => x.s.restant > 0 || x.s.ramas > 0)
 
   // Grupare pe sezon, păstrând ordinea cronologică a rândurilor.
   const groups: { sezon: string; rows: PlataRow[] }[] = []
@@ -226,43 +239,87 @@ export function PlatiPage() {
         </p>
       </div>
 
-      {returnNotice && (
-        <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-acc bg-surf2 px-4 py-3 text-sm text-ink">
-          <span>
-            Plata a fost inițiată. Confirmarea apare după procesarea de către bancă; soldul se
-            actualizează automat.
-          </span>
+      <RezultatComanda />
+
+      {/* Sold familie: restanța (roșu) separat de următorul termen și de ratele rămase. */}
+      <section className="rounded-2xl border border-line bg-surf p-5 shadow-card">
+        <div className="flex items-center justify-between gap-3">
+          <span className="text-sm font-semibold text-sub">Sold familie</span>
           <Button
             variant="ghost"
             onClick={() => {
-              queryClient.invalidateQueries({ queryKey: ['sold-familie'] })
-              queryClient.invalidateQueries({ queryKey: ['plati'] })
+              for (const key of CHEI_DUPA_PLATA) queryClient.invalidateQueries({ queryKey: [...key] })
             }}
           >
             Reîmprospătează
           </Button>
         </div>
-      )}
-
-      {/* Sold familie */}
-      <section className="rounded-2xl border border-line bg-surf p-5 shadow-card">
-        <div className="flex items-center justify-between gap-3">
-          <span className="text-sm font-semibold text-sub">Sold familie</span>
-          <span className={cn('text-2xl font-extrabold tracking-tight', totalFamilie > 0 ? 'text-danger' : 'text-ok')}>
-            {formatRON(totalFamilie)}
-          </span>
-        </div>
-        {(sold.data ?? []).filter((r) => r.restanta > 0).length > 0 && (
+        {rezumat.isLoading ? (
+          <div className="mt-3"><Spinner /></div>
+        ) : rezumat.isError ? (
+          <div className="mt-3 space-y-2 text-sm">
+            <p className="text-ink">Nu am putut încărca soldul.</p>
+            <Button variant="ghost" onClick={() => void rezumat.refetch()}>Reîncearcă</Button>
+          </div>
+        ) : (
+          <div className="mt-3 space-y-1.5">
+            {sumar.restant > 0 && (
+              <div className="flex justify-between gap-3">
+                <span className="text-sm font-semibold text-danger">Restant</span>
+                <span className="text-2xl font-extrabold tracking-tight text-danger">{formatRON(sumar.restant)}</span>
+              </div>
+            )}
+            {sumar.urmatorTermen ? (
+              <div className="flex justify-between gap-3">
+                <span className="text-sm text-ink">
+                  {sumar.urmatorTermen.scadenta === azi
+                    ? 'De achitat azi'
+                    : `De achitat până pe ${formatData(sumar.urmatorTermen.scadenta)}`}
+                </span>
+                <span className={cn('font-extrabold text-ink', sumar.restant > 0 ? 'text-base' : 'text-2xl tracking-tight')}>
+                  {formatRON(sumar.urmatorTermen.suma)}
+                </span>
+              </div>
+            ) : (
+              sumar.restant <= 0 && <p className="text-base font-extrabold text-ok">Ești la zi cu plățile.</p>
+            )}
+            {sumar.urmatorTermen && sumar.ramas > sumar.urmatorTermen.suma && (
+              <div className="flex justify-between gap-3 text-xs text-sub">
+                <span>Rate viitoare în sezon (după acest termen)</span>
+                <span>{formatRON(sumar.ramas - sumar.urmatorTermen.suma)}</span>
+              </div>
+            )}
+          </div>
+        )}
+        {membriCuDePlata.length > 1 && (
           <ul className="mt-3 space-y-1 border-t border-line pt-3">
-            {sold.data!.filter((r) => r.restanta > 0).map((r) => (
-              <li key={r.clientId} className="flex justify-between text-sm">
-                <span className="text-ink">{numeById.get(r.clientId) ?? r.prenume ?? r.nume}</span>
-                <span className="font-medium text-danger">{formatRON(r.restanta)}</span>
+            {membriCuDePlata.map(({ m, s: x }) => (
+              <li key={m.clientId} className="flex justify-between gap-3 text-sm">
+                <span className="text-ink">{m.displayName}</span>
+                <span className="text-right">
+                  {x.restant > 0 && <span className="font-medium text-danger">{formatRON(x.restant)} restant</span>}
+                  {x.restant > 0 && x.urmatorTermen && <span className="text-sub"> · </span>}
+                  {x.urmatorTermen && (
+                    <span className="text-sub">
+                      {formatRON(x.urmatorTermen.suma)} până pe {formatData(x.urmatorTermen.scadenta)}
+                    </span>
+                  )}
+                </span>
               </li>
             ))}
           </ul>
         )}
       </section>
+
+      {sezonCurent.data && activeMember && (
+        <SezonulMeu
+          rows={rows}
+          sezonId={sezonCurent.data.sezonId}
+          sezonNume={sezonCurent.data.nume}
+          membru={activeMember.displayName}
+          azi={azi}
+        />
+      )}
 
       {/* Oferta din contract: tot sezonul dintr-o dată, −5% */}
       {integrala.data?.eligibil && (
@@ -312,7 +369,10 @@ export function PlatiPage() {
 
       {/* Detaliu pe înrolări — grupat pe sezon */}
       <section className="space-y-3">
-        <h2 className="text-base font-extrabold tracking-tight text-ink">Situația — {activeMember?.displayName ?? '—'}</h2>
+        <h2 className="text-base font-extrabold tracking-tight text-ink">Plătește online — {activeMember?.displayName ?? '—'}</h2>
+        <p className="text-xs text-sub">
+          Sunt bifate restanțele și următoarea rată. Poți bifa și lunile următoare, ca să plătești în avans.
+        </p>
         {plati.isLoading && <Spinner />}
         {plati.data && rows.length === 0 && (
           <p className="text-sm text-sub">Nicio înrolare.</p>
@@ -342,6 +402,7 @@ export function PlatiPage() {
         {displayGroups.map((g) => {
           const open = isGroupOpen(g.sezon)
           const restGroup = g.rows.reduce((a, r) => a + (r.rest > 0 ? r.rest : 0), 0)
+          const restantGroup = g.rows.some((r) => r.rest > 0 && !!r.scadenta && r.scadenta < azi)
           return (
           <div key={g.sezon} className="overflow-hidden rounded-2xl border border-line bg-surf shadow-card">
             <button
@@ -359,7 +420,7 @@ export function PlatiPage() {
               <span className="text-xs text-sub">
                 {g.rows.length} {g.rows.length === 1 ? 'înrolare' : 'înrolări'}
                 {restGroup > 0 && (
-                  <span className="font-semibold text-danger"> · rest {formatRON(restGroup)}</span>
+                  <span className={cn('font-semibold', restantGroup ? 'text-danger' : 'text-ink')}> · rest {formatRON(restGroup)}</span>
                 )}
               </span>
             </button>
@@ -367,6 +428,7 @@ export function PlatiPage() {
             <ul className="divide-y divide-line">
               {g.rows.map((r) => {
                 const achitat = r.rest <= 0
+                const restant = !achitat && !!r.scadenta && r.scadenta < azi
                 const selectable = !achitat && !!r.dataIncepere
                 return (
                   <PayableRow
@@ -377,8 +439,14 @@ export function PlatiPage() {
                     title={r.cursNume ?? 'Curs'}
                     subtitle={
                       <>
-                        {formatData(r.dataIncepere)} · {r.tipPlata ?? ''}
+                        {perioada(r)}
                         {r.codVoucher ? ` · voucher ${r.codVoucher}` : ''}
+                        {!achitat && r.scadenta && (
+                          <span className={cn(restant && 'font-semibold text-danger')}>
+                            {' · '}
+                            {restant ? `restant din ${formatData(r.scadenta)}` : `scadent pe ${formatData(r.scadenta)}`}
+                          </span>
+                        )}
                       </>
                     }
                     dimmed={achitat}
@@ -388,7 +456,9 @@ export function PlatiPage() {
                         {achitat ? (
                           <span className="text-xs font-semibold text-ok">ACHITAT</span>
                         ) : (
-                          <span className="text-xs font-semibold text-danger">rest {formatRON(r.rest)}</span>
+                          <span className={cn('text-xs font-semibold', restant ? 'text-danger' : 'text-sub')}>
+                            rest {formatRON(r.rest)}
+                          </span>
                         )}
                       </div>
                     }

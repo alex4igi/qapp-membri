@@ -40,6 +40,61 @@ export async function getSoldFamilie(): Promise<SoldMembru[]> {
   }))
 }
 
+// Ce e de plată, pe termene: rate + datorii one-off, cu scadența canonică din DB
+// (scadenta_inrolare). `restant` = termenul a trecut strict; ziua scadenței nu e întârziere.
+export type TermenPlata = {
+  clientId: string
+  prenume: string | null
+  scadenta: string
+  suma: number
+  restant: boolean
+}
+
+export async function getRezumatPlati(): Promise<TermenPlata[]> {
+  const { data, error } = await supabase.rpc('get_rezumat_plati_familie')
+  if (error) throw error
+  return (data ?? []).map((r) => ({
+    clientId: r.client_id,
+    prenume: r.prenume,
+    scadenta: r.scadenta,
+    suma: Number(r.suma ?? 0),
+    restant: Boolean(r.restant),
+  }))
+}
+
+export type SumarPlati = {
+  restant: number
+  // Primul termen nescadent (azi sau mai târziu), cu suma doar a acelui termen.
+  urmatorTermen: { scadenta: string; suma: number } | null
+  // Tot ce e nescadent, inclusiv următorul termen.
+  ramas: number
+}
+
+export function sumarPlati(termene: TermenPlata[], clientId?: string): SumarPlati {
+  const t = clientId ? termene.filter((x) => x.clientId === clientId) : termene
+  const restant = t.filter((x) => x.restant).reduce((a, x) => a + x.suma, 0)
+  const viitoare = t.filter((x) => !x.restant)
+  const prima = viitoare.reduce<string | null>((m, x) => (m == null || x.scadenta < m ? x.scadenta : m), null)
+  return {
+    restant,
+    urmatorTermen: prima
+      ? { scadenta: prima, suma: viitoare.filter((x) => x.scadenta === prima).reduce((a, x) => a + x.suma, 0) }
+      : null,
+    ramas: viitoare.reduce((a, x) => a + x.suma, 0),
+  }
+}
+
+// Cheile care trebuie reîmprospătate după o plată (abonament, datorie sau rezervare).
+export const CHEI_DUPA_PLATA = [
+  ['sold-familie'],
+  ['rezumat-plati'],
+  ['plati'],
+  ['datorii'],
+  ['plata-integrala'],
+  ['open-sesiuni'],
+  ['sedinte-membru'],
+] as const
+
 export type PlataRow = {
   enrollmentId: string
   cursNume: string | null
@@ -52,6 +107,7 @@ export type PlataRow = {
   sezonId: string | null
   sezonNume: string | null
   tipCurs: TipCurs
+  scadenta: string | null
 }
 
 export type TipCurs = 'grupa' | 'trupa' | 'facultativ'
@@ -71,6 +127,7 @@ export async function getPlatiClient(clientId: string): Promise<PlataRow[]> {
     sezonId: r.sezon_id ?? null,
     sezonNume: r.sezon_nume ?? null,
     tipCurs: (r.tip_curs ?? 'grupa') as TipCurs,
+    scadenta: r.scadenta ?? null,
   }))
 }
 

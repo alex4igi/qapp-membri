@@ -51,7 +51,15 @@ function esteActiv(g: GrupaSezonRow): boolean {
   return g.dataIncepere <= azi && (!g.dataFinal || g.dataFinal >= azi)
 }
 
+function valabilitateSedinte(sedinte: string[]): string {
+  if (sedinte.length <= 4) return sedinte.map((d) => formatData(d)).join(', ')
+  return `${sedinte.length} ședințe · ultima ${formatData(sedinte[sedinte.length - 1])}`
+}
+
 function GrupaCard({ g }: { g: GrupaSezonRow }) {
+  const perSedinta = g.sedinte.length > 0 && g.sedinte.length === g.luni
+  const azi = new Date().toISOString().slice(0, 10)
+  const urmatoarea = perSedinta ? g.sedinte.find((d) => d >= azi) : undefined
   const subtitlu = [g.nivel, g.varsta, g.stil].filter(Boolean).join(' · ')
   const program = g.zile.map((z) => ZI_SCURT[z] ?? z).join(', ')
   const programVal = `${program}${g.ora ? ` · ${formatOra(g.ora)}` : ''}`
@@ -67,7 +75,12 @@ function GrupaCard({ g }: { g: GrupaSezonRow }) {
           {subtitlu && <p className="text-sub">{subtitlu}</p>}
         </div>
         <div className="flex shrink-0 flex-col items-end gap-1">
-          {esteActiv(g) && (
+          {urmatoarea && (
+            <span className="rounded-full bg-ok px-2.5 py-0.5 text-xs font-semibold text-white">
+              Rezervat · {formatData(urmatoarea)}
+            </span>
+          )}
+          {!perSedinta && esteActiv(g) && (
             <span className="rounded-full bg-ok px-2.5 py-0.5 text-xs font-semibold text-white">
               Activ acum
             </span>
@@ -89,7 +102,14 @@ function GrupaCard({ g }: { g: GrupaSezonRow }) {
             value={g.instructori.join(', ')}
           />
         )}
-        <Field label="Valabilitate" value={valabilitate} />
+        {perSedinta ? (
+          <Field
+            label={g.sedinte.length > 1 ? 'Ședințe' : 'Ședința'}
+            value={valabilitateSedinte(g.sedinte)}
+          />
+        ) : (
+          <Field label="Valabilitate" value={valabilitate} />
+        )}
       </div>
     </div>
   )

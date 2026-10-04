@@ -14667,6 +14667,7 @@ export type Database = {
           nivel: Database["public"]["Enums"]["nivel_curs"]
           ora: string
           sala: string
+          sedinte: string[]
           stil: string
           tip_plata: Database["public"]["Enums"]["tip_plata"]
           varsta: Database["public"]["Enums"]["varsta_curs"]
@@ -15878,7 +15879,7 @@ export type Database = {
         }[]
       }
       list_open_sesiuni_client: {
-        Args: { p_locatie?: string }
+        Args: { p_client?: string; p_locatie?: string }
         Returns: {
           capacitate: number
           curs_id: string
@@ -15887,6 +15888,7 @@ export type Database = {
           instructor_nume: string
           locuri_ramase: number
           pret: number
+          rezervare_status: string
           sesiune_id: string
         }[]
       }
@@ -16345,6 +16347,7 @@ export type Database = {
         Args: { p_id: string; p_password: string }
         Returns: undefined
       }
+      portal_status_comanda: { Args: { p_order_ref: string }; Returns: Json }
       portal_upsert_credentials: {
         Args: { p_email: string; p_password: string }
         Returns: string

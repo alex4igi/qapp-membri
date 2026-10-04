@@ -66,7 +66,8 @@ export async function getSezoaneInrolari(clientId: string): Promise<SezonInrolar
 }
 
 // Un rând per CURS (lunile înrolate sunt agregate server-side), nu per înrolare.
-export type GrupaSezonRow = Omit<GrupaRow, 'enrollmentId'> & { luni: number }
+// `sedinte` = datele înrolărilor „Per ședință" (n-au data_final, deci intervalul nu spune nimic).
+export type GrupaSezonRow = Omit<GrupaRow, 'enrollmentId'> & { luni: number; sedinte: string[] }
 
 export async function getGrupeSezon(
   clientId: string,
@@ -93,6 +94,7 @@ export async function getGrupeSezon(
     dataIncepere: r.data_incepere,
     dataFinal: r.data_final,
     luni: Number(r.luni ?? 0),
+    sedinte: r.sedinte ?? [],
     instructori: r.instructori ?? [],
   }))
 }

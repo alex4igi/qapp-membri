@@ -12,7 +12,10 @@ export function AcasaPage() {
   const { activeMember } = useActiveMember()
 
   const sold = useQuery({ queryKey: ['sold-familie'], queryFn: getSoldFamilie })
-  const sesiuni = useQuery({ queryKey: ['open-sesiuni'], queryFn: () => listOpenSesiuniClient() })
+  const sesiuni = useQuery({
+    queryKey: ['open-sesiuni', activeMember?.clientId ?? null],
+    queryFn: () => listOpenSesiuniClient(activeMember?.clientId),
+  })
   // Salutul e pentru titularul contului (părintele/reprezentantul). La conturile
   // individuale (fără familie) cădem pe numele membrului propriu.
   const familie = useQuery({ queryKey: ['profil-familie'], queryFn: getProfilFamilie })
@@ -96,10 +99,23 @@ export function AcasaPage() {
                   <p className="text-sm font-semibold text-ink">{s.cursNume ?? 'Curs'}</p>
                   <p className="text-xs text-sub">
                     {formatData(s.data)}
-                    {s.instructorNume ? ` · ${s.instructorNume}` : ''} · {s.locuriRamase} {s.locuriRamase === 1 ? 'loc liber' : 'locuri libere'} din {s.capacitate}
+                    {s.instructorNume ? ` · ${s.instructorNume}` : ''} ·{' '}
+                    {s.locuriRamase <= 0
+                      ? 'Complet'
+                      : `${s.locuriRamase} ${s.locuriRamase === 1 ? 'loc liber' : 'locuri libere'} din ${s.capacitate}`}
                   </p>
                 </div>
-                <span className="text-sm font-extrabold text-ink">{formatRON(s.pret ?? 0)}</span>
+                {s.rezervareStatus === 'platit' ? (
+                  <span className="shrink-0 rounded-full bg-ok px-2.5 py-1 text-xs font-semibold text-white">
+                    ✓ Rezervat
+                  </span>
+                ) : s.rezervareStatus === 'rezervat' ? (
+                  <span className="shrink-0 rounded-full bg-surf px-2.5 py-1 text-xs font-semibold text-ink">
+                    ⏳ Se confirmă
+                  </span>
+                ) : (
+                  <span className="text-sm font-extrabold text-ink">{formatRON(s.pret ?? 0)}</span>
+                )}
               </li>
             ))}
           </ul>

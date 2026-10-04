@@ -30,17 +30,19 @@ export type OpenSesiuneRow = {
   capacitate: number
   pret: number | null
   instructorNume: string | null
+  // Rezervarea membrului activ pe ședința asta: 'rezervat' = plata încă se confirmă.
+  rezervareStatus: 'rezervat' | 'platit' | null
 }
 
-export async function listOpenSesiuniClient(locatieId?: string | null): Promise<OpenSesiuneRow[]> {
+export async function listOpenSesiuniClient(clientId?: string | null): Promise<OpenSesiuneRow[]> {
   const { data, error } = await supabase.rpc('list_open_sesiuni_client', {
-    p_locatie: locatieId ?? undefined,
+    p_client: clientId ?? undefined,
   })
   if (error) throw error
   return (data ?? []).map((r) => {
     const locuriRamase = r.locuri_ramase ?? 0
-    // `capacitate` adăugată în migrația 20260702130000; cast tolerant până la gen:types.
-    const capacitate = (r as { capacitate?: number | null }).capacitate ?? locuriRamase
+    const capacitate = r.capacitate ?? locuriRamase
+    const st = r.rezervare_status
     return {
       sesiuneId: r.sesiune_id,
       cursId: r.curs_id,
@@ -50,8 +52,32 @@ export async function listOpenSesiuniClient(locatieId?: string | null): Promise<
       capacitate,
       pret: r.pret,
       instructorNume: r.instructor_nume,
+      rezervareStatus: st === 'rezervat' || st === 'platit' ? st : null,
     }
   })
+}
+
+export type StatusComanda = {
+  status: 'pending' | 'confirmed' | 'failed' | 'canceled'
+  orderType: string | null
+  rezervareStatus: string | null
+  cursNume: string | null
+  data: string | null
+}
+
+// null = comanda nu există sau nu e a familiei contului.
+export async function getStatusComanda(orderRef: string): Promise<StatusComanda | null> {
+  const { data, error } = await supabase.rpc('portal_status_comanda', { p_order_ref: orderRef })
+  if (error) throw error
+  if (!data) return null
+  const o = data as Record<string, string | null>
+  return {
+    status: o.status as StatusComanda['status'],
+    orderType: o.order_type,
+    rezervareStatus: o.rezervare_status,
+    cursNume: o.curs_nume,
+    data: o.data,
+  }
 }
 
 export type VoucherPreview =

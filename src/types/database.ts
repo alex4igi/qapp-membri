@@ -10184,12 +10184,15 @@ export type Database = {
       salarizare_receptie: {
         Row: {
           abonament_trupa: boolean
+          bonus_kpi: boolean
           bonusuri_ocazionale: boolean
           created: string
           facturare_la_timp: boolean
           fidelitate: boolean
+          fix_lunar: number | null
           id: string
           norma: number
+          receptie_q4k: boolean
           titular_nume: string
           updated: string
           user_id: string | null
@@ -10198,12 +10201,15 @@ export type Database = {
         }
         Insert: {
           abonament_trupa?: boolean
+          bonus_kpi?: boolean
           bonusuri_ocazionale?: boolean
           created?: string
           facturare_la_timp?: boolean
           fidelitate?: boolean
+          fix_lunar?: number | null
           id?: string
           norma?: number
+          receptie_q4k?: boolean
           titular_nume: string
           updated?: string
           user_id?: string | null
@@ -10212,12 +10218,15 @@ export type Database = {
         }
         Update: {
           abonament_trupa?: boolean
+          bonus_kpi?: boolean
           bonusuri_ocazionale?: boolean
           created?: string
           facturare_la_timp?: boolean
           fidelitate?: boolean
+          fix_lunar?: number | null
           id?: string
           norma?: number
+          receptie_q4k?: boolean
           titular_nume?: string
           updated?: string
           user_id?: string | null
@@ -13859,6 +13868,7 @@ export type Database = {
           sedinte_tinute: number
         }[]
       }
+      _luna_ro: { Args: { p_luna: number }; Returns: string }
       _luni_achitate_curs: {
         Args: { p_client: string; p_curs: string }
         Returns: number
@@ -13901,6 +13911,10 @@ export type Database = {
           p_post: string
           p_user: string
         }
+        Returns: Json
+      }
+      _staff_luna_platita: {
+        Args: { p_anul: number; p_luna: number; p_post: string; p_user: string }
         Returns: Json
       }
       _try_activate_gate: { Args: { p_gate_id: string }; Returns: undefined }

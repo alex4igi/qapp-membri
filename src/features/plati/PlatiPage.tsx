@@ -1,548 +1,432 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useActiveMember } from '@/hooks/useActiveMember'
 import { Button, Spinner } from '@/components/ui'
 import { PaymentBadges } from '@/components/PaymentBadges'
-import { formatRON, formatData, acumBucuresti } from '@/lib/format'
 import { cn } from '@/lib/cn'
-import { RezultatComanda } from './RezultatComanda'
-import { SezonulMeu } from './SezonulMeu'
-import { getSezonCurentClient } from '@/features/calendar/api'
-import {
-  getRezumatPlati,
-  sumarPlati,
-  CHEI_DUPA_PLATA,
-  getPlatiClient,
-  getDatoriiClient,
-  getPlataIntegrala,
-  createNetopiaPayment,
-  type PlataRow,
-  type TipCurs,
-} from './api/payments'
-import { ReduceriSection } from '@/features/reduceri/ReduceriSection'
+import { formatRON, formatZi } from '@/lib/format'
 import { mesajEroare } from '@/lib/errorMessage'
+import { ReduceriSection } from '@/features/reduceri/ReduceriSection'
+import { getSezonCurentClient } from '@/features/calendar/api'
+import { RezultatComanda } from './RezultatComanda'
+import { OfertaIntegrala } from './OfertaIntegrala'
+import { RandPlata } from './RandPlata'
+import { SituatiaSezonului } from './SituatiaSezonului'
+import { SituatiaFamiliei } from './SituatiaFamiliei'
+import { useSituatieFamilie, usePreviewPlata } from './useSituatieFamilie'
+import { CHEI_DUPA_PLATA, SumaSchimbataError, createNetopiaPaymentFamilie } from './api/payments'
+import {
+  cos,
+  deAchitat,
+  incluseObligatoriu,
+  laTermen,
+  stare,
+  type Categorie,
+  type Context,
+  type Cos,
+  type Rand,
+} from './familie'
 
-const LUNI_SCURT = ['ian.', 'feb.', 'mar.', 'apr.', 'mai', 'iun.', 'iul.', 'aug.', 'sept.', 'oct.', 'nov.', 'dec.']
-
-// Ce s-a cumpărat pe rând: luna abonamentului (cu ziua, dacă începe în mijlocul lunii) sau ziua ședinței.
-function perioada(r: PlataRow): string {
-  if (!r.dataIncepere) return '—'
-  if (r.tipPlata === 'Per sedinta') return `ședința din ${formatData(r.dataIncepere)}`
-  if (r.tipPlata !== 'Per luna') return `de la ${formatData(r.dataIncepere)}`
-  const [y, m, d] = r.dataIncepere.split('-').map(Number)
-  return `${LUNI_SCURT[m - 1]} ${y}${d !== 1 ? ` (de la ${d})` : ''}`
-}
-
-const TIP_CURS_LABEL: Record<TipCurs, string> = {
-  grupa: 'Grupe',
-  trupa: 'Trupe',
-  facultativ: 'Facultative',
-}
-
-// Rând plătibil (înrolare sau datorie one-off): checkbox + titlu/subtitlu + partea dreaptă.
-function PayableRow({
-  checked,
-  onToggle,
-  ariaLabel,
-  title,
-  subtitle,
-  right,
-  dimmed,
-}: {
-  checked: boolean
-  onToggle: (() => void) | null // null = neselectabil (placeholder pentru aliniere)
-  ariaLabel: string
-  title: string
-  subtitle: ReactNode
-  right: ReactNode
-  dimmed?: boolean
-}) {
-  return (
-    <li className={cn('flex items-center justify-between gap-3 px-4 py-3', dimmed && 'opacity-70')}>
-      <div className="flex items-center gap-3">
-        {onToggle ? (
-          <input
-            type="checkbox"
-            checked={checked}
-            onChange={onToggle}
-            className="h-4 w-4 shrink-0 accent-acc"
-            aria-label={ariaLabel}
-          />
-        ) : (
-          <span className="h-4 w-4 shrink-0" />
-        )}
-        <div>
-          <p className="text-sm font-medium text-ink">{title}</p>
-          <p className="text-xs text-sub">{subtitle}</p>
-        </div>
-      </div>
-      {right}
-    </li>
-  )
-}
+const byData = (a: Rand, b: Rand) =>
+  (a.dataIncepere ?? '') < (b.dataIncepere ?? '') ? -1 : (a.dataIncepere ?? '') > (b.dataIncepere ?? '') ? 1 : 0
 
 export function PlatiPage() {
-  const { members, activeMember, loading } = useActiveMember()
   const queryClient = useQueryClient()
-  // Data-limită până la care plătim (inclusiv). null = nimic selectat.
-  const [cutoff, setCutoff] = useState<string | null>(null)
-
-  const rezumat = useQuery({ queryKey: ['rezumat-plati'], queryFn: getRezumatPlati })
+  const sit = useSituatieFamilie()
+  const { rows, ctx: c, implicita, ordine } = sit
   const sezonCurent = useQuery({ queryKey: ['sezon-curent'], queryFn: getSezonCurentClient })
-  const plati = useQuery({
-    queryKey: ['plati', activeMember?.clientId],
-    queryFn: () => getPlatiClient(activeMember!.clientId),
-    enabled: !!activeMember,
-  })
-  const datorii = useQuery({
-    queryKey: ['datorii', activeMember?.clientId],
-    queryFn: () => getDatoriiClient(activeMember!.clientId),
-    enabled: !!activeMember,
-  })
-  // Oferta „tot sezonul −5%" (contract, Anexa 1). Eligibilitatea o decide DB-ul.
-  const integrala = useQuery({
-    queryKey: ['plata-integrala', activeMember?.clientId],
-    queryFn: () => getPlataIntegrala(activeMember!.clientId),
-    enabled: !!activeMember,
-  })
-  // Datorii one-off selectate (Bilet/Merch/Taxă) — fiecare se plătește INTEGRAL.
-  const [selectedDatorii, setSelectedDatorii] = useState<Set<string>>(new Set())
-  // Acordeon pe sezon: null = starea implicită (doar sezonul cel mai recent deschis).
-  const [openSezoane, setOpenSezoane] = useState<Set<string> | null>(null)
-  // Filtrul doar ascunde rânduri: plata rămâne FIFO pe toate înrolările.
-  const [tipFiltru, setTipFiltru] = useState<TipCurs | null>(null)
-  useEffect(() => {
-    setSelectedDatorii(new Set())
-    setOpenSezoane(null)
-    setTipFiltru(null)
-  }, [activeMember?.clientId])
 
-  const rows = useMemo(() => plati.data ?? [], [plati.data])
-  // Înrolări neachitate, ordonate vechi→nou (RPC le dă deja așa). Acesta e ordinea FIFO.
-  const unpaid = useMemo(
-    () => rows.filter((r) => r.rest > 0 && r.dataIncepere),
-    [rows],
-  )
-
-  // Implicit: restanțele + următorul termen, nu tot sezonul. Lunile în avans se bifează manual.
-  useEffect(() => {
-    const azi = acumBucuresti().zi
-    const urmator = unpaid
-      .map((r) => r.scadenta)
-      .filter((d): d is string => !!d && d >= azi)
-      .sort()[0]
-    const deBifat = unpaid.filter((r) => !r.scadenta || r.scadenta < azi || r.scadenta === urmator)
-    const limita = deBifat.length ? deBifat[deBifat.length - 1] : unpaid[0]
-    setCutoff(limita?.dataIncepere ?? null)
-  }, [activeMember?.clientId, unpaid.length]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  const tipuriPrezente = (['grupa', 'trupa', 'facultativ'] as const).filter((t) =>
-    rows.some((r) => r.tipCurs === t),
-  )
-  const vizibil = (r: PlataRow) => tipFiltru == null || r.tipCurs === tipFiltru
-
-  const isSelected = (r: PlataRow) => cutoff != null && r.dataIncepere != null && r.dataIncepere <= cutoff
-  const selectedRows = unpaid.filter(isSelected)
-  const selectedSum = selectedRows.reduce((a, r) => a + r.rest, 0)
-  const selectateAscunse = selectedRows.filter((r) => !vizibil(r)).length
-  // Înrolarea-limită trimisă la server (null dacă plătim tot → RPC plătește toată restanța).
-  const cutoffEnrollmentId =
-    selectedRows.length > 0 && selectedRows.length < unpaid.length
-      ? selectedRows[selectedRows.length - 1].enrollmentId
-      : undefined
-
-  const datoriiRows = useMemo(() => datorii.data ?? [], [datorii.data])
-  const selectedDatoriiRows = datoriiRows.filter((d) => selectedDatorii.has(d.datorieId))
-  const datoriiSum = selectedDatoriiRows.reduce((a, d) => a + d.rest, 0)
-  const grandTotal = selectedSum + datoriiSum
-
-  function toggleDatorie(id: string) {
-    setSelectedDatorii((prev) => {
-      const next = new Set(prev)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
-      return next
-    })
+  // Coșul pornește de la selecția implicită; după o plată (alte rânduri neachitate) se resetează.
+  const semnatura = [...implicita].sort().join(',') + '|' + rows.filter((r) => r.rest > 0).length
+  const [sel, setSel] = useState<Set<string>>(() => new Set(implicita))
+  const [semnaturaSel, setSemnaturaSel] = useState(semnatura)
+  if (semnaturaSel !== semnatura) {
+    setSemnaturaSel(semnatura)
+    setSel(new Set(implicita))
   }
 
-  function toggle(r: PlataRow) {
-    if (!r.dataIncepere) return
-    if (isSelected(r)) {
-      // deselectează de la luna asta în sus → cutoff = cea mai mare lună STRICT mai veche
-      const earlier = unpaid.filter((u) => u.dataIncepere! < r.dataIncepere!)
-      setCutoff(earlier.length ? earlier[earlier.length - 1].dataIncepere : null)
-    } else {
-      setCutoff(r.dataIncepere)
-    }
-  }
+  const k = useMemo(() => cos(rows, sel, c, ordine), [rows, sel, c, ordine])
+  const incluse = useMemo(() => incluseObligatoriu(k), [k])
+  const preview = usePreviewPlata(k.selectie, k.blocate.length === 0)
+  const [mesajSuma, setMesajSuma] = useState<string | null>(null)
 
   const pay = useMutation({
     meta: { erroareAfisata: true },
-    mutationFn: () =>
-      createNetopiaPayment({
-        clientId: activeMember!.clientId,
-        panaLa: cutoffEnrollmentId,
-        datorii: selectedDatorii.size ? [...selectedDatorii] : undefined,
-        includeInrolari: selectedRows.length > 0,
-      }),
+    mutationFn: () => createNetopiaPaymentFamilie(k.selectie, preview.data!.amount),
     onSuccess: (res) => {
       window.location.href = res.redirectUrl
     },
-  })
-
-  const payIntegral = useMutation({
-    meta: { erroareAfisata: true },
-    mutationFn: () =>
-      createNetopiaPayment({ clientId: activeMember!.clientId, platesteIntegral: true }),
-    onSuccess: (res) => {
-      window.location.href = res.redirectUrl
+    onError: (e) => {
+      if (e instanceof SumaSchimbataError) {
+        setMesajSuma(e.message)
+        for (const key of CHEI_DUPA_PLATA) void queryClient.invalidateQueries({ queryKey: [...key] })
+      }
     },
   })
 
-  if (loading) return <Spinner />
-
-  const sumar = sumarPlati(rezumat.data ?? [])
-  const azi = acumBucuresti().zi
-  const membriCuDePlata = members
-    .map((m) => ({ m, s: sumarPlati(rezumat.data ?? [], m.clientId) }))
-    .filter((x) => x.s.restant > 0 || x.s.ramas > 0)
-
-  // Grupare pe sezon, păstrând ordinea cronologică a rândurilor.
-  const groups: { sezon: string; rows: PlataRow[] }[] = []
-  for (const r of rows.filter(vizibil)) {
-    const key = r.sezonNume ?? 'Fără sezon'
-    let g = groups.find((x) => x.sezon === key)
-    if (!g) { g = { sezon: key, rows: [] }; groups.push(g) }
-    g.rows.push(r)
-  }
-  // Sezoanele se afișează recent→vechi, dar lunile DIN sezon rămân cronologice
-  // (septembrie sus → iunie jos), ca în contract și ca ordinea FIFO de plată.
-  const displayGroups = [...groups].reverse()
-  const defaultOpenSezon = displayGroups[0]?.sezon
-  const isGroupOpen = (sezon: string) =>
-    openSezoane ? openSezoane.has(sezon) : sezon === defaultOpenSezon
-  const toggleGroup = (sezon: string) => {
-    setOpenSezoane((prev) => {
-      const next = new Set(prev ?? (defaultOpenSezon ? [defaultOpenSezon] : []))
-      if (next.has(sezon)) next.delete(sezon)
-      else next.add(sezon)
+  const toggle = (r: Rand) => {
+    setMesajSuma(null)
+    setSel((prev) => {
+      const next = new Set(prev)
+      if (next.has(r.key)) next.delete(r.key)
+      else next.add(r.key)
       return next
     })
   }
 
+  if (sit.isLoading) return <Spinner />
+
+  if (sit.isError) {
+    return (
+      <div className="mx-auto max-w-5xl space-y-4">
+        <RezultatComanda />
+        <div className="grid gap-2 rounded-2xl border border-danger bg-danger/10 p-4">
+          <p className="font-bold text-danger">Nu am putut încărca plățile.</p>
+          <p className="text-sm text-ink">
+            Nu îți putem arăta acum ce ai de plătit. Încearcă din nou peste câteva momente; dacă nu merge,
+            scrie-ne la office@quasardance.ro.
+          </p>
+          <div>
+            <Button variant="secondary" onClick={sit.refetch}>Reîncearcă</Button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const st = (r: Rand) => stare(r, c.azi, c.inCurs)
+  const restante = rows
+    .filter((r) => st(r) === 'restant' || (st(r) === 'curs' && !!r.scadenta && r.scadenta < c.azi))
+    .sort(byData)
+  const urmatoare = rows
+    .filter((r) => !restante.includes(r) && (st(r) === 'azi' || ((st(r) === 'viitor' || st(r) === 'curs') && laTermen(r, c))))
+    .sort(byData)
+  const fortate = rows
+    .filter((r) => incluse.has(r.key) && !restante.includes(r) && !urmatoare.includes(r))
+    .sort(byData)
+  const viitoare = rows.filter((r) => st(r) === 'viitor' && !laTermen(r, c) && !incluse.has(r.key)).sort(byData)
+  const achitate = rows.filter((r) => st(r) === 'achitat' || st(r) === 'acoperit').sort(byData).reverse()
+  const avans = viitoare.filter((r) => sel.has(r.key)).length
+  const urmatoareaRata = rows
+    .filter((r) => deAchitat(st(r)) && r.scadenta && r.scadenta >= c.azi)
+    .map((r) => r.scadenta!)
+    .sort()[0]
+
+  const randuri = (rs: Rand[]) =>
+    rs.map((r) => (
+      <RandPlata key={r.key} r={r} c={c} bifat={sel.has(r.key)} onToggle={() => toggle(r)} inclus={incluse.get(r.key)} />
+    ))
+
+  const sezonId = sezonCurent.data?.sezonId ?? null
+  const cosProps: CosProps = { k, c, preview, onPay: () => pay.mutate(), paying: pay.isPending, eroarePlata: pay.error, mesajSuma }
+
   return (
     <div className="mx-auto max-w-5xl space-y-5">
-      <div>
-        <p className="text-sm text-sub">
-          Tot ce ai de plată și ce ai achitat. Poți plăti lună cu lună, dar nu poți sări peste o lună
-          mai veche neachitată (plata în avans e permisă).
-        </p>
-      </div>
-
       <RezultatComanda />
+      <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start lg:gap-5">
+        <div className="min-w-0 space-y-5">
+          <SituatiaFamiliei />
+          <OfertaIntegrala />
 
-      {/* Sold familie: restanța (roșu) separat de următorul termen și de ratele rămase. */}
-      <section className="rounded-2xl border border-line bg-surf p-5 shadow-card">
-        <div className="flex items-center justify-between gap-3">
-          <span className="text-sm font-semibold text-sub">Sold familie</span>
-          <Button
-            variant="ghost"
-            onClick={() => {
-              for (const key of CHEI_DUPA_PLATA) queryClient.invalidateQueries({ queryKey: [...key] })
-            }}
-          >
-            Reîmprospătează
-          </Button>
-        </div>
-        {rezumat.isLoading ? (
-          <div className="mt-3"><Spinner /></div>
-        ) : rezumat.isError ? (
-          <div className="mt-3 space-y-2 text-sm">
-            <p className="text-ink">Nu am putut încărca soldul.</p>
-            <Button variant="ghost" onClick={() => void rezumat.refetch()}>Reîncearcă</Button>
-          </div>
-        ) : (
-          <div className="mt-3 space-y-1.5">
-            {sumar.restant > 0 && (
-              <div className="flex justify-between gap-3">
-                <span className="text-sm font-semibold text-danger">Restant</span>
-                <span className="text-2xl font-extrabold tracking-tight text-danger">{formatRON(sumar.restant)}</span>
-              </div>
-            )}
-            {sumar.urmatorTermen ? (
-              <div className="flex justify-between gap-3">
-                <span className="text-sm text-ink">
-                  {sumar.urmatorTermen.scadenta === azi
-                    ? 'De achitat azi'
-                    : `De achitat până pe ${formatData(sumar.urmatorTermen.scadenta)}`}
-                </span>
-                <span className={cn('font-extrabold text-ink', sumar.restant > 0 ? 'text-base' : 'text-2xl tracking-tight')}>
-                  {formatRON(sumar.urmatorTermen.suma)}
-                </span>
-              </div>
-            ) : (
-              sumar.restant <= 0 && <p className="text-base font-extrabold text-ok">Ești la zi cu plățile.</p>
-            )}
-            {sumar.urmatorTermen && sumar.ramas > sumar.urmatorTermen.suma && (
-              <div className="flex justify-between gap-3 text-xs text-sub">
-                <span>Rate viitoare în sezon (după acest termen)</span>
-                <span>{formatRON(sumar.ramas - sumar.urmatorTermen.suma)}</span>
-              </div>
-            )}
-          </div>
-        )}
-        {membriCuDePlata.length > 1 && (
-          <ul className="mt-3 space-y-1 border-t border-line pt-3">
-            {membriCuDePlata.map(({ m, s: x }) => (
-              <li key={m.clientId} className="flex justify-between gap-3 text-sm">
-                <span className="text-ink">{m.displayName}</span>
-                <span className="text-right">
-                  {x.restant > 0 && <span className="font-medium text-danger">{formatRON(x.restant)} restant</span>}
-                  {x.restant > 0 && x.urmatorTermen && <span className="text-sub"> · </span>}
-                  {x.urmatorTermen && (
-                    <span className="text-sub">
-                      {formatRON(x.urmatorTermen.suma)} până pe {formatData(x.urmatorTermen.scadenta)}
-                    </span>
-                  )}
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-
-      {sezonCurent.data && activeMember && (
-        <SezonulMeu
-          rows={rows}
-          sezonId={sezonCurent.data.sezonId}
-          sezonNume={sezonCurent.data.nume}
-          membru={activeMember.displayName}
-          azi={azi}
-        />
-      )}
-
-      {/* Oferta din contract: tot sezonul dintr-o dată, −5% */}
-      {integrala.data?.eligibil && (
-        <section className="rounded-2xl border border-acc bg-surf2 p-5 shadow-card">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <p className="text-base font-extrabold tracking-tight text-ink">
-                Plătește tot sezonul dintr-o dată
-              </p>
-              <p className="mt-0.5 text-sm text-sub">
-                {integrala.data.luni} rate
-                {integrala.data.sezonNume ? ` · ${integrala.data.sezonNume}` : ''}
+          {sit.platiInCurs.map((p) => (
+            <div key={p.orderRef} className="grid gap-1 rounded-2xl border border-evgrupa bg-evgrupa/10 px-4 py-3 text-sm">
+              <p className="font-bold text-evgrupa">Plata de {formatRON(p.amount)} e în curs de confirmare</p>
+              <p className="text-ink">
+                Pornită la {ora(p.created)}
+                {p.membri.length ? `, pentru ${p.membri.join(' și ')}` : ''}. Rândurile marcate „Plată în curs” devin
+                „Achitat” după confirmarea băncii; nu le plăti din nou. Dacă ai închis pagina de plată fără să plătești,
+                le poți plăti din nou după {ora(p.expira)}.
               </p>
             </div>
-            <span className="rounded-full bg-acc px-3 py-1 text-sm font-extrabold text-acc-ink">−5%</span>
-          </div>
-          <div className="mt-3 flex flex-wrap items-baseline gap-2">
-            <span className="text-sm text-sub line-through">{formatRON(integrala.data.totalCurent)}</span>
-            <span className="text-2xl font-extrabold tracking-tight text-ink">
-              {formatRON(integrala.data.totalPlata)}
-            </span>
-            <span className="text-sm font-semibold text-ok">
-              economisești {formatRON(integrala.data.discount)}
-            </span>
-          </div>
-          <Button
-            onClick={() => payIntegral.mutate()}
-            disabled={payIntegral.isPending}
-            className="mt-3 w-full"
+          ))}
+
+          <h2 className="text-[17px] font-extrabold tracking-tight text-ink">Ce plătești acum</h2>
+
+          <Sectiune titlu="Restanțe · termen depășit" suma={restante.reduce((a, r) => a + r.rest, 0)} rosu>
+            {randuri(restante)}
+          </Sectiune>
+          <Sectiune
+            titlu={c.primulTermen === c.azi ? 'De achitat azi' : 'Următoarea plată'}
+            detaliu={c.termenInCos && c.primulTermen && c.primulTermen !== c.azi ? `până pe ${formatZi(c.primulTermen, c.azi)}` : undefined}
+            suma={urmatoare.reduce((a, r) => a + r.rest, 0)}
           >
-            {payIntegral.isPending
-              ? 'Se inițiază…'
-              : `Plătește integral ${formatRON(integrala.data.totalPlata)}`}
-          </Button>
-          {payIntegral.isError && (
-            <p className="mt-1 text-xs text-danger">{mesajEroare(payIntegral.error)}</p>
+            {randuri(urmatoare)}
+          </Sectiune>
+          <Sectiune
+            titlu="Incluse obligatoriu"
+            suma={fortate.reduce((a, r) => a + r.rest, 0)}
+            nota="Nu au încă termenul, dar intră în plată din cauza unui rând bifat mai sus."
+          >
+            {randuri(fortate)}
+          </Sectiune>
+
+          {!restante.length && !urmatoare.length && !fortate.length && (
+            <div className="rounded-2xl border border-line bg-surf p-4 text-sm shadow-card">
+              <b className="text-ink">Nimic de plătit acum.</b>{' '}
+              <span className="text-sub">
+                {urmatoareaRata
+                  ? `Următoarea rată are termen pe ${formatZi(urmatoareaRata, c.azi)}. Dacă vrei, o poți plăti în avans din „Plăți viitoare”.`
+                  : 'Toate ratele tale sunt achitate.'}
+              </span>
+            </div>
           )}
-          <p className="mt-2 text-xs text-sub">
-            Conform contractului, reducerea de 5% se acordă pentru achitarea integrală a sezonului
-            {integrala.data.scadenta ? `, până la ${formatData(integrala.data.scadenta)}` : ''}.
-            Reducerile nu se cumulează: ratele care au deja reducerea de familie rămân la ea.
-          </p>
-        </section>
-      )}
 
-      <ReduceriSection />
-
-      {/* Detaliu pe înrolări — grupat pe sezon */}
-      <section className="space-y-3">
-        <h2 className="text-base font-extrabold tracking-tight text-ink">Plătește online — {activeMember?.displayName ?? '—'}</h2>
-        <p className="text-xs text-sub">
-          Sunt bifate restanțele și următoarea rată. Poți bifa și lunile următoare, ca să plătești în avans.
-        </p>
-        {plati.isLoading && <Spinner />}
-        {plati.data && rows.length === 0 && (
-          <p className="text-sm text-sub">Nicio înrolare.</p>
-        )}
-        {tipuriPrezente.length > 1 && (
-          <div className="flex flex-wrap gap-2" role="group" aria-label="Filtrează după tipul cursului">
-            {([null, ...tipuriPrezente] as (TipCurs | null)[]).map((t) => {
-              const activ = tipFiltru === t
-              return (
-                <button
-                  key={t ?? 'toate'}
-                  type="button"
-                  onClick={() => setTipFiltru(t)}
-                  aria-pressed={activ}
-                  className={cn(
-                    'rounded-full border px-3 py-1 text-sm font-semibold',
-                    activ ? 'border-acc bg-acc text-acc-ink' : 'border-line bg-surf text-sub',
-                  )}
-                >
-                  {t ? TIP_CURS_LABEL[t] : 'Toate'}
-                </button>
-              )
-            })}
-          </div>
-        )}
-
-        {displayGroups.map((g) => {
-          const open = isGroupOpen(g.sezon)
-          const restGroup = g.rows.reduce((a, r) => a + (r.rest > 0 ? r.rest : 0), 0)
-          const restantGroup = g.rows.some((r) => r.rest > 0 && !!r.scadenta && r.scadenta < azi)
-          return (
-          <div key={g.sezon} className="overflow-hidden rounded-2xl border border-line bg-surf shadow-card">
-            <button
-              type="button"
-              onClick={() => toggleGroup(g.sezon)}
-              aria-expanded={open}
-              className={cn(
-                'flex w-full items-center justify-between gap-3 bg-surf2 px-4 py-2 text-left',
-                open && 'border-b border-line',
-              )}
+          {viitoare.length > 0 && (
+            <Pliabil
+              titlu="Plăți viitoare · nu sunt de achitat acum"
+              sub={`${viitoare.length} ${viitoare.length === 1 ? 'plată' : 'plăți'} · ${formatRON(viitoare.reduce((a, r) => a + r.rest, 0))}${avans ? ` · ${avans} bifate pentru avans` : ''} · deschide ca să plătești în avans`}
             >
-              <span className="text-xs font-bold uppercase tracking-wide text-sub">
-                {open ? '▾' : '▸'} {g.sezon}
-              </span>
-              <span className="text-xs text-sub">
-                {g.rows.length} {g.rows.length === 1 ? 'înrolare' : 'înrolări'}
-                {restGroup > 0 && (
-                  <span className={cn('font-semibold', restantGroup ? 'text-danger' : 'text-ink')}> · rest {formatRON(restGroup)}</span>
-                )}
-              </span>
-            </button>
-            {open && (
-            <ul className="divide-y divide-line">
-              {g.rows.map((r) => {
-                const achitat = r.rest <= 0
-                const restant = !achitat && !!r.scadenta && r.scadenta < azi
-                const selectable = !achitat && !!r.dataIncepere
+              {ordine.map((id) => {
+                const ale = viitoare.filter((r) => r.clientId === id)
+                if (!ale.length) return null
                 return (
-                  <PayableRow
-                    key={r.enrollmentId}
-                    checked={isSelected(r)}
-                    onToggle={selectable ? () => toggle(r) : null}
-                    ariaLabel={`Selectează ${r.cursNume ?? ''}`}
-                    title={r.cursNume ?? 'Curs'}
-                    subtitle={
-                      <>
-                        {perioada(r)}
-                        {r.codVoucher ? ` · voucher ${r.codVoucher}` : ''}
-                        {!achitat && r.scadenta && (
-                          <span className={cn(restant && 'font-semibold text-danger')}>
-                            {' · '}
-                            {restant ? `restant din ${formatData(r.scadenta)}` : `scadent pe ${formatData(r.scadenta)}`}
-                          </span>
-                        )}
-                      </>
-                    }
-                    dimmed={achitat}
-                    right={
-                      <div className="text-right">
-                        <p className="text-sm text-ink">{formatRON(r.platit)} / {formatRON(r.total)}</p>
-                        {achitat ? (
-                          <span className="text-xs font-semibold text-ok">ACHITAT</span>
-                        ) : (
-                          <span className={cn('text-xs font-semibold', restant ? 'text-danger' : 'text-sub')}>
-                            rest {formatRON(r.rest)}
-                          </span>
-                        )}
-                      </div>
-                    }
-                  />
+                  <li key={id}>
+                    <Eticheta>{ale[0].membru}</Eticheta>
+                    <ul className="divide-y divide-line">{randuri(ale)}</ul>
+                  </li>
                 )
               })}
-            </ul>
-            )}
-          </div>
-          )
-        })}
-      </section>
-
-      {/* Alte datorii (bilete / produse / taxe) — se plătesc integral */}
-      {datoriiRows.length > 0 && (
-        <section className="space-y-3">
-          <h2 className="text-base font-extrabold tracking-tight text-ink">
-            Alte datorii (bilete / produse / taxe)
-          </h2>
-          <div className="overflow-hidden rounded-2xl border border-line bg-surf shadow-card">
-            <ul className="divide-y divide-line">
-              {datoriiRows.map((d) => (
-                <PayableRow
-                  key={d.datorieId}
-                  checked={selectedDatorii.has(d.datorieId)}
-                  onToggle={() => toggleDatorie(d.datorieId)}
-                  ariaLabel={`Selectează ${d.descriere ?? d.categorie}`}
-                  title={d.descriere || d.categorie}
-                  subtitle={
-                    <>
-                      {d.categorie}
-                      {d.platit > 0 ? ` · achitat ${formatRON(d.platit)} / ${formatRON(d.sumaDatorata)}` : ''}
-                    </>
-                  }
-                  right={
-                    <span className="text-xs font-semibold text-danger">rest {formatRON(d.rest)}</span>
-                  }
-                />
-              ))}
-            </ul>
-          </div>
-        </section>
-      )}
-
-      {/* Rezumat comandă + plată */}
-      {(unpaid.length > 0 || datoriiRows.length > 0) && (
-        <section className="space-y-2 rounded-2xl bg-surf2 p-5">
-          <p className="text-base font-extrabold tracking-tight text-ink">Rezumat comandă</p>
-          <div className="flex justify-between text-sm">
-            <span className="text-sub">
-              {[
-                selectedRows.length > 0
-                  ? `${selectedRows.length} ${selectedRows.length === 1 ? 'lună' : 'luni'}`
-                  : null,
-                selectedDatoriiRows.length > 0
-                  ? `${selectedDatoriiRows.length} ${selectedDatoriiRows.length === 1 ? 'datorie' : 'datorii'}`
-                  : null,
-              ]
-                .filter(Boolean)
-                .join(' + ') || 'Nimic selectat'}
-            </span>
-            <span className="font-extrabold text-ink">{formatRON(grandTotal)}</span>
-          </div>
-          {selectateAscunse > 0 && (
-            <p className="text-xs text-sub">
-              Include și {selectateAscunse}{' '}
-              {selectateAscunse === 1 ? 'rată ascunsă' : 'rate ascunse'} de filtru — lunile se
-              achită în ordine, de la cea mai veche.
-            </p>
+            </Pliabil>
           )}
-          <p className="text-xs text-sub">
-            Moneda: RON. Vei fi redirecționat către NETOPIA Payments pentru plata securizată cu cardul.
-          </p>
-          <PaymentBadges />
-          <Button
-            onClick={() => pay.mutate()}
-            disabled={pay.isPending || grandTotal <= 0}
-            className="w-full"
-          >
-            {pay.isPending ? 'Se inițiază…' : `Plătește ${formatRON(grandTotal)}`}
+
+          <CosMobil {...cosProps} />
+
+          <h2 className="pt-2 text-[17px] font-extrabold tracking-tight text-ink">Situația sezonului</h2>
+          {sit.members.map((m) => (
+            <SituatiaSezonului
+              key={m.clientId}
+              membru={m.displayName}
+              rows={rows.filter((r) => r.clientId === m.clientId && (sezonId == null || r.sezonId === sezonId))}
+              c={c}
+              sezonNume={sezonCurent.data?.nume ?? null}
+            />
+          ))}
+
+          <ReduceriSection />
+
+          {achitate.length > 0 && (
+            <Pliabil titlu="Achitate" sub={`${achitate.length} plăți · istoric pe sezoane`}>
+              {[...new Set(achitate.map((r) => r.sezonNume ?? 'Fără sezon'))].map((sz) => (
+                <li key={sz}>
+                  <Eticheta>{sz}</Eticheta>
+                  <ul className="divide-y divide-line">
+                    {achitate
+                      .filter((r) => (r.sezonNume ?? 'Fără sezon') === sz)
+                      .map((r) => (
+                        <RandPlata key={r.key} r={r} c={c} bifat={false} />
+                      ))}
+                  </ul>
+                </li>
+              ))}
+            </Pliabil>
+          )}
+        </div>
+
+        <aside className="hidden lg:sticky lg:top-4 lg:block">
+          <div className="rounded-2xl border border-line bg-surf p-4 shadow-card">
+            <CosDetaliu {...cosProps} />
+          </div>
+        </aside>
+      </div>
+    </div>
+  )
+}
+
+const ora = (iso: string) => new Date(iso).toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' })
+
+function Eticheta({ children }: { children: ReactNode }) {
+  return (
+    <p className="bg-bar px-4 pb-1 pt-2.5 text-[10.5px] font-extrabold uppercase tracking-[0.08em] text-sub">{children}</p>
+  )
+}
+
+function Pliabil({ titlu, sub, children }: { titlu: string; sub: string; children: ReactNode }) {
+  return (
+    <details className="group overflow-hidden rounded-2xl border border-line bg-surf shadow-card">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3">
+        <span className="grid gap-0.5">
+          <span className="text-sm font-bold text-ink">{titlu}</span>
+          <span className="text-xs text-sub">{sub}</span>
+        </span>
+        <span aria-hidden className="text-xs text-sub group-open:rotate-90">▸</span>
+      </summary>
+      <ul className="divide-y divide-line border-t border-line">{children}</ul>
+    </details>
+  )
+}
+
+function Sectiune({
+  titlu,
+  detaliu,
+  suma,
+  rosu,
+  nota,
+  children,
+}: {
+  titlu: string
+  detaliu?: string
+  suma: number
+  rosu?: boolean
+  nota?: string
+  children: ReactNode[]
+}) {
+  if (!children.length) return null
+  return (
+    <section className="grid gap-2">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h3 className={cn('text-base font-extrabold tracking-tight', rosu ? 'text-danger' : 'text-ink')}>{titlu}</h3>
+        <span className={cn('text-sm font-extrabold', rosu ? 'text-danger' : 'text-ink')}>
+          {detaliu ? `${detaliu} · ` : ''}
+          {formatRON(suma)}
+        </span>
+      </div>
+      {nota && <p className="text-xs text-sub">{nota}</p>}
+      <ul className={cn('divide-y divide-line overflow-hidden rounded-2xl border bg-surf shadow-card', rosu ? 'border-danger' : 'border-line')}>
+        {children}
+      </ul>
+    </section>
+  )
+}
+
+// ----- Coșul familiei -----
+
+const ETICHETA: Record<Categorie, string> = {
+  restant: 'Restanțe',
+  azi: 'De achitat azi',
+  termen: 'Termen',
+  inclus: 'Incluse obligatoriu',
+  avans: 'Avans ales de tine',
+}
+
+const ORDINE: Categorie[] = ['restant', 'azi', 'termen', 'inclus', 'avans']
+
+type CosProps = {
+  k: Cos
+  c: Context
+  preview: ReturnType<typeof usePreviewPlata>
+  onPay: () => void
+  paying: boolean
+  eroarePlata: unknown
+  mesajSuma: string | null
+}
+
+// Suma de pe buton e cea calculată de server; până răspunde, butonul stă dezactivat.
+function sumaDePlata({ k, preview }: Pick<CosProps, 'k' | 'preview'>): { suma: number; gata: boolean } {
+  if (k.total <= 0) return { suma: 0, gata: false }
+  if (preview.isSuccess) return { suma: preview.data.amount, gata: preview.data.amount > 0 }
+  return { suma: k.total, gata: false }
+}
+
+function CosDetaliu(props: CosProps) {
+  const { k, c, onPay, paying, eroarePlata, mesajSuma } = props
+  const { suma, gata } = sumaDePlata(props)
+  if (k.total <= 0) {
+    return (
+      <div className="grid gap-1.5">
+        <h2 className="text-base font-extrabold tracking-tight text-ink">Coșul familiei</h2>
+        <p className="text-sm text-sub">Nimic de plătit acum. Poți bifa rate viitoare ca să plătești în avans.</p>
+      </div>
+    )
+  }
+  return (
+    <div className="grid gap-3">
+      <h2 className="text-base font-extrabold tracking-tight text-ink">Coșul familiei</h2>
+      {k.membri.map((m) => {
+        const grupe = new Map<string, { cat: Categorie; eticheta: string; suma: number; n: number }>()
+        for (const a of m.articole) {
+          const key = a.cat === 'termen' ? `termen:${a.r.scadenta}` : a.cat
+          const eticheta = a.cat === 'termen' ? `Termen ${formatZi(a.r.scadenta, c.azi)}` : ETICHETA[a.cat]
+          const g = grupe.get(key) ?? { cat: a.cat, eticheta, suma: 0, n: 0 }
+          g.suma += a.r.rest
+          g.n += 1
+          grupe.set(key, g)
+        }
+        return (
+          <div key={m.clientId} className="grid gap-1 border-b border-line pb-2.5 last:border-b-0">
+            <div className="flex justify-between font-extrabold text-ink">
+              <span>{m.membru}</span>
+              <span>{formatRON(m.total)}</span>
+            </div>
+            {[...grupe.values()].sort((x, y) => ORDINE.indexOf(x.cat) - ORDINE.indexOf(y.cat)).map((g) => (
+              <div
+                key={g.eticheta}
+                className={cn(
+                  'flex justify-between gap-3 text-[12.5px]',
+                  g.cat === 'restant' ? 'text-danger' : g.cat === 'inclus' ? 'text-ink' : 'text-sub',
+                )}
+              >
+                <span>
+                  {g.eticheta}
+                  {g.n > 1 ? ` (${g.n})` : ''}
+                </span>
+                <span>{formatRON(g.suma)}</span>
+              </div>
+            ))}
+          </div>
+        )
+      })}
+      <div className="flex items-baseline justify-between font-extrabold text-ink">
+        <span>Total</span>
+        <b className="text-2xl">{formatRON(suma)}</b>
+      </div>
+      <StarePreview {...props} />
+      <Button onClick={onPay} disabled={!gata || paying || k.blocate.length > 0} className="w-full">
+        {paying ? 'Se inițiază…' : `Plătește ${formatRON(suma)}`}
+      </Button>
+      {!!eroarePlata && !mesajSuma && <p className="text-xs text-danger">{mesajEroare(eroarePlata)}</p>}
+      <p className="text-xs text-sub">
+        O singură plată cu cardul, prin NETOPIA Payments, în RON. Suma se împarte pe membri ca mai sus.
+      </p>
+      <PaymentBadges />
+    </div>
+  )
+}
+
+function StarePreview({ k, preview, mesajSuma }: CosProps) {
+  if (mesajSuma) return <p className="text-xs font-bold text-danger">{mesajSuma}</p>
+  if (k.blocate.length)
+    return (
+      <p className="text-xs text-danger">
+        Una dintre ratele care ar intra în plată are deja o plată în curs. Așteaptă confirmarea băncii sau debifează
+        lunile mai noi.
+      </p>
+    )
+  if (preview.isFetching && !preview.isSuccess) return <p className="text-xs text-sub">Calculăm suma exactă…</p>
+  if (preview.isError) return <p className="text-xs text-danger">{mesajEroare(preview.error)}</p>
+  if (preview.isSuccess && Math.abs(preview.data.amount - k.total) > 0.005)
+    return <p className="text-xs text-sub">Suma de plată a fost recalculată: {formatRON(preview.data.amount)}.</p>
+  return null
+}
+
+function CosMobil(props: CosProps) {
+  const [deschis, setDeschis] = useState(false)
+  const { k } = props
+  const { suma, gata } = sumaDePlata(props)
+  return (
+    <div className="sticky bottom-0 z-10 grid gap-2.5 rounded-2xl border border-line bg-surf p-3.5 shadow-card lg:hidden">
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <span className="block text-[11.5px] text-sub">
+            Coșul familiei{k.membri.length ? ` · ${k.membri.map((m) => m.membru).join(' și ')}` : ''}
+          </span>
+          <b className="block text-xl font-extrabold text-ink">{k.total > 0 ? formatRON(suma) : 'Nimic de plătit acum'}</b>
+        </div>
+        {k.total > 0 && (
+          <Button onClick={props.onPay} disabled={!gata || props.paying || k.blocate.length > 0}>
+            {props.paying ? 'Se inițiază…' : 'Plătește'}
           </Button>
-          {pay.isError && <p className="mt-1 text-xs text-danger">{mesajEroare(pay.error)}</p>}
-        </section>
+        )}
+      </div>
+      {k.total > 0 && (
+        <button
+          type="button"
+          onClick={() => setDeschis((x) => !x)}
+          className="justify-self-start text-[12.5px] font-bold text-ink underline"
+        >
+          {deschis ? 'Ascunde detaliile' : 'Vezi ce plătești'}
+        </button>
       )}
+      {k.total > 0 && !deschis && <StarePreview {...props} />}
+      {deschis && <CosDetaliu {...props} />}
     </div>
   )
 }

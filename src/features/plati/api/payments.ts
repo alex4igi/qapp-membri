@@ -1,3 +1,4 @@
+import { FunctionsHttpError } from '@supabase/supabase-js'
 import { supabase, edgeFunctionError } from '@/lib/supabase'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -93,6 +94,8 @@ export const CHEI_DUPA_PLATA = [
   ['plata-integrala'],
   ['open-sesiuni'],
   ['sedinte-membru'],
+  ['plati-in-curs'],
+  ['preview-plata'],
 ] as const
 
 export type PlataRow = {
@@ -139,6 +142,8 @@ export type DatorieRow = {
   platit: number
   rest: number
   created: string | null
+  // Până când se plătește (din 09.10.2026 o pune recepția; implicit ziua creării).
+  termen: string
 }
 
 // Datoriile one-off (Bilet/Merch/Taxă) neachitate ale unui membru. Se plătesc INTEGRAL.
@@ -153,6 +158,7 @@ export async function getDatoriiClient(clientId: string): Promise<DatorieRow[]> 
     platit: Number(r.platit ?? 0),
     rest: Number(r.rest ?? 0),
     created: r.created,
+    termen: r.termen,
   }))
 }
 
@@ -186,7 +192,98 @@ export async function getPlataIntegrala(clientId: string): Promise<PlataIntegral
   }
 }
 
+// Ce plătește un membru în coșul familiei: rândurile până la `panaLa` (FIFO pe luna
+// înrolării) + datoriile one-off bifate. Serverul nu acceptă `panaLa` lipsă cu înrolări incluse.
+export type SelectieMembru = {
+  clientId: string
+  includeInrolari: boolean
+  panaLa?: string
+  datorii?: string[]
+}
+
+export type PlanFamilie = {
+  amount: number
+  items: { clientId: string; enrollmentId: string | null; datorieId: string | null; pay: number }[]
+  peMembru: { clientId: string; amount: number }[]
+}
+
+const toSelectie = (m: SelectieMembru[]) =>
+  m.map((x) => ({
+    client: x.clientId,
+    include_inrolari: x.includeInrolari,
+    pana_la: x.panaLa ?? null,
+    datorii: x.datorii ?? [],
+  }))
+
+// Previzualizarea coșului: aceeași funcție cu care serverul construiește comanda, deci suma
+// de aici e suma care se plătește (cu excepția unei plăți făcute între timp — atunci 409).
+export async function previewPlataFamilie(membri: SelectieMembru[]): Promise<PlanFamilie> {
+  const { data, error } = await supabase.rpc('build_fifo_plan_familie', { p_selectie: toSelectie(membri) })
+  if (error) throw error
+  const r = data as { amount: number; plan: Record<string, unknown>[]; pe_membru: Record<string, unknown>[] }
+  return {
+    amount: Number(r.amount ?? 0),
+    items: (r.plan ?? []).map((x) => ({
+      clientId: String(x.client_id),
+      enrollmentId: (x.enrollment_id as string) ?? null,
+      datorieId: (x.datorie_id as string) ?? null,
+      pay: Number(x.pay ?? 0),
+    })),
+    peMembru: (r.pe_membru ?? []).map((x) => ({ clientId: String(x.client), amount: Number(x.amount ?? 0) })),
+  }
+}
+
+// Comenzile pornite și neconfirmate încă (max. 30 min): rândurile lor nu se mai pot plăti.
+export type PlataInCurs = {
+  orderRef: string
+  amount: number
+  created: string
+  expira: string
+  randuri: string[]
+  membri: string[]
+}
+
+export async function getPlatiInCurs(): Promise<PlataInCurs[]> {
+  const { data, error } = await supabase.rpc('get_plati_in_curs')
+  if (error) throw error
+  return (data ?? []).map((r) => ({
+    orderRef: r.order_ref,
+    amount: Number(r.amount ?? 0),
+    created: r.created,
+    expira: r.expira,
+    randuri: r.randuri ?? [],
+    membri: r.membri ?? [],
+  }))
+}
+
 export type CreatePaymentResult = { redirectUrl: string; orderId: string }
+
+// 409 de la server: suma s-a schimbat între previzualizare și plată.
+export class SumaSchimbataError extends Error {}
+
+// Plata pe familie: o singură comandă Netopia pentru toți membrii din coș.
+export async function createNetopiaPaymentFamilie(
+  membri: SelectieMembru[],
+  sumaAsteptata: number,
+): Promise<CreatePaymentResult> {
+  const { data, error } = await supabase.functions.invoke('netopia-create-payment', {
+    body: {
+      membri: membri.map((m) => ({
+        clientId: m.clientId,
+        includeInrolari: m.includeInrolari,
+        panaLa: m.panaLa,
+        datorii: m.datorii ?? [],
+      })),
+      sumaAsteptata,
+    },
+  })
+  if (error) {
+    const e = await edgeFunctionError(error)
+    if (error instanceof FunctionsHttpError && error.context.status === 409) throw new SumaSchimbataError(e.message)
+    throw e
+  }
+  return data as CreatePaymentResult
+}
 
 // Inițiază plata online. Suma e recalculată server-side (FIFO) — trimitem clientId și,
 // opțional, înrolarea-limită `panaLa` (plătește lunile până la și inclusiv ea, în ordine

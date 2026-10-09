@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Button, Spinner } from '@/components/ui'
-import { formatData } from '@/lib/format'
+import { formatData, formatRON } from '@/lib/format'
 import { getStatusComanda, type StatusComanda } from '@/features/rezervari/api'
 import { CHEI_DUPA_PLATA } from './api/payments'
 
@@ -134,7 +134,11 @@ function Mesaj({
     return (
       <div className={`${box} border-ok bg-surf text-ink`}>
         <p className="font-bold text-ok">
-          ✓ {rezervare ? `Rezervare confirmată${ce}` : bilet ? 'Biletele sunt plătite' : 'Plata a fost confirmată'}
+          ✓ {rezervare
+            ? `Rezervare confirmată${ce}`
+            : bilet
+              ? 'Biletele sunt plătite'
+              : `Plata${comanda.amount ? ` de ${formatRON(comanda.amount)}` : ''} a fost confirmată${pentru(comanda.membri)}`}
         </p>
         <p className="mt-1 text-sub">
           {rezervare
@@ -162,14 +166,16 @@ function Mesaj({
   }
   return (
     <div className={`${box} border-acc bg-surf2 text-ink`}>
-      <p className="font-bold">⏳ Banca încă procesează plata{ce}</p>
+      <p className="font-bold">⏳ Banca încă procesează plata{ce}{rezervare || bilet ? '' : pentru(comanda?.membri ?? [])}</p>
       <p className="mt-1 text-sub">
         {rezervare
           ? 'Locul e ținut 30 de minute de la inițierea rezervării. Când plata trece, ședința apare ca rezervată.'
-          : 'Când plata trece, suma apare achitată mai jos.'}{' '}
+          : 'Nu plăti din nou. Până la confirmare, ratele apar „Plată în curs”, nu „Achitat”.'}{' '}
         Dacă suma ți-a fost retrasă și plata nu apare confirmată, scrie-ne la office@quasardance.ro.
       </p>
       {actiuni}
     </div>
   )
 }
+
+const pentru = (membri: string[]) => (membri.length ? `, pentru ${membri.join(' și ')}` : '')

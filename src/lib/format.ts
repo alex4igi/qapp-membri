@@ -39,3 +39,20 @@ export function adaugaZile(zi: string, n: number): string {
   const dt = new Date(Date.UTC(y, m - 1, d + n))
   return dt.toISOString().slice(0, 10)
 }
+
+const LUNI_SCURT = ['ian.', 'feb.', 'mar.', 'apr.', 'mai', 'iun.', 'iul.', 'aug.', 'sept.', 'oct.', 'nov.', 'dec.']
+const LUNI_LUNG = ['ianuarie', 'februarie', 'martie', 'aprilie', 'mai', 'iunie', 'iulie', 'august', 'septembrie', 'octombrie', 'noiembrie', 'decembrie']
+
+// „15 oct.” — cu anul doar dacă e alt an decât `fata` (de obicei azi).
+export function formatZi(iso: string | null | undefined, fata?: string): string {
+  if (!iso) return '—'
+  const [y, m, d] = iso.split('-').map(Number)
+  const an = fata && Number(fata.slice(0, 4)) === y ? '' : ` ${y}`
+  return `${d} ${LUNI_SCURT[m - 1]}${an}`
+}
+
+// „octombrie 2026” / „oct.” (scurt, fără an).
+export function formatLuna(iso: string, scurt = false): string {
+  const [y, m] = iso.split('-').map(Number)
+  return scurt ? LUNI_SCURT[m - 1] : `${LUNI_LUNG[m - 1]} ${y}`
+}

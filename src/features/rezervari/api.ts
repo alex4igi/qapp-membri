@@ -63,6 +63,9 @@ export type StatusComanda = {
   rezervareStatus: string | null
   cursNume: string | null
   data: string | null
+  amount: number | null
+  // Prenumele membrilor acoperiți de o plată de abonamente (coșul familiei).
+  membri: string[]
 }
 
 // null = comanda nu există sau nu e a familiei contului.
@@ -70,13 +73,15 @@ export async function getStatusComanda(orderRef: string): Promise<StatusComanda 
   const { data, error } = await supabase.rpc('portal_status_comanda', { p_order_ref: orderRef })
   if (error) throw error
   if (!data) return null
-  const o = data as Record<string, string | null>
+  const o = data as Record<string, unknown>
   return {
     status: o.status as StatusComanda['status'],
-    orderType: o.order_type,
-    rezervareStatus: o.rezervare_status,
-    cursNume: o.curs_nume,
-    data: o.data,
+    orderType: (o.order_type as string) ?? null,
+    rezervareStatus: (o.rezervare_status as string) ?? null,
+    cursNume: (o.curs_nume as string) ?? null,
+    data: (o.data as string) ?? null,
+    amount: o.amount == null ? null : Number(o.amount),
+    membri: Array.isArray(o.membri) ? (o.membri as string[]) : [],
   }
 }
 

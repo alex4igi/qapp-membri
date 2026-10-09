@@ -3284,6 +3284,7 @@ export type Database = {
       }
       enrollments: {
         Row: {
+          acoperit_gratuitate: number
           activ: boolean
           client: string | null
           created: string
@@ -3295,11 +3296,13 @@ export type Database = {
           discount_integral: number
           este_reinscriere: boolean
           foloseste_pret_promo: boolean
+          gratuitate: string | null
           id: string
           motiv_reziliere: string | null
           old_user_sub_id: number | null
           politica_discount: number
           promo_anulat_la: string | null
+          prorata: boolean
           retrogradat: boolean
           reziliat: boolean
           sezon_id: string | null
@@ -3310,6 +3313,7 @@ export type Database = {
           voucher: string | null
         }
         Insert: {
+          acoperit_gratuitate?: number
           activ?: boolean
           client?: string | null
           created?: string
@@ -3321,11 +3325,13 @@ export type Database = {
           discount_integral?: number
           este_reinscriere?: boolean
           foloseste_pret_promo?: boolean
+          gratuitate?: string | null
           id?: string
           motiv_reziliere?: string | null
           old_user_sub_id?: number | null
           politica_discount?: number
           promo_anulat_la?: string | null
+          prorata?: boolean
           retrogradat?: boolean
           reziliat?: boolean
           sezon_id?: string | null
@@ -3336,6 +3342,7 @@ export type Database = {
           voucher?: string | null
         }
         Update: {
+          acoperit_gratuitate?: number
           activ?: boolean
           client?: string | null
           created?: string
@@ -3347,11 +3354,13 @@ export type Database = {
           discount_integral?: number
           este_reinscriere?: boolean
           foloseste_pret_promo?: boolean
+          gratuitate?: string | null
           id?: string
           motiv_reziliere?: string | null
           old_user_sub_id?: number | null
           politica_discount?: number
           promo_anulat_la?: string | null
+          prorata?: boolean
           retrogradat?: boolean
           reziliat?: boolean
           sezon_id?: string | null
@@ -4569,6 +4578,8 @@ export type Database = {
           factura_fgo: string | null
           factura_link: string | null
           familia_id: string | null
+          fgo_incasare_eroare: string | null
+          fgo_incasata_la: string | null
           firma_cui: string
           incasare_id: string | null
           linii: Json | null
@@ -4592,6 +4603,8 @@ export type Database = {
           factura_fgo?: string | null
           factura_link?: string | null
           familia_id?: string | null
+          fgo_incasare_eroare?: string | null
+          fgo_incasata_la?: string | null
           firma_cui: string
           incasare_id?: string | null
           linii?: Json | null
@@ -4615,6 +4628,8 @@ export type Database = {
           factura_fgo?: string | null
           factura_link?: string | null
           familia_id?: string | null
+          fgo_incasare_eroare?: string | null
+          fgo_incasata_la?: string | null
           firma_cui?: string
           incasare_id?: string | null
           linii?: Json | null
@@ -13632,6 +13647,19 @@ export type Database = {
         Args: { p_target_locatie_ids: string[]; p_target_roles: string[] }
         Returns: string[]
       }
+      _aplica_gratuitate_inrolari: {
+        Args: {
+          p_actor: string
+          p_client: string
+          p_curs: string
+          p_de_la: string
+          p_motiv: string
+          p_pana: string
+          p_rol: string
+          p_tip: string
+        }
+        Returns: number
+      }
       _calcul_salariu_staff: {
         Args: { p_anul: number; p_luna: number; p_post: string; p_user: string }
         Returns: Json
@@ -13695,6 +13723,7 @@ export type Database = {
         Args: {
           p_cursuri: string[]
           p_de: string
+          p_fara_prorata?: boolean
           p_pana: string
           p_sedinta_30_zile: boolean
         }
@@ -13707,6 +13736,7 @@ export type Database = {
         Args: {
           p_cursuri: string[]
           p_de: string
+          p_fara_prorata?: boolean
           p_pana: string
           p_sedinta_30_zile: boolean
         }
@@ -14487,6 +14517,23 @@ export type Database = {
           n_respinse: number
           n_trimise: number
           teacher_nume: string
+        }[]
+      }
+      get_ajustari_client: {
+        Args: { p_client?: string; p_familie?: string }
+        Returns: {
+          actiune: string
+          autor: string
+          curs: string
+          curs_nou: string
+          id: string
+          luna: string
+          moment: string
+          motiv: string
+          nou: Json
+          pentru: string
+          rol: string
+          vechi: Json
         }[]
       }
       get_analytics_sezon: { Args: { p_locatie?: string }; Returns: Json }
@@ -16922,6 +16969,21 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      seteaza_gratuitate_inrolare: {
+        Args: {
+          p_client: string
+          p_curs: string
+          p_de_la: string
+          p_motiv: string
+          p_pana: string
+          p_tip: string
+        }
+        Returns: number
+      }
+      seteaza_prorata_inrolare: {
+        Args: { p_enrollment: string; p_motiv: string; p_prorata: boolean }
+        Returns: undefined
       }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }

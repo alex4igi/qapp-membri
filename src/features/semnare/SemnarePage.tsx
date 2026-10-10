@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Spinner } from '@/components/ui'
-import { contractReady, downloadContract, loadContract, submitContract, type LoadResult } from './api'
+import { contractReady, downloadContract, draftContract, loadContract, submitContract, type LoadResult } from './api'
 import { SignatureCanvas } from './SignatureCanvas'
 
 // Un checkbox nebifat (`false`) e o valoare validă, nu o „lipsă" — nu-l tratăm
@@ -29,6 +29,8 @@ export function SemnarePage() {
   const [descarcareErr, setDescarcareErr] = useState('')
   // Linkul public dă documentul semnat doar o vreme; după aceea rămâne portalul.
   const [descExpirata, setDescExpirata] = useState(false)
+  const [ciorna, setCiorna] = useState(false)
+  const [ciornaErr, setCiornaErr] = useState('')
 
   useEffect(() => {
     let cancelled = false
@@ -119,6 +121,31 @@ export function SemnarePage() {
       setDescarcareErr('Nu am putut descărca documentul. Verifică internetul și apasă din nou; documentul semnat rămâne oricum în contul tău de membru, la Documente.')
     } finally {
       setDescarcare(false)
+    }
+  }
+
+  async function veziCiorna() {
+    setCiornaErr('')
+    setCiorna(true)
+    try {
+      const res = await draftContract(token, valori)
+      if (!res.pdf) {
+        setCiornaErr(res.error ?? 'Ciorna nu s-a putut pregăti acum. Încearcă din nou peste câteva minute.')
+        return
+      }
+      const bytes = Uint8Array.from(atob(res.pdf), (c) => c.charCodeAt(0))
+      const url = URL.createObjectURL(new Blob([bytes], { type: 'application/pdf' }))
+      const a = document.createElement('a')
+      a.href = url
+      a.download = res.fisier ?? 'Ciorna contract.pdf'
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      setTimeout(() => URL.revokeObjectURL(url), 60_000)
+    } catch {
+      setCiornaErr('Nu am putut pregăti ciorna. Verifică internetul și apasă din nou.')
+    } finally {
+      setCiorna(false)
     }
   }
 
@@ -266,16 +293,9 @@ export function SemnarePage() {
           <>
             <div className="rounded-2xl border border-line bg-surf p-5">
               <h1 className="text-lg font-semibold text-ink">{data.contract?.nume}</h1>
-              {data.pdfUrl && (
-                <a
-                  href={data.pdfUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-1 inline-block text-sm font-medium text-ink underline"
-                >
-                  Citește documentul complet (PDF) ↗
-                </a>
-              )}
+              <p className="mt-1 text-sm text-sub">
+                Înainte de semnătură poți vedea și descărca documentul completat cu datele tale.
+              </p>
               {(data.copii?.length ?? 0) > 0 && (
                 <p className="mt-2 text-sm text-sub">
                   Cursanți: {data.copii!.map((c) => c.nume).join(', ')}
@@ -361,6 +381,35 @@ export function SemnarePage() {
                 </div>
               </div>
             )}
+
+            <div className="rounded-2xl border-2 border-acc bg-acc/10 p-5">
+              <h2 className="text-base font-semibold text-ink">Vezi documentul înainte să semnezi</h2>
+              <p className="mt-1 text-sm text-sub">
+                Îl primești ca PDF, completat cu datele de mai sus și marcat „ciornă”. Îl poți
+                păstra pe telefon sau pe calculator.
+              </p>
+              <button
+                type="button"
+                onClick={() => void veziCiorna()}
+                disabled={ciorna}
+                className="mt-3 w-full rounded-xl border-2 border-acc bg-surf px-4 py-3 text-sm font-extrabold text-ink disabled:opacity-60"
+              >
+                {ciorna ? 'Se pregătește…' : '📄 Vezi documentul completat (PDF)'}
+              </button>
+              {ciornaErr && (
+                <p className="mt-2 text-sm text-danger">
+                  {ciornaErr}
+                  {data.pdfUrl && (
+                    <>
+                      {' '}
+                      <a href={data.pdfUrl} target="_blank" rel="noopener noreferrer" className="underline">
+                        Deschide documentul necompletat
+                      </a>
+                    </>
+                  )}
+                </p>
+              )}
+            </div>
 
             <div className="rounded-2xl border border-line bg-surf p-5">
               <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-sub">

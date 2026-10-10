@@ -79,3 +79,14 @@ export async function downloadContract(
   if (!res.ok && !data.error) data.error = 'Documentul nu s-a putut descărca acum. Încearcă din nou peste câteva minute.'
   return data
 }
+
+// Ciorna: PDF-ul completat cu ce e acum pe pagină, marcat „CIORNĂ — NESEMNAT".
+export async function draftContract(
+  token: string,
+  valori: Record<string, unknown>,
+): Promise<{ pdf?: string; fisier?: string; error?: string }> {
+  const res = await call({ action: 'ciorna', token, valori })
+  const data = (await res.json()) as { pdf?: string; fisier?: string; error?: string }
+  if (!res.ok && !data.error) data.error = 'Ciorna nu s-a putut pregăti acum. Încearcă din nou peste câteva minute.'
+  return data
+}
